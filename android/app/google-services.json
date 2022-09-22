@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "270481918709",
+    "project_id": "quick-reminders",
+    "storage_bucket": "quick-reminders.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:270481918709:android:858e25b9f11fd77a41d3bc",
+        "android_client_info": {
+          "package_name": "com.example.quick_reminders"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "270481918709-2dhgohlhdsloe847heqqf1bkt2c7m4pd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2o_ASXAtujwltg8ONaxoRLPdkg3Ofy9M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "270481918709-2dhgohlhdsloe847heqqf1bkt2c7m4pd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
