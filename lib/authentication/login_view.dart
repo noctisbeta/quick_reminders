@@ -1,48 +1,39 @@
-import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:quick_reminders/authentication/authentication_view_controller.dart';
 import 'package:quick_reminders/common/my_text_field.dart';
 import 'package:quick_reminders/common/rounded_button.dart';
 
 /// Login view.
-class LoginView extends StatefulWidget {
+class LoginView extends StatefulHookConsumerWidget {
   /// Default constructor.
   const LoginView({super.key});
 
   @override
-  State<LoginView> createState() => _LoginViewState();
+  ConsumerState<LoginView> createState() => _LoginViewState();
 }
 
-class _LoginViewState extends State<LoginView> {
-  double percentage = 0;
-
-  Color colorTween(Color begin, Color end) {
-    return ColorTween(
-      begin: begin,
-      end: end,
-    ).transform(percentage)!;
-  }
-
+class _LoginViewState extends ConsumerState<LoginView> {
   @override
   void initState() {
     super.initState();
 
-    Timer.periodic(
-      const Duration(milliseconds: 16),
-      (timer) {
-        setState(() {
-          percentage += 0.05;
-        });
-
-        if (percentage >= 1) {
-          timer.cancel();
-        }
-      },
-    );
+    ref.read(AuthenticationViewController.provider.notifier).startAnimation();
   }
 
   @override
   Widget build(BuildContext context) {
+    final ac = useAnimationController(
+      duration: const Duration(milliseconds: 300),
+    );
+
+    if (!ac.isAnimating && !ac.isCompleted) {
+      ac.forward();
+    }
+
     return GestureDetector(
       onTap: () {
         FocusManager.instance.primaryFocus?.unfocus();
@@ -55,10 +46,22 @@ class _LoginViewState extends State<LoginView> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  colorTween(Colors.blue[400]!, Colors.blue[100]!),
-                  colorTween(Colors.blue[800]!, Colors.blue[300]!),
-                  colorTween(Colors.blue[900]!, Colors.blue[400]!),
-                ],
+                  // viewController.colorTween(Colors.blue[400]!, Colors.blue[100]!),
+                  // viewController.colorTween(Colors.blue[800]!, Colors.blue[300]!),
+                  // viewController.colorTween(Colors.blue[900]!, Colors.blue[400]!),
+                  ColorTween(
+                    begin: Colors.blue[400],
+                    end: Colors.blue[100],
+                  ),
+                  ColorTween(
+                    begin: Colors.blue[800],
+                    end: Colors.blue[300],
+                  ),
+                  ColorTween(
+                    begin: Colors.blue[900],
+                    end: Colors.blue[400],
+                  ),
+                ].map((e) => e.animate(ac).value!).toList(),
               ),
             ),
             child: SafeArea(

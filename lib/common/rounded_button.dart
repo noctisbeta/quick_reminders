@@ -29,24 +29,21 @@ class RoundedButton extends StatelessWidget {
         // highlightColor: Colors.blue,
         borderRadius: BorderRadius.circular(100),
         onTap: onPressed,
-        child: Padding(
-          padding: const EdgeInsets.all(2),
-          child: Ink(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 8,
+        child: Ink(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 8,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(100),
+            color: fillColor,
+            border: Border.all(
+              color: Colors.white,
+              width: 0.8,
             ),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(100),
-              color: fillColor,
-              border: Border.all(
-                color: Colors.white,
-                width: 0.8,
-              ),
-            ),
-            child: Center(
-              child: child,
-            ),
+          ),
+          child: Center(
+            child: child,
           ),
         ),
       ),

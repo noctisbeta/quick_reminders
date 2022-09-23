@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:quick_reminders/authentication/login_view.dart';
 import 'package:quick_reminders/authentication/sign_up_view.dart';
 import 'package:quick_reminders/common/rounded_button.dart';
-import 'package:quick_reminders/routing_functions.dart';
+import 'package:quick_reminders/utilities/routing_functions.dart';
 
 /// View for user authentication.
 class AuthenticationView extends StatefulWidget {
