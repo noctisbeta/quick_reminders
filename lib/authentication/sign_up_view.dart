@@ -1,7 +1,5 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/authentication/authentication_view_controller.dart';
 import 'package:quick_reminders/authentication/registration_data.dart';
 import 'package:quick_reminders/common/my_text_field.dart';
@@ -29,7 +27,7 @@ class _SignUpViewState extends ConsumerState<SignUpView> {
 
   @override
   Widget build(BuildContext context) {
-    final viewController = ref.watch(AuthenticationViewController.provider.notifier);
+    final animationState = ref.watch(AuthenticationViewController.provider);
 
     return GestureDetector(
       onTap: () {
@@ -45,10 +43,19 @@ class _SignUpViewState extends ConsumerState<SignUpView> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  viewController.colorTween(Colors.blue[400]!, Colors.blue[100]!),
-                  viewController.colorTween(Colors.blue[800]!, Colors.blue[300]!),
-                  viewController.colorTween(Colors.blue[900]!, Colors.blue[400]!),
-                ],
+                  ColorTween(
+                    begin: Colors.blue[400],
+                    end: Colors.blue[100],
+                  ),
+                  ColorTween(
+                    begin: Colors.blue[800],
+                    end: Colors.blue[300],
+                  ),
+                  ColorTween(
+                    begin: Colors.blue[900],
+                    end: Colors.blue[400],
+                  ),
+                ].map((e) => e.transform(animationState)!).toList(),
               ),
             ),
             child: SafeArea(

@@ -10,8 +10,6 @@ class AuthenticationController {
         email: data.email.trim(),
         password: data.password.trim(),
       );
-    } catch (e) {
-      print(e);
-    }
+    } catch (e) {}
   }
 }

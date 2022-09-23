@@ -1,8 +1,7 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 /// Controller for the authentication views.
 class AuthenticationViewController extends StateNotifier<double> {
@@ -31,6 +30,21 @@ class AuthenticationViewController extends StateNotifier<double> {
         state += 0.05;
 
         if (state >= 1) {
+          timer.cancel();
+        }
+      },
+    );
+  }
+
+  /// Reverses the animation.
+  void reverseAnimation() {
+    state = 1;
+    animationTimer = Timer.periodic(
+      const Duration(milliseconds: 16),
+      (timer) {
+        state -= 0.05;
+
+        if (state <= 0) {
           timer.cancel();
         }
       },
