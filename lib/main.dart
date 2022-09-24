@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:quick_reminders/authentication/authentication_view.dart';
+import 'package:quick_reminders/authentication/views/authentication_view.dart';
 
 import 'package:quick_reminders/firebase_options.dart';
 

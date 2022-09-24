@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/authentication/authentication_view_controller.dart';
-import 'package:quick_reminders/authentication/login_view.dart';
-import 'package:quick_reminders/authentication/sign_up_view.dart';
+import 'package:quick_reminders/authentication/views/login_view.dart';
+import 'package:quick_reminders/authentication/views/sign_up_view.dart';
 import 'package:quick_reminders/common/rounded_button.dart';
 import 'package:quick_reminders/utilities/routing_functions.dart';
 
@@ -16,13 +16,6 @@ class AuthenticationView extends ConsumerStatefulWidget {
 }
 
 class _AuthenticationViewState extends ConsumerState<AuthenticationView> {
-  @override
-  void initState() {
-    super.initState();
-
-    // ref.read(AuthenticationViewController.provider.notifier).reverseAnimation();
-  }
-
   @override
   Widget build(BuildContext context) {
     final animationState = ref.watch(AuthenticationViewController.provider);
