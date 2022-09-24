@@ -28,9 +28,15 @@ class MyTextField extends HookWidget {
   Widget build(BuildContext context) {
     final focusNode = useFocusNode();
     final isFocused = useState(false);
-    focusNode.addListener(() {
-      isFocused.value = focusNode.hasFocus;
-    });
+    useEffect(
+      () {
+        focusNode.addListener(() {
+          isFocused.value = focusNode.hasFocus;
+        });
+        return;
+      },
+      [focusNode],
+    );
     final obscuredText = useState(obscured ?? false);
 
     return TextField(
