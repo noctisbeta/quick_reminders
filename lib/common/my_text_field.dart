@@ -7,8 +7,11 @@ class MyTextField extends HookWidget {
   const MyTextField({
     required this.label,
     required this.onChanged,
+    this.errorMessage = '',
     this.obscured,
     this.prefixIcon,
+    this.textCapitalization,
+    this.textInputAction,
     super.key,
   });
 
@@ -23,6 +26,15 @@ class MyTextField extends HookWidget {
 
   /// Prefix icon.
   final Widget? prefixIcon;
+
+  /// The error message.
+  final String errorMessage;
+
+  /// Text input action.
+  final TextInputAction? textInputAction;
+
+  /// Text capitalization.
+  final TextCapitalization? textCapitalization;
 
   @override
   Widget build(BuildContext context) {
@@ -39,58 +51,74 @@ class MyTextField extends HookWidget {
     );
     final obscuredText = useState(obscured ?? false);
 
-    return TextField(
-      onChanged: onChanged,
-      onTap: focusNode.requestFocus,
-      focusNode: focusNode,
-      obscureText: obscuredText.value,
-      cursorWidth: 1.2,
-      style: const TextStyle(
-        fontSize: 12,
-        color: Colors.white,
-      ),
-      cursorColor: Colors.white,
-      decoration: InputDecoration(
-        fillColor: Colors.white.withOpacity(0.1),
-        filled: true,
-        prefixIcon: prefixIcon,
-        suffixIcon: obscured != null && isFocused.value
-            ? IconButton(
-                onPressed: () {
-                  obscuredText.value = !obscuredText.value;
-                },
-                icon: Icon(
-                  obscuredText.value ? Icons.visibility_off : Icons.visibility,
-                  color: Colors.white,
+    return Column(
+      children: [
+        TextField(
+          textInputAction: textInputAction,
+          textCapitalization: textCapitalization ?? TextCapitalization.none,
+          onChanged: onChanged,
+          onTap: focusNode.requestFocus,
+          focusNode: focusNode,
+          obscureText: obscuredText.value,
+          cursorWidth: 1.2,
+          style: const TextStyle(
+            fontSize: 12,
+            color: Colors.white,
+          ),
+          cursorColor: Colors.white,
+          decoration: InputDecoration(
+            fillColor: Colors.white.withOpacity(0.1),
+            filled: true,
+            prefixIcon: prefixIcon,
+            suffixIcon: obscured != null && isFocused.value
+                ? IconButton(
+                    onPressed: () {
+                      obscuredText.value = !obscuredText.value;
+                    },
+                    icon: Icon(
+                      obscuredText.value ? Icons.visibility_off : Icons.visibility,
+                      color: Colors.white,
+                    ),
+                  )
+                : null,
+            labelText: label,
+            labelStyle: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+            ),
+            contentPadding: const EdgeInsets.all(16),
+            isDense: true,
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(100),
+              borderSide: BorderSide(
+                color: errorMessage.isEmpty ? Colors.white : Colors.red,
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(100),
+              borderSide: BorderSide(
+                color: errorMessage.isEmpty ? Colors.white : Colors.red,
+              ),
+            ),
+          ),
+        ),
+        if (errorMessage.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Align(
+              alignment: Alignment.centerLeft.add(
+                const Alignment(0.2, 0),
+              ),
+              child: Text(
+                errorMessage,
+                style: const TextStyle(
+                  color: Colors.red,
+                  fontSize: 10,
                 ),
-              )
-            : null,
-        labelText: label,
-        labelStyle: const TextStyle(
-          color: Colors.white,
-          fontSize: 12,
-        ),
-        contentPadding: const EdgeInsets.all(16),
-        isDense: true,
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(100),
-          borderSide: const BorderSide(
-            color: Colors.white,
+              ),
+            ),
           ),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(100),
-          borderSide: const BorderSide(
-            color: Colors.white,
-          ),
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(100),
-          borderSide: const BorderSide(
-            color: Colors.white,
-          ),
-        ),
-      ),
+      ],
     );
   }
 }

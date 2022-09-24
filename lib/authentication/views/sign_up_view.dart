@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:quick_reminders/authentication/controllers/authentication_controller.dart';
 import 'package:quick_reminders/authentication/models/registration_data.dart';
 import 'package:quick_reminders/authentication/widgets/animated_background.dart';
 import 'package:quick_reminders/authentication/widgets/background_stack.dart';
@@ -19,6 +20,16 @@ class SignUpView extends HookConsumerWidget {
     final registrationData = useState(
       RegistrationData.empty(),
     ).value;
+
+    final authenticationState = ref.watch(
+      AuthenticationController.provider,
+    );
+
+    final authenticationController = ref.watch(
+      AuthenticationController.provider.notifier,
+    );
+
+    final isLoading = useState(false);
 
     return UnfocusOnTap(
       child: Scaffold(
@@ -60,6 +71,8 @@ class SignUpView extends HookConsumerWidget {
                         children: <Widget>[
                           MyTextField(
                             label: 'First Name',
+                            textCapitalization: TextCapitalization.words,
+                            textInputAction: TextInputAction.next,
                             onChanged: (value) {
                               registrationData.firstName = value;
                             },
@@ -70,6 +83,8 @@ class SignUpView extends HookConsumerWidget {
                           ),
                           MyTextField(
                             label: 'Last Name',
+                            textCapitalization: TextCapitalization.words,
+                            textInputAction: TextInputAction.next,
                             onChanged: (value) {
                               registrationData.lastName = value;
                             },
@@ -80,6 +95,8 @@ class SignUpView extends HookConsumerWidget {
                           ),
                           MyTextField(
                             label: 'Email',
+                            textInputAction: TextInputAction.next,
+                            errorMessage: authenticationState.registrationDataErrors.email,
                             onChanged: (value) {
                               registrationData.email = value;
                             },
@@ -90,6 +107,8 @@ class SignUpView extends HookConsumerWidget {
                           ),
                           MyTextField(
                             label: 'Password',
+                            textInputAction: TextInputAction.go,
+                            errorMessage: authenticationState.registrationDataErrors.password,
                             onChanged: (value) {
                               registrationData.password = value;
                             },
@@ -112,7 +131,18 @@ class SignUpView extends HookConsumerWidget {
                     Hero(
                       tag: 'signUpButton',
                       child: RoundedButton(
-                        onPressed: () {},
+                        isLoading: isLoading.value,
+                        onPressed: () {
+                          isLoading.value = true;
+
+                          authenticationController
+                              .completeRegistration(
+                            registrationData,
+                          )
+                              .whenComplete(() {
+                            isLoading.value = false;
+                          });
+                        },
                         fillColor: Colors.white,
                         child: Text(
                           'SIGN UP',

@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:quick_reminders/authentication/views/login_view.dart';
@@ -60,7 +58,6 @@ class AuthenticationView extends HookWidget {
                         context,
                         const SignUpView(),
                       ).then((value) {
-                        log('then');
                         animationController
                           ..value = 1
                           ..reverse();

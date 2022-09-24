@@ -7,6 +7,7 @@ class RoundedButton extends StatelessWidget {
     required this.onPressed,
     required this.child,
     this.fillColor,
+    this.isLoading = false,
     super.key,
   });
 
@@ -18,6 +19,9 @@ class RoundedButton extends StatelessWidget {
 
   /// The widget shown in the center of the button.
   final Widget child;
+
+  /// If true, the button will show a loading state.
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +46,17 @@ class RoundedButton extends StatelessWidget {
             ),
           ),
           child: Center(
-            child: child,
+            child: isLoading
+                ? const SizedBox(
+                    height: 16,
+                    child: AspectRatio(
+                      aspectRatio: 1,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                      ),
+                    ),
+                  )
+                : child,
           ),
         ),
       ),

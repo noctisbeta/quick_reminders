@@ -25,7 +25,7 @@ class AuthenticationController extends StateNotifier<RegistrationState> {
   static final _db = FirebaseFirestore.instance;
 
   /// Registers the user with email and password, then creates a user document in Firestore.
-  Future<void> completeRegistration(RegistrationData registrationData) async {
+  Future<bool> completeRegistration(RegistrationData registrationData) async {
     state = state.copyWith(
       registrationData: registrationData,
       registrationDataErrors: RegistrationDataErrors.empty(),
@@ -33,11 +33,18 @@ class AuthenticationController extends StateNotifier<RegistrationState> {
 
     final result = await _createUser(state.registrationData);
 
-    await result.fold(
-      (exception) {},
+    return await result.fold(
+      (exception) {
+        return false;
+      },
       (userCredential) async {
         log('User created: ${userCredential.user!.uid}');
-        await _createProfile(userCredential);
+        final List results = await Future.wait([
+          userCredential.user!.sendEmailVerification(),
+          _createProfile(userCredential),
+        ]);
+
+        return results[1];
       },
     );
   }
@@ -98,7 +105,7 @@ class AuthenticationController extends StateNotifier<RegistrationState> {
   }
 
   /// Creates a user document in firestore.
-  Future<void> _createProfile(UserCredential userCredential) async {
+  Future<bool> _createProfile(UserCredential userCredential) async {
     final user = {
       'firstName': state.registrationData.firstName,
       'lastName': state.registrationData.lastName,
@@ -111,8 +118,12 @@ class AuthenticationController extends StateNotifier<RegistrationState> {
             user,
             SetOptions(merge: true),
           );
+
+      log('Profile created: $user');
+      return true;
     } on FirebaseException catch (e) {
       log('Error creating profile: ${e.message}');
+      return false;
     }
   }
 }
