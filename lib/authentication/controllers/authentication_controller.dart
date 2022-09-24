@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:quick_reminders/authentication/registration_data.dart';
+import 'package:quick_reminders/authentication/models/registration_data.dart';
 
 class AuthenticationController {
   static final FirebaseAuth _auth = FirebaseAuth.instance;

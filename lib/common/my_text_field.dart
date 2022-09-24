@@ -1,9 +1,8 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
 /// Text field.
-class MyTextField extends StatefulWidget {
+class MyTextField extends HookWidget {
   /// Default constructor.
   const MyTextField({
     required this.label,
@@ -26,39 +25,19 @@ class MyTextField extends StatefulWidget {
   final Widget? prefixIcon;
 
   @override
-  State<MyTextField> createState() => _MyTextFieldState();
-}
-
-class _MyTextFieldState extends State<MyTextField> {
-  late bool? obscured = widget.obscured;
-  bool isFocused = false;
-
-  final FocusNode focusNode = FocusNode();
-
-  @override
-  void initState() {
-    super.initState();
-
-    focusNode.addListener(() {
-      setState(() {
-        isFocused = focusNode.hasFocus;
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    focusNode.dispose();
-
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final focusNode = useFocusNode();
+    final isFocused = useState(false);
+    focusNode.addListener(() {
+      isFocused.value = focusNode.hasFocus;
+    });
+    final obscuredText = useState(obscured ?? false);
+
     return TextField(
+      onChanged: onChanged,
       onTap: focusNode.requestFocus,
       focusNode: focusNode,
-      obscureText: obscured ?? false,
+      obscureText: obscuredText.value,
       cursorWidth: 1.2,
       style: const TextStyle(
         fontSize: 12,
@@ -68,25 +47,19 @@ class _MyTextFieldState extends State<MyTextField> {
       decoration: InputDecoration(
         fillColor: Colors.white.withOpacity(0.1),
         filled: true,
-        prefixIcon: widget.prefixIcon,
-        suffixIcon: widget.obscured != null && isFocused
+        prefixIcon: prefixIcon,
+        suffixIcon: obscured != null && isFocused.value
             ? IconButton(
                 onPressed: () {
-                  if (obscured == null) {
-                    return;
-                  }
-                  log('lal  $obscured');
-                  setState(() {
-                    obscured = !obscured!;
-                  });
+                  obscuredText.value = !obscuredText.value;
                 },
                 icon: Icon(
-                  obscured! ? Icons.visibility_off : Icons.visibility,
+                  obscuredText.value ? Icons.visibility_off : Icons.visibility,
                   color: Colors.white,
                 ),
               )
             : null,
-        labelText: widget.label,
+        labelText: label,
         labelStyle: const TextStyle(
           color: Colors.white,
           fontSize: 12,
