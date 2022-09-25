@@ -145,4 +145,13 @@ class RegistrationController extends StateNotifier<RegistrationState> {
     await _auth.currentUser!.reload();
     return _auth.currentUser!.emailVerified;
   }
+
+  /// Sends a verification email to the current user.
+  Future<void> resendEmailVerification() async {
+    if (_auth.currentUser == null) {
+      log('No user is signed in.');
+      return;
+    }
+    await _auth.currentUser!.sendEmailVerification();
+  }
 }

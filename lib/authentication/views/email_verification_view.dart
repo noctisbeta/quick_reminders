@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/authentication/controllers/registration_controller.dart';
 import 'package:quick_reminders/authentication/views/email_verified_view.dart';
@@ -6,7 +7,8 @@ import 'package:quick_reminders/authentication/widgets/animated_background.dart'
 import 'package:quick_reminders/authentication/widgets/background_stack.dart';
 import 'package:quick_reminders/authentication/widgets/rotation_hero.dart';
 import 'package:quick_reminders/common/rounded_button.dart';
-import 'package:quick_reminders/hooks/timer_hook.dart';
+import 'package:quick_reminders/hooks/countdown_hook.dart';
+import 'package:quick_reminders/hooks/periodic_hook.dart';
 import 'package:quick_reminders/utilities/routing_functions.dart';
 
 /// Email verification view.
@@ -33,9 +35,21 @@ class EmailVerificationView extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    useTimer(
+    final registrationController = ref.watch(
+      RegistrationController.provider.notifier,
+    );
+
+    usePeriodic(
       const Duration(seconds: 3),
       () => emailCheck(ref, context),
+    );
+
+    final resent = useState(false);
+
+    final seconds = useCountdown(
+      duration: const Duration(seconds: 60),
+      callback: () {},
+      active: resent,
     );
 
     return Scaffold(
@@ -95,14 +109,26 @@ class EmailVerificationView extends HookConsumerWidget {
                 Hero(
                   tag: 'signUpButton',
                   child: RoundedButton(
+                    isDisabled: resent.value,
                     onPressed: () {
-                      Navigator.of(context).pop();
+                      registrationController.resendEmailVerification();
+                      resent.value = true;
                     },
-                    fillColor: Colors.white,
-                    child: Text(
-                      'RESEND EMAIL',
-                      style: TextStyle(
-                        color: Colors.blue[500],
+                    fillColor: !resent.value ? Colors.white : null,
+                    child: AnimatedCrossFade(
+                      duration: const Duration(milliseconds: 300),
+                      crossFadeState: resent.value ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                      firstChild: Text(
+                        'RESEND EMAIL',
+                        style: TextStyle(
+                          color: Colors.blue[500],
+                        ),
+                      ),
+                      secondChild: Text(
+                        '$seconds',
+                        style: const TextStyle(
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),

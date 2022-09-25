@@ -8,6 +8,7 @@ class RoundedButton extends StatelessWidget {
     required this.child,
     this.fillColor,
     this.isLoading = false,
+    this.isDisabled = false,
     super.key,
   });
 
@@ -23,10 +24,13 @@ class RoundedButton extends StatelessWidget {
   /// If true, the button will show a loading state.
   final bool isLoading;
 
+  /// If true, the button will not process any input.
+  final bool isDisabled;
+
   @override
   Widget build(BuildContext context) {
     return AbsorbPointer(
-      absorbing: isLoading,
+      absorbing: isLoading || isDisabled,
       child: Material(
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(100),

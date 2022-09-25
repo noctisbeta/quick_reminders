@@ -23,11 +23,11 @@ class SignUpView extends HookConsumerWidget {
       RegistrationData.empty(),
     ).value;
 
-    final authenticationState = ref.watch(
+    final registrationState = ref.watch(
       RegistrationController.provider,
     );
 
-    final authenticationController = ref.watch(
+    final registrationController = ref.watch(
       RegistrationController.provider.notifier,
     );
 
@@ -96,7 +96,7 @@ class SignUpView extends HookConsumerWidget {
                           MyTextField(
                             label: 'Email',
                             textInputAction: TextInputAction.next,
-                            errorMessage: authenticationState.registrationDataErrors.email,
+                            errorMessage: registrationState.registrationDataErrors.email,
                             onChanged: (value) {
                               registrationData.email = value;
                             },
@@ -108,7 +108,7 @@ class SignUpView extends HookConsumerWidget {
                           MyTextField(
                             label: 'Password',
                             textInputAction: TextInputAction.go,
-                            errorMessage: authenticationState.registrationDataErrors.password,
+                            errorMessage: registrationState.registrationDataErrors.password,
                             onChanged: (value) {
                               registrationData.password = value;
                             },
@@ -131,8 +131,8 @@ class SignUpView extends HookConsumerWidget {
                     Hero(
                       tag: 'signUpButton',
                       child: RoundedButton(
-                        isLoading: authenticationState.isLoading,
-                        onPressed: () => authenticationController
+                        isLoading: registrationState.isLoading,
+                        onPressed: () => registrationController
                             .completeRegistration(
                           registrationData,
                         )

@@ -3,15 +3,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
-/// Timer hook.
-void useTimer(Duration period, void Function() callback) {
+/// Periodic hook.
+void usePeriodic(Duration period, void Function() callback) {
   return use(
-    _TimerHook(period, callback),
+    _PeriodicHook(period, callback),
   );
 }
 
-class _TimerHook extends Hook<void> {
-  const _TimerHook(
+class _PeriodicHook extends Hook<void> {
+  const _PeriodicHook(
     this.period,
     this.callback,
   );
@@ -21,10 +21,10 @@ class _TimerHook extends Hook<void> {
   final Duration period;
 
   @override
-  __TimerHookState createState() => __TimerHookState();
+  __PeriodicHookState createState() => __PeriodicHookState();
 }
 
-class __TimerHookState extends HookState<void, _TimerHook> {
+class __PeriodicHookState extends HookState<void, _PeriodicHook> {
   late final Timer _timer;
 
   @override

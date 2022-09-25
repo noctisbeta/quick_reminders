@@ -26,6 +26,7 @@ class RegistrationState {
   /// Processing state.
   final ProcessingState processingState;
 
+  /// True if the state is loading.
   bool get isLoading => processingState == ProcessingState.loading;
 
   /// Copy with method.
