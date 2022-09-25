@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:quick_reminders/authentication/views/authentication_view.dart';
 import 'package:quick_reminders/authentication/widgets/animated_background.dart';
 import 'package:quick_reminders/authentication/widgets/background_stack.dart';
 import 'package:quick_reminders/constants/colors.dart';
 import 'package:quick_reminders/profile/profile_avatar.dart';
 import 'package:quick_reminders/profile/profile_controller.dart';
+import 'package:quick_reminders/utilities/routing_functions.dart';
 
 /// Profile view.
 class ProfileView extends ConsumerWidget {
@@ -15,6 +17,10 @@ class ProfileView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final profileStream = ref.watch(
       ProfileController.profileStreamProvider,
+    );
+
+    final profileController = ref.read(
+      ProfileController.provider,
     );
 
     return Scaffold(
@@ -155,13 +161,19 @@ class ProfileView extends ConsumerWidget {
                   const Divider(
                     color: kSecondaryColor,
                   ),
-                  const ListTile(
+                  ListTile(
+                    onTap: () => profileController.signOut().then(
+                          (value) => popAllAndPush(
+                            context,
+                            const AuthenticationView(),
+                          ),
+                        ),
                     dense: true,
-                    leading: Icon(
+                    leading: const Icon(
                       Icons.logout,
                       color: kTertiaryColor,
                     ),
-                    title: Text(
+                    title: const Text(
                       'Logout',
                       style: TextStyle(
                         fontSize: 17,

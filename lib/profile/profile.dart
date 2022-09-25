@@ -34,6 +34,7 @@ class Profile {
   /// Creation date.
   final Timestamp createdAt;
 
+  /// Returns the initials of the first and last name or the first two letters of the email.
   String get initials {
     if (firstName.isEmpty || lastName.isEmpty) {
       return email.substring(0, 2).toUpperCase();
