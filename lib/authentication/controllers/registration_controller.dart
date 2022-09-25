@@ -5,21 +5,21 @@ import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/authentication/models/processing_state.dart';
-import 'package:quick_reminders/authentication/models/registration_data.dart';
-import 'package:quick_reminders/authentication/models/registration_data_errors.dart';
-import 'package:quick_reminders/authentication/models/registration_state.dart';
+import 'package:quick_reminders/authentication/models/registration/registration_data.dart';
+import 'package:quick_reminders/authentication/models/registration/registration_data_errors.dart';
+import 'package:quick_reminders/authentication/models/registration/registration_state.dart';
 
 /// Firebase authentication controller.
-class AuthenticationController extends StateNotifier<RegistrationState> {
+class RegistrationController extends StateNotifier<RegistrationState> {
   /// Default constructor.
-  AuthenticationController()
+  RegistrationController()
       : super(
           RegistrationState.empty(),
         );
 
   /// Provides the controller.
-  static final provider = StateNotifierProvider.autoDispose<AuthenticationController, RegistrationState>(
-    (ref) => AuthenticationController(),
+  static final provider = StateNotifierProvider.autoDispose<RegistrationController, RegistrationState>(
+    (ref) => RegistrationController(),
   );
 
   static final FirebaseAuth _auth = FirebaseAuth.instance;

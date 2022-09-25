@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:quick_reminders/authentication/controllers/authentication_controller.dart';
-import 'package:quick_reminders/authentication/models/registration_data.dart';
+import 'package:quick_reminders/authentication/controllers/registration_controller.dart';
+import 'package:quick_reminders/authentication/models/registration/registration_data.dart';
 import 'package:quick_reminders/authentication/views/email_verification_view.dart';
 import 'package:quick_reminders/authentication/widgets/animated_background.dart';
 import 'package:quick_reminders/authentication/widgets/background_stack.dart';
@@ -24,11 +24,11 @@ class SignUpView extends HookConsumerWidget {
     ).value;
 
     final authenticationState = ref.watch(
-      AuthenticationController.provider,
+      RegistrationController.provider,
     );
 
     final authenticationController = ref.watch(
-      AuthenticationController.provider.notifier,
+      RegistrationController.provider.notifier,
     );
 
     return UnfocusOnTap(
@@ -131,21 +131,19 @@ class SignUpView extends HookConsumerWidget {
                     Hero(
                       tag: 'signUpButton',
                       child: RoundedButton(
-                        isLoading: authenticationState.processingState.isLoading,
-                        onPressed: () {
-                          authenticationController
-                              .completeRegistration(
-                            registrationData,
-                          )
-                              .then((value) {
-                            if (value) {
-                              pushReplacement(
-                                context,
-                                const EmailVerificationView(),
-                              );
-                            }
-                          });
-                        },
+                        isLoading: authenticationState.isLoading,
+                        onPressed: () => authenticationController
+                            .completeRegistration(
+                          registrationData,
+                        )
+                            .then((value) {
+                          if (value) {
+                            pushReplacement(
+                              context,
+                              const EmailVerificationView(),
+                            );
+                          }
+                        }),
                         fillColor: Colors.white,
                         child: Text(
                           'SIGN UP',

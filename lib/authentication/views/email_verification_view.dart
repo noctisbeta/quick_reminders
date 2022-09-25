@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:quick_reminders/authentication/controllers/authentication_controller.dart';
+import 'package:quick_reminders/authentication/controllers/registration_controller.dart';
 import 'package:quick_reminders/authentication/views/email_verified_view.dart';
 import 'package:quick_reminders/authentication/widgets/animated_background.dart';
 import 'package:quick_reminders/authentication/widgets/background_stack.dart';
@@ -18,7 +18,7 @@ class EmailVerificationView extends HookConsumerWidget {
   void emailCheck(WidgetRef ref, BuildContext context) {
     ref
         .read(
-          AuthenticationController.provider.notifier,
+          RegistrationController.provider.notifier,
         )
         .isEmailVerified()
         .then((value) {

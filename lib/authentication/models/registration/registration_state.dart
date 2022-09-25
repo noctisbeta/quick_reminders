@@ -1,6 +1,6 @@
 import 'package:quick_reminders/authentication/models/processing_state.dart';
-import 'package:quick_reminders/authentication/models/registration_data.dart';
-import 'package:quick_reminders/authentication/models/registration_data_errors.dart';
+import 'package:quick_reminders/authentication/models/registration/registration_data.dart';
+import 'package:quick_reminders/authentication/models/registration/registration_data_errors.dart';
 
 /// Registration state.
 class RegistrationState {
@@ -25,6 +25,8 @@ class RegistrationState {
 
   /// Processing state.
   final ProcessingState processingState;
+
+  bool get isLoading => processingState == ProcessingState.loading;
 
   /// Copy with method.
   RegistrationState copyWith({

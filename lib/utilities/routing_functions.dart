@@ -6,6 +6,14 @@ import 'package:flutter/material.dart';
 
 late final BuildContext mainContext;
 
+void popAllAndPush(BuildContext context, controller) {
+  Navigator.pushAndRemoveUntil(
+    context,
+    MaterialPageRoute(builder: (BuildContext context) => controller),
+    (route) => false,
+  );
+}
+
 Future push(BuildContext context, controller) {
   final route = MaterialPageRoute(builder: (BuildContext context) => controller);
   return Navigator.of(context).push(route);
