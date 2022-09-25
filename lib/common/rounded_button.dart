@@ -25,38 +25,41 @@ class RoundedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      borderRadius: BorderRadius.circular(100),
-      child: InkWell(
-        splashColor: fillColor == null ? Colors.white : Colors.blue,
+    return AbsorbPointer(
+      absorbing: isLoading,
+      child: Material(
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(100),
-        onTap: onPressed,
-        child: Ink(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 8,
-          ),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(100),
-            color: fillColor,
-            border: Border.all(
-              color: Colors.white,
-              width: 0.8,
+        child: InkWell(
+          splashColor: fillColor == null ? Colors.white : Colors.blue,
+          borderRadius: BorderRadius.circular(100),
+          onTap: onPressed,
+          child: Ink(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 8,
             ),
-          ),
-          child: Center(
-            child: isLoading
-                ? const SizedBox(
-                    height: 16,
-                    child: AspectRatio(
-                      aspectRatio: 1,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(100),
+              color: fillColor,
+              border: Border.all(
+                color: Colors.white,
+                width: 0.8,
+              ),
+            ),
+            child: Center(
+              child: isLoading
+                  ? const SizedBox(
+                      height: 16,
+                      child: AspectRatio(
+                        aspectRatio: 1,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                        ),
                       ),
-                    ),
-                  )
-                : child,
+                    )
+                  : child,
+            ),
           ),
         ),
       ),

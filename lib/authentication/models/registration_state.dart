@@ -1,3 +1,4 @@
+import 'package:quick_reminders/authentication/models/processing_state.dart';
 import 'package:quick_reminders/authentication/models/registration_data.dart';
 import 'package:quick_reminders/authentication/models/registration_data_errors.dart';
 
@@ -7,12 +8,14 @@ class RegistrationState {
   RegistrationState({
     required this.registrationData,
     required this.registrationDataErrors,
+    required this.processingState,
   });
 
   /// Empty constructor.
   RegistrationState.empty()
       : registrationData = RegistrationData.empty(),
-        registrationDataErrors = RegistrationDataErrors.empty();
+        registrationDataErrors = RegistrationDataErrors.empty(),
+        processingState = ProcessingState.loaded;
 
   /// Registration data.
   final RegistrationData registrationData;
@@ -20,14 +23,19 @@ class RegistrationState {
   /// Registration data errors.
   final RegistrationDataErrors registrationDataErrors;
 
+  /// Processing state.
+  final ProcessingState processingState;
+
   /// Copy with method.
   RegistrationState copyWith({
     RegistrationData? registrationData,
     RegistrationDataErrors? registrationDataErrors,
+    ProcessingState? processingState,
   }) {
     return RegistrationState(
       registrationData: registrationData ?? this.registrationData,
       registrationDataErrors: registrationDataErrors ?? this.registrationDataErrors,
+      processingState: processingState ?? this.processingState,
     );
   }
 }

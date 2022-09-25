@@ -29,8 +29,6 @@ class SignUpView extends HookConsumerWidget {
       AuthenticationController.provider.notifier,
     );
 
-    final isLoading = useState(false);
-
     return UnfocusOnTap(
       child: Scaffold(
         body: BackgroundStack(
@@ -131,17 +129,11 @@ class SignUpView extends HookConsumerWidget {
                     Hero(
                       tag: 'signUpButton',
                       child: RoundedButton(
-                        isLoading: isLoading.value,
+                        isLoading: authenticationState.processingState.isLoading,
                         onPressed: () {
-                          isLoading.value = true;
-
-                          authenticationController
-                              .completeRegistration(
+                          authenticationController.completeRegistration(
                             registrationData,
-                          )
-                              .whenComplete(() {
-                            isLoading.value = false;
-                          });
+                          );
                         },
                         fillColor: Colors.white,
                         child: Text(

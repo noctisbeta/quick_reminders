@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:quick_reminders/authentication/models/processing_state.dart';
 import 'package:quick_reminders/authentication/models/registration_data.dart';
 import 'package:quick_reminders/authentication/models/registration_data_errors.dart';
 import 'package:quick_reminders/authentication/models/registration_state.dart';
@@ -29,12 +30,16 @@ class AuthenticationController extends StateNotifier<RegistrationState> {
     state = state.copyWith(
       registrationData: registrationData,
       registrationDataErrors: RegistrationDataErrors.empty(),
+      processingState: ProcessingState.loading,
     );
 
     final result = await _createUser(state.registrationData);
 
     return await result.fold(
       (exception) {
+        state = state.copyWith(
+          processingState: ProcessingState.loaded,
+        );
         return false;
       },
       (userCredential) async {
@@ -43,6 +48,10 @@ class AuthenticationController extends StateNotifier<RegistrationState> {
           userCredential.user!.sendEmailVerification(),
           _createProfile(userCredential),
         ]);
+
+        state = state.copyWith(
+          processingState: ProcessingState.loaded,
+        );
 
         return results[1];
       },
