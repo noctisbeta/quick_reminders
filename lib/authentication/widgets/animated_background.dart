@@ -9,6 +9,7 @@ class AnimatedBackground extends HookWidget {
     required this.initialColors,
     required this.finalColors,
     this.controller,
+    this.stops,
     super.key,
   });
 
@@ -21,6 +22,9 @@ class AnimatedBackground extends HookWidget {
   /// Animation controller. If null, a default one is provided and plays the animation
   /// on rebuilds.
   final AnimationController? controller;
+
+  /// Gradient stops.
+  final List<double>? stops;
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +50,7 @@ class AnimatedBackground extends HookWidget {
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
+                stops: stops,
                 colors: [
                   for (int i = 0; i < initialColors.length; i++)
                     ColorTween(

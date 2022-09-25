@@ -19,16 +19,18 @@ class ProfileView extends ConsumerWidget {
 
     return Scaffold(
       body: BackgroundStack(
-        background: AnimatedBackground(
+        background: const AnimatedBackground(
+          stops: [
+            0.2,
+            0.3,
+          ],
           initialColors: [
-            Colors.blue[400]!,
-            Colors.blue[800]!,
-            Colors.blue[900]!,
+            kQuaternaryColor,
+            kQuaternaryColor,
           ],
           finalColors: [
-            Colors.blue[100]!,
-            Colors.blue[300]!,
-            Colors.blue[400]!,
+            kTertiaryColor,
+            kQuaternaryColor,
           ],
         ),
         child: SafeArea(
@@ -38,7 +40,7 @@ class ProfileView extends ConsumerWidget {
               child: Column(
                 children: [
                   const Text(
-                    'PROFILE',
+                    'Profile',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -109,6 +111,7 @@ class ProfileView extends ConsumerWidget {
                               '${profile.firstName} ${profile.lastName}',
                               style: const TextStyle(
                                 fontSize: 16,
+                                color: kSecondaryColor,
                               ),
                             );
                           },
@@ -134,6 +137,57 @@ class ProfileView extends ConsumerWidget {
                   ),
                   const SizedBox(
                     height: 32,
+                  ),
+                  const ListTile(
+                    dense: true,
+                    leading: Icon(
+                      Icons.edit,
+                      color: kTertiaryColor,
+                    ),
+                    title: Text(
+                      'Edit profile',
+                      style: TextStyle(
+                        fontSize: 17,
+                        color: kSecondaryColor,
+                      ),
+                    ),
+                  ),
+                  const Divider(
+                    color: kSecondaryColor,
+                  ),
+                  const ListTile(
+                    dense: true,
+                    leading: Icon(
+                      Icons.logout,
+                      color: kTertiaryColor,
+                    ),
+                    title: Text(
+                      'Logout',
+                      style: TextStyle(
+                        fontSize: 17,
+                        color: kSecondaryColor,
+                      ),
+                    ),
+                  ),
+                  const Divider(
+                    color: kSecondaryColor,
+                  ),
+                  const ListTile(
+                    dense: true,
+                    leading: Icon(
+                      Icons.delete,
+                      color: kTertiaryColor,
+                    ),
+                    title: Text(
+                      'Delete account',
+                      style: TextStyle(
+                        fontSize: 17,
+                        color: kSecondaryColor,
+                      ),
+                    ),
+                  ),
+                  const Divider(
+                    color: kSecondaryColor,
                   ),
                 ],
               ),
