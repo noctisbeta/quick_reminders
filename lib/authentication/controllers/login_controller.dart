@@ -210,4 +210,9 @@ class LoginController extends StateNotifier<LoginState> {
       return false;
     }
   }
+
+  /// Returns true if a user is logged in.
+  bool isUserLoggedIn() {
+    return _auth.currentUser != null;
+  }
 }
