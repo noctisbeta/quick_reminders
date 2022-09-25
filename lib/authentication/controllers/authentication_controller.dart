@@ -135,4 +135,14 @@ class AuthenticationController extends StateNotifier<RegistrationState> {
       return false;
     }
   }
+
+  /// Checks if the current user has their email verified.
+  Future<bool> isEmailVerified() async {
+    if (_auth.currentUser == null) {
+      log('No user is signed in.');
+      return false;
+    }
+    await _auth.currentUser!.reload();
+    return _auth.currentUser!.emailVerified;
+  }
 }
