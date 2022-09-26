@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/authentication/views/authentication_view.dart';
@@ -85,6 +87,10 @@ class ProfileView extends ConsumerWidget {
                             );
                           },
                           error: (error, stackTrace) {
+                            log(
+                              'Error in profile stream: $error \n stackTrace: $stackTrace',
+                              stackTrace: stackTrace,
+                            );
                             return const ProfileAvatar(
                               expanded: true,
                               child: Text(
@@ -122,6 +128,10 @@ class ProfileView extends ConsumerWidget {
                             );
                           },
                           error: (error, stackTrace) {
+                            log(
+                              'Error in profile stream: $error \n stackTrace: $stackTrace',
+                              stackTrace: stackTrace,
+                            );
                             return const Text(
                               '',
                               style: TextStyle(
@@ -162,12 +172,15 @@ class ProfileView extends ConsumerWidget {
                     color: kSecondaryColor,
                   ),
                   ListTile(
-                    onTap: () => profileController.signOut().then(
-                          (value) => popAllAndPush(
-                            context,
-                            const AuthenticationView(),
-                          ),
-                        ),
+                    onTap: () {
+                      popAllAndPush(
+                        context,
+                        const AuthenticationView(),
+                      );
+                      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                        profileController.signOut();
+                      });
+                    },
                     dense: true,
                     leading: const Icon(
                       Icons.logout,

@@ -9,6 +9,7 @@ import 'package:quick_reminders/authentication/models/login/login_data.dart';
 import 'package:quick_reminders/authentication/models/login/login_data_errors.dart';
 import 'package:quick_reminders/authentication/models/login/login_state.dart';
 import 'package:quick_reminders/authentication/models/processing_state.dart';
+import 'package:quick_reminders/firebase/firebase_providers.dart';
 
 /// Login controller.
 class LoginController extends StateNotifier<LoginState> {
@@ -26,8 +27,8 @@ class LoginController extends StateNotifier<LoginState> {
     LoginController.new,
   );
 
-  static final FirebaseAuth _auth = FirebaseAuth.instance;
-  static final _db = FirebaseFirestore.instance;
+  FirebaseAuth get _auth => ref.read(authProvider);
+  FirebaseFirestore get _db => ref.read(storeProvider);
 
   /// Sign in with google.
   Future<bool> signInWithGoogle() async {
@@ -58,7 +59,13 @@ class LoginController extends StateNotifier<LoginState> {
           ),
         );
 
-        final bool result = await _createProfile(userCredential);
+        final hasProfile = await userHasProfile();
+        late final bool result;
+        if (!hasProfile) {
+          result = await _createProfile(userCredential);
+        } else {
+          result = true;
+        }
 
         state = state.copyWith(
           processingState: ProcessingState.loaded,
@@ -214,5 +221,19 @@ class LoginController extends StateNotifier<LoginState> {
   /// Returns true if a user is logged in.
   bool isUserLoggedIn() {
     return _auth.currentUser != null;
+  }
+
+  /// Returns true if the user already has a profile.
+  Future<bool> userHasProfile() async {
+    if (!isUserLoggedIn()) {
+      log('User is not logged in');
+      return false;
+    }
+    return _db.collection('users').doc(_auth.currentUser!.uid).get().then(
+      (value) {
+        log('User has profile: ${value.exists}');
+        return value.exists;
+      },
+    );
   }
 }

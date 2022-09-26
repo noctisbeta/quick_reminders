@@ -30,7 +30,7 @@ class InitWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final loginController = ref.watch(
+    final loginController = ref.read(
       LoginController.provider.notifier,
     );
 

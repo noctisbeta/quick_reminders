@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:quick_reminders/authentication/controllers/login_controller.dart';
 import 'package:quick_reminders/authentication/widgets/animated_background.dart';
 import 'package:quick_reminders/authentication/widgets/background_stack.dart';
 import 'package:quick_reminders/authentication/widgets/rotation_hero.dart';
 import 'package:quick_reminders/common/rounded_button.dart';
+import 'package:quick_reminders/home/home_view.dart';
+import 'package:quick_reminders/utilities/routing_functions.dart';
 
 /// Email verifiedn view.
 class EmailVerifiedView extends HookConsumerWidget {
@@ -12,6 +15,10 @@ class EmailVerifiedView extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loginController = ref.read(
+      LoginController.provider.notifier,
+    );
+
     return Scaffold(
       body: BackgroundStack(
         background: AnimatedBackground(
@@ -70,7 +77,11 @@ class EmailVerifiedView extends HookConsumerWidget {
                   tag: 'signUpButton',
                   child: RoundedButton(
                     onPressed: () {
-                      Navigator.of(context).pop();
+                      if (loginController.isUserLoggedIn()) {
+                        popAllAndPush(context, const HomeView());
+                      } else {
+                        Navigator.of(context).pop();
+                      }
                     },
                     fillColor: Colors.white,
                     child: Text(

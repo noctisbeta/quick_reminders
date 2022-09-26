@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/constants/colors.dart';
@@ -33,6 +35,11 @@ class HomeView extends ConsumerWidget {
                       );
                     },
                     error: (error, stackTrace) {
+                      log(
+                        'Error in profile stream: $error \n stackTrace: $stackTrace',
+                        stackTrace: stackTrace,
+                      );
+
                       return const ProfileAvatar(
                         child: Text(
                           '',

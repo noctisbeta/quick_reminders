@@ -8,22 +8,26 @@ import 'package:quick_reminders/authentication/models/processing_state.dart';
 import 'package:quick_reminders/authentication/models/registration/registration_data.dart';
 import 'package:quick_reminders/authentication/models/registration/registration_data_errors.dart';
 import 'package:quick_reminders/authentication/models/registration/registration_state.dart';
+import 'package:quick_reminders/firebase/firebase_providers.dart';
 
 /// Firebase authentication controller.
 class RegistrationController extends StateNotifier<RegistrationState> {
   /// Default constructor.
-  RegistrationController()
+  RegistrationController(this.ref)
       : super(
           RegistrationState.empty(),
         );
 
+  /// Riverpod reference.
+  final Ref ref;
+
   /// Provides the controller.
   static final provider = StateNotifierProvider.autoDispose<RegistrationController, RegistrationState>(
-    (ref) => RegistrationController(),
+    RegistrationController.new,
   );
 
-  static final FirebaseAuth _auth = FirebaseAuth.instance;
-  static final _db = FirebaseFirestore.instance;
+  FirebaseAuth get _auth => ref.read(authProvider);
+  FirebaseFirestore get _db => ref.read(storeProvider);
 
   /// Registers the user with email and password, then creates a user document in Firestore.
   Future<bool> completeRegistration(RegistrationData registrationData) async {
