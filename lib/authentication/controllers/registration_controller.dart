@@ -151,11 +151,27 @@ class RegistrationController extends StateNotifier<RegistrationState> {
   }
 
   /// Sends a verification email to the current user.
-  Future<void> resendEmailVerification() async {
+  Future<bool> resendEmailVerification() async {
     if (_auth.currentUser == null) {
       log('No user is signed in.');
-      return;
+      return false;
     }
-    await _auth.currentUser!.sendEmailVerification();
+    state = state.copyWith(
+      processingState: ProcessingState.loading,
+    );
+
+    try {
+      await _auth.currentUser!.sendEmailVerification();
+      state = state.copyWith(
+        processingState: ProcessingState.loaded,
+      );
+      return true;
+    } on FirebaseAuthException catch (e) {
+      log('Error sending verification email: ${e.message}');
+      state = state.copyWith(
+        processingState: ProcessingState.loaded,
+      );
+      return false;
+    }
   }
 }

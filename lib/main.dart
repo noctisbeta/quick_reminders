@@ -1,11 +1,15 @@
+import 'dart:developer';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/authentication/controllers/login_controller.dart';
 import 'package:quick_reminders/authentication/views/authentication_view.dart';
+import 'package:quick_reminders/authentication/views/email_verification_view.dart';
 
 import 'package:quick_reminders/firebase/firebase_options.dart';
 import 'package:quick_reminders/home/home_view.dart';
+import 'package:quick_reminders/utilities/routing_functions.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,7 +39,13 @@ class InitWidget extends ConsumerWidget {
     );
 
     if (loginController.isUserLoggedIn()) {
-      return const HomeView();
+      if (loginController.isEmailVerifiedSync()) {
+        return const HomeView();
+      } else {
+        return const EmailVerificationView(
+          fromLogin: true,
+        );
+      }
     } else {
       return const AuthenticationView();
     }

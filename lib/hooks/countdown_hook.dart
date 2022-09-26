@@ -20,7 +20,7 @@ int useCountdown({
           (timer) {
             if (seconds.value <= 0) {
               timer.cancel();
-              seconds.value = 5;
+              seconds.value = duration.inSeconds;
               active.value = false;
               callback.call();
             } else {

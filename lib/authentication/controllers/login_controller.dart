@@ -223,6 +223,21 @@ class LoginController extends StateNotifier<LoginState> {
     return _auth.currentUser != null;
   }
 
+  /// Checks if the current user has their email verified.
+  Future<bool> isEmailVerified() async {
+    if (_auth.currentUser == null) {
+      log('No user is signed in.');
+      return false;
+    }
+    await _auth.currentUser!.reload();
+    return _auth.currentUser!.emailVerified;
+  }
+
+  /// Call only if user is logged in.
+  bool isEmailVerifiedSync() {
+    return _auth.currentUser!.emailVerified;
+  }
+
   /// Returns true if the user already has a profile.
   Future<bool> userHasProfile() async {
     if (!isUserLoggedIn()) {

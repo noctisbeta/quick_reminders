@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:quick_reminders/authentication/views/email_verification_view.dart';
 import 'package:quick_reminders/authentication/views/login_view.dart';
 import 'package:quick_reminders/authentication/views/sign_up_view.dart';
 import 'package:quick_reminders/authentication/widgets/animated_background.dart';
@@ -10,7 +11,9 @@ import 'package:quick_reminders/utilities/routing_functions.dart';
 /// View for user authentication.
 class AuthenticationView extends HookWidget {
   /// Default constructor.
-  const AuthenticationView({super.key});
+  const AuthenticationView({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -3,6 +3,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/authentication/controllers/login_controller.dart';
 import 'package:quick_reminders/authentication/models/login/login_data.dart';
+import 'package:quick_reminders/authentication/views/email_verification_view.dart';
+import 'package:quick_reminders/authentication/views/email_verified_view.dart';
 import 'package:quick_reminders/authentication/widgets/animated_background.dart';
 import 'package:quick_reminders/authentication/widgets/background_stack.dart';
 import 'package:quick_reminders/common/my_text_field.dart';
@@ -128,10 +130,19 @@ class LoginView extends HookConsumerWidget {
                         isLoading: loginState.isLoading,
                         onPressed: () => loginController.login(loginData).then((value) {
                           if (value) {
-                            popAllAndPush(
-                              context,
-                              const HomeView(),
-                            );
+                            if (loginController.isEmailVerifiedSync()) {
+                              popAllAndPush(
+                                context,
+                                const HomeView(),
+                              );
+                            } else {
+                              pushReplacement(
+                                context,
+                                const EmailVerificationView(
+                                  fromLogin: true,
+                                ),
+                              );
+                            }
                           }
                         }),
                         fillColor: Colors.white,
