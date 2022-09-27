@@ -26,4 +26,12 @@ extension IterableExtension<T> on Iterable<T> {
     assert(index >= 0 && index < length, 'Index out of bounds');
     return elementAt(index);
   }
+
+  /// Followed by.
+  Iterable<T> eachFollowedBy(T other) sync* {
+    for (final element in this) {
+      yield element;
+      yield other;
+    }
+  }
 }

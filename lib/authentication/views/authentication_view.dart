@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:quick_reminders/authentication/views/email_verification_view.dart';
 import 'package:quick_reminders/authentication/views/login_view.dart';
 import 'package:quick_reminders/authentication/views/sign_up_view.dart';
 import 'package:quick_reminders/authentication/widgets/animated_background.dart';

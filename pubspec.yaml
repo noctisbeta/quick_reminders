@@ -32,6 +32,7 @@ dependencies:
   cloud_firestore: ^3.4.9
   cupertino_icons: ^1.0.2
   dartz: ^0.10.1
+  expandable_page_view: ^1.0.17
   firebase_auth: ^3.10.0
   firebase_core: ^1.23.0
   flutter:

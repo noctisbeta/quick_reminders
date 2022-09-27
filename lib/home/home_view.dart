@@ -3,8 +3,8 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/constants/colors.dart';
-import 'package:quick_reminders/profile/profile_avatar.dart';
-import 'package:quick_reminders/profile/profile_controller.dart';
+import 'package:quick_reminders/profile/controllers/profile_controller.dart';
+import 'package:quick_reminders/profile/widgets/profile_avatar.dart';
 
 /// Home screen.
 class HomeView extends ConsumerWidget {
