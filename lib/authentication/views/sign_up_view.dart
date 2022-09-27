@@ -47,117 +47,115 @@ class SignUpView extends HookConsumerWidget {
             ],
           ),
           child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(32),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    const SizedBox(
-                      height: 16,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Column(
+                children: [
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  const Hero(
+                    tag: 'logo',
+                    child: Icon(
+                      Icons.app_registration,
+                      size: 100,
+                      color: Colors.white,
                     ),
-                    const Hero(
-                      tag: 'logo',
-                      child: Icon(
-                        Icons.app_registration,
-                        size: 100,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 48,
-                    ),
-                    FocusScope(
-                      child: Column(
-                        children: <Widget>[
-                          MyTextField(
-                            label: 'First Name',
-                            textCapitalization: TextCapitalization.words,
-                            textInputAction: TextInputAction.next,
-                            onChanged: (value) {
-                              registrationData.firstName = value;
-                            },
-                            prefixIcon: const Icon(
-                              Icons.person,
-                              color: Colors.white,
-                            ),
+                  ),
+                  const SizedBox(
+                    height: 48,
+                  ),
+                  FocusScope(
+                    child: Column(
+                      children: <Widget>[
+                        MyTextField(
+                          label: 'First Name',
+                          textCapitalization: TextCapitalization.words,
+                          textInputAction: TextInputAction.next,
+                          onChanged: (value) {
+                            registrationData.firstName = value;
+                          },
+                          prefixIcon: const Icon(
+                            Icons.person,
+                            color: Colors.white,
                           ),
-                          MyTextField(
-                            label: 'Last Name',
-                            textCapitalization: TextCapitalization.words,
-                            textInputAction: TextInputAction.next,
-                            onChanged: (value) {
-                              registrationData.lastName = value;
-                            },
-                            prefixIcon: const Icon(
-                              Icons.person,
-                              color: Colors.white,
-                            ),
+                        ),
+                        MyTextField(
+                          label: 'Last Name',
+                          textCapitalization: TextCapitalization.words,
+                          textInputAction: TextInputAction.next,
+                          onChanged: (value) {
+                            registrationData.lastName = value;
+                          },
+                          prefixIcon: const Icon(
+                            Icons.person,
+                            color: Colors.white,
                           ),
-                          MyTextField(
-                            label: 'Email',
-                            textInputAction: TextInputAction.next,
-                            errorMessage: registrationState.registrationDataErrors.email,
-                            onChanged: (value) {
-                              registrationData.email = value;
-                            },
-                            prefixIcon: const Icon(
-                              Icons.email,
-                              color: Colors.white,
-                            ),
+                        ),
+                        MyTextField(
+                          label: 'Email',
+                          textInputAction: TextInputAction.next,
+                          errorMessage: registrationState.registrationDataErrors.email,
+                          onChanged: (value) {
+                            registrationData.email = value;
+                          },
+                          prefixIcon: const Icon(
+                            Icons.email,
+                            color: Colors.white,
                           ),
-                          MyTextField(
-                            label: 'Password',
-                            textInputAction: TextInputAction.go,
-                            errorMessage: registrationState.registrationDataErrors.password,
-                            onChanged: (value) {
-                              registrationData.password = value;
-                            },
-                            obscured: true,
-                            prefixIcon: const Icon(
-                              Icons.lock,
-                              color: Colors.white,
-                            ),
+                        ),
+                        MyTextField(
+                          label: 'Password',
+                          textInputAction: TextInputAction.go,
+                          errorMessage: registrationState.registrationDataErrors.password,
+                          onChanged: (value) {
+                            registrationData.password = value;
+                          },
+                          obscured: true,
+                          prefixIcon: const Icon(
+                            Icons.lock,
+                            color: Colors.white,
                           ),
-                        ].separatedByToList(
-                          const SizedBox(
-                            height: 16,
-                          ),
+                        ),
+                      ].separatedByToList(
+                        const SizedBox(
+                          height: 16,
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      height: 48,
-                    ),
-                    Hero(
-                      tag: 'signUpButton',
-                      child: RoundedButton(
-                        isLoading: registrationState.isLoading,
-                        onPressed: () => registrationController
-                            .completeRegistration(
-                          registrationData,
-                        )
-                            .then((value) {
-                          if (value) {
-                            pushReplacement(
-                              context,
-                              const EmailVerificationView(),
-                            );
-                          }
-                        }),
-                        fillColor: Colors.white,
-                        child: Text(
-                          'SIGN UP',
-                          style: TextStyle(
-                            color: Colors.blue[500],
-                          ),
+                  ),
+                  const SizedBox(
+                    height: 48,
+                  ),
+                  Hero(
+                    tag: 'signUpButton',
+                    child: RoundedButton(
+                      isLoading: registrationState.isLoading,
+                      onPressed: () => registrationController
+                          .completeRegistration(
+                        registrationData,
+                      )
+                          .then((value) {
+                        if (value) {
+                          pushReplacement(
+                            context,
+                            const EmailVerificationView(),
+                          );
+                        }
+                      }),
+                      fillColor: Colors.white,
+                      child: Text(
+                        'SIGN UP',
+                        style: TextStyle(
+                          color: Colors.blue[500],
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      height: 16,
-                    ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                ],
               ),
             ),
           ),

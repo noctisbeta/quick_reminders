@@ -5,6 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/authentication/controllers/login_controller.dart';
 import 'package:quick_reminders/authentication/models/login/login_data.dart';
 import 'package:quick_reminders/authentication/views/email_verification_view.dart';
+import 'package:quick_reminders/authentication/views/reset_password_view.dart';
 import 'package:quick_reminders/authentication/widgets/animated_background.dart';
 import 'package:quick_reminders/authentication/widgets/background_stack.dart';
 import 'package:quick_reminders/common/my_text_field.dart';
@@ -48,66 +49,73 @@ class LoginView extends HookConsumerWidget {
             ],
           ),
           child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(32),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    const SizedBox(
-                      height: 16,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Column(
+                children: [
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  const Hero(
+                    tag: 'logo',
+                    child: Icon(
+                      Icons.app_registration,
+                      size: 100,
+                      color: Colors.white,
                     ),
-                    const Hero(
-                      tag: 'logo',
-                      child: Icon(
-                        Icons.app_registration,
-                        size: 100,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 48,
-                    ),
-                    FocusScope(
-                      child: Column(
-                        children: [
-                          MyTextField(
-                            label: 'Email',
-                            errorMessage: loginState.loginDataErrors.email,
-                            textInputAction: TextInputAction.next,
-                            onChanged: (value) {
-                              loginData.email = value;
-                            },
-                            prefixIcon: const Icon(
-                              Icons.email,
-                              color: Colors.white,
-                            ),
+                  ),
+                  const SizedBox(
+                    height: 48,
+                  ),
+                  FocusScope(
+                    child: Column(
+                      children: [
+                        MyTextField(
+                          label: 'Email',
+                          errorMessage: loginState.loginDataErrors.email,
+                          textInputAction: TextInputAction.next,
+                          onChanged: (value) {
+                            loginData.email = value;
+                          },
+                          prefixIcon: const Icon(
+                            Icons.email,
+                            color: Colors.white,
                           ),
-                          const SizedBox(
-                            height: 16,
+                        ),
+                        const SizedBox(
+                          height: 16,
+                        ),
+                        MyTextField(
+                          label: 'Password',
+                          errorMessage: loginState.loginDataErrors.password,
+                          textInputAction: TextInputAction.go,
+                          onChanged: (value) {
+                            loginData.password = value;
+                          },
+                          obscured: true,
+                          prefixIcon: const Icon(
+                            Icons.lock,
+                            color: Colors.white,
                           ),
-                          MyTextField(
-                            label: 'Password',
-                            errorMessage: loginState.loginDataErrors.password,
-                            textInputAction: TextInputAction.go,
-                            onChanged: (value) {
-                              loginData.password = value;
-                            },
-                            obscured: true,
-                            prefixIcon: const Icon(
-                              Icons.lock,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(
-                      height: 12,
+                  ),
+                  const SizedBox(
+                    height: 12,
+                  ),
+                  Align(
+                    alignment: Alignment.centerLeft.add(
+                      const Alignment(0.2, 0),
                     ),
-                    Align(
-                      alignment: Alignment.centerLeft.add(
-                        const Alignment(0.2, 0),
-                      ),
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () {
+                        push(
+                          context,
+                          const ResetPasswordView(),
+                        );
+                      },
                       child: const Text(
                         'Forgot password',
                         style: TextStyle(
@@ -117,106 +125,106 @@ class LoginView extends HookConsumerWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      height: 16,
+                  ),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  Hero(
+                    tag: 'loginButton',
+                    child: RoundedButton(
+                      isLoading: loginState.isLoading,
+                      onPressed: () => loginController.login(loginData).then((value) {
+                        if (value) {
+                          if (loginController.isEmailVerifiedSync()) {
+                            popAllAndPush(
+                              context,
+                              const HomeView(),
+                            );
+                          } else {
+                            pushReplacement(
+                              context,
+                              const EmailVerificationView(
+                                fromLogin: true,
+                              ),
+                            );
+                          }
+                        }
+                      }),
+                      fillColor: Colors.white,
+                      child: Text(
+                        'LOGIN',
+                        style: TextStyle(
+                          color: Colors.blue[500],
+                        ),
+                      ),
                     ),
-                    Hero(
-                      tag: 'loginButton',
-                      child: RoundedButton(
-                        isLoading: loginState.isLoading,
-                        onPressed: () => loginController.login(loginData).then((value) {
-                          if (value) {
-                            if (loginController.isEmailVerifiedSync()) {
+                  ),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          height: 1,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                        ),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                          ),
+                          child: Text(
+                            'OR',
+                            style: TextStyle(
+                              color: Colors.blue[500],
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Container(
+                          height: 1,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  if (loginState.googleInProgress)
+                    const CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 3,
+                    )
+                  else
+                    SignInButton(
+                      Buttons.Google,
+                      onPressed: () {
+                        loginController.signInWithGoogle().then(
+                          (value) {
+                            if (value) {
                               popAllAndPush(
                                 context,
                                 const HomeView(),
                               );
-                            } else {
-                              pushReplacement(
-                                context,
-                                const EmailVerificationView(
-                                  fromLogin: true,
-                                ),
-                              );
                             }
-                          }
-                        }),
-                        fillColor: Colors.white,
-                        child: Text(
-                          'LOGIN',
-                          style: TextStyle(
-                            color: Colors.blue[500],
-                          ),
-                        ),
-                      ),
+                          },
+                        );
+                      },
                     ),
-                    const SizedBox(
-                      height: 16,
-                    ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            height: 1,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                          ),
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white,
-                            ),
-                            child: Text(
-                              'OR',
-                              style: TextStyle(
-                                color: Colors.blue[500],
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Container(
-                            height: 1,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 16,
-                    ),
-                    if (loginState.googleInProgress)
-                      const CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 3,
-                      )
-                    else
-                      SignInButton(
-                        Buttons.Google,
-                        onPressed: () {
-                          loginController.signInWithGoogle().then(
-                            (value) {
-                              if (value) {
-                                popAllAndPush(
-                                  context,
-                                  const HomeView(),
-                                );
-                              }
-                            },
-                          );
-                        },
-                      ),
-                    const SizedBox(
-                      height: 16,
-                    ),
-                  ],
-                ),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                ],
               ),
             ),
           ),

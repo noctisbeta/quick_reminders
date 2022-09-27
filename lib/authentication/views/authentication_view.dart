@@ -37,7 +37,7 @@ class AuthenticationView extends HookWidget {
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(32),
+            padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Column(
               children: [
                 const Spacer(),

@@ -8,26 +8,35 @@ import 'package:quick_reminders/authentication/models/processing_state.dart';
 import 'package:quick_reminders/authentication/models/registration/registration_data.dart';
 import 'package:quick_reminders/authentication/models/registration/registration_data_errors.dart';
 import 'package:quick_reminders/authentication/models/registration/registration_state.dart';
-import 'package:quick_reminders/firebase/firebase_providers.dart';
 
 /// Firebase authentication controller.
 class RegistrationController extends StateNotifier<RegistrationState> {
   /// Default constructor.
-  RegistrationController(this.ref)
-      : super(
+  RegistrationController(
+    this.ref,
+    this.auth,
+    this.db,
+  ) : super(
           RegistrationState.empty(),
         );
 
   /// Riverpod reference.
   final Ref ref;
 
+  /// Firebase auth
+  final FirebaseAuth auth;
+
+  /// Firestore db.
+  final FirebaseFirestore db;
+
   /// Provides the controller.
   static final provider = StateNotifierProvider.autoDispose<RegistrationController, RegistrationState>(
-    RegistrationController.new,
+    (ref) => RegistrationController(
+      ref,
+      FirebaseAuth.instance,
+      FirebaseFirestore.instance,
+    ),
   );
-
-  FirebaseAuth get _auth => ref.read(authProvider);
-  FirebaseFirestore get _db => ref.read(storeProvider);
 
   /// Registers the user with email and password, then creates a user document in Firestore.
   Future<bool> completeRegistration(RegistrationData registrationData) async {
@@ -65,7 +74,7 @@ class RegistrationController extends StateNotifier<RegistrationState> {
   /// Creates a user with email and password.
   Future<Either<Exception, UserCredential>> _createUser(RegistrationData data) async {
     try {
-      final userCredential = await _auth.createUserWithEmailAndPassword(
+      final userCredential = await auth.createUserWithEmailAndPassword(
         email: data.email.trim(),
         password: data.password.trim(),
       );
@@ -127,7 +136,7 @@ class RegistrationController extends StateNotifier<RegistrationState> {
     };
 
     try {
-      await _db.collection('users').doc(userCredential.user!.uid).set(
+      await db.collection('users').doc(userCredential.user!.uid).set(
             user,
             SetOptions(merge: true),
           );
@@ -142,17 +151,17 @@ class RegistrationController extends StateNotifier<RegistrationState> {
 
   /// Checks if the current user has their email verified.
   Future<bool> isEmailVerified() async {
-    if (_auth.currentUser == null) {
+    if (auth.currentUser == null) {
       log('No user is signed in.');
       return false;
     }
-    await _auth.currentUser!.reload();
-    return _auth.currentUser!.emailVerified;
+    await auth.currentUser!.reload();
+    return auth.currentUser!.emailVerified;
   }
 
   /// Sends a verification email to the current user.
   Future<bool> resendEmailVerification() async {
-    if (_auth.currentUser == null) {
+    if (auth.currentUser == null) {
       log('No user is signed in.');
       return false;
     }
@@ -161,7 +170,7 @@ class RegistrationController extends StateNotifier<RegistrationState> {
     );
 
     try {
-      await _auth.currentUser!.sendEmailVerification();
+      await auth.currentUser!.sendEmailVerification();
       state = state.copyWith(
         processingState: ProcessingState.loaded,
       );

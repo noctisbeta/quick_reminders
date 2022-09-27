@@ -8,26 +8,31 @@ import 'package:quick_reminders/authentication/models/login/login_data.dart';
 import 'package:quick_reminders/authentication/models/login/login_data_errors.dart';
 import 'package:quick_reminders/authentication/models/login/login_state.dart';
 import 'package:quick_reminders/authentication/models/processing_state.dart';
-import 'package:quick_reminders/firebase/firebase_providers.dart';
 import 'package:quick_reminders/profile/controllers/profile_controller.dart';
 
 /// Login controller.
 class LoginController extends StateNotifier<LoginState> {
   /// Default constructor.
-  LoginController(this.ref)
-      : super(
+  LoginController(
+    this.ref,
+    this.auth,
+  ) : super(
           LoginState.empty(),
         );
 
   /// Riverpod reference.
   final Ref ref;
 
+  /// Firebase auth.
+  final FirebaseAuth auth;
+
   /// Provides the controller.
   static final provider = StateNotifierProvider<LoginController, LoginState>(
-    LoginController.new,
+    (ref) => LoginController(
+      ref,
+      FirebaseAuth.instance,
+    ),
   );
-
-  FirebaseAuth get _auth => ref.read(authProvider);
 
   /// Sign in with google.
   Future<bool> signInWithGoogle() async {
@@ -35,7 +40,7 @@ class LoginController extends StateNotifier<LoginState> {
       googleInProgress: true,
     );
 
-    await _auth.signOut();
+    await auth.signOut();
 
     final account = await ref.read(GoogleController.provider).signInWithGoogle();
 
@@ -50,7 +55,7 @@ class LoginController extends StateNotifier<LoginState> {
 
     final googleAuth = await account.authentication;
 
-    final userCredential = await _auth.signInWithCredential(
+    final userCredential = await auth.signInWithCredential(
       GoogleAuthProvider.credential(
         idToken: googleAuth.idToken,
         accessToken: googleAuth.accessToken,
@@ -103,7 +108,7 @@ class LoginController extends StateNotifier<LoginState> {
   /// Logs in the user with email and password.
   Future<Either<Exception, UserCredential>> _loginUser(LoginData loginData) async {
     try {
-      await _auth.signOut();
+      await auth.signOut();
 
       if (loginData.email.isEmpty) {
         state = state.copyWith(
@@ -123,7 +128,7 @@ class LoginController extends StateNotifier<LoginState> {
         return Left(Exception('Password is empty'));
       }
 
-      final userCredential = await _auth.signInWithEmailAndPassword(
+      final userCredential = await auth.signInWithEmailAndPassword(
         email: loginData.email.trim(),
         password: loginData.password.trim(),
       );
@@ -174,21 +179,21 @@ class LoginController extends StateNotifier<LoginState> {
 
   /// Returns true if a user is logged in.
   bool isUserLoggedIn() {
-    return _auth.currentUser != null;
+    return auth.currentUser != null;
   }
 
   /// Checks if the current user has their email verified.
   Future<bool> isEmailVerified() async {
-    if (_auth.currentUser == null) {
+    if (auth.currentUser == null) {
       log('No user is signed in.');
       return false;
     }
-    await _auth.currentUser!.reload();
-    return _auth.currentUser!.emailVerified;
+    await auth.currentUser!.reload();
+    return auth.currentUser!.emailVerified;
   }
 
   /// Call only if user is logged in.
   bool isEmailVerifiedSync() {
-    return _auth.currentUser!.emailVerified;
+    return auth.currentUser!.emailVerified;
   }
 }
