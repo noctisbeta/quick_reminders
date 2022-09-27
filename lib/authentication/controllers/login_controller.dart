@@ -1,15 +1,15 @@
 import 'dart:developer';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:quick_reminders/authentication/controllers/google_controller.dart';
 import 'package:quick_reminders/authentication/models/login/login_data.dart';
 import 'package:quick_reminders/authentication/models/login/login_data_errors.dart';
 import 'package:quick_reminders/authentication/models/login/login_state.dart';
 import 'package:quick_reminders/authentication/models/processing_state.dart';
 import 'package:quick_reminders/firebase/firebase_providers.dart';
+import 'package:quick_reminders/profile/controllers/profile_controller.dart';
 
 /// Login controller.
 class LoginController extends StateNotifier<LoginState> {
@@ -28,74 +28,50 @@ class LoginController extends StateNotifier<LoginState> {
   );
 
   FirebaseAuth get _auth => ref.read(authProvider);
-  FirebaseFirestore get _db => ref.read(storeProvider);
 
   /// Sign in with google.
   Future<bool> signInWithGoogle() async {
     state = state.copyWith(
-      loginData: LoginData.empty(),
-      loginDataErrors: LoginDataErrors.empty(),
-      processingState: ProcessingState.loading,
+      googleInProgress: true,
     );
 
-    final result = await _signInWithGoogle();
+    await _auth.signOut();
 
-    return await result.fold(
-      (exception) {
-        state = state.copyWith(
-          processingState: ProcessingState.loaded,
-        );
-        return false;
-      },
-      (account) async {
-        log('User signed in to google: ${account.email}');
+    final account = await ref.read(GoogleController.provider).signInWithGoogle();
 
-        final googleAuth = await account.authentication;
-
-        final userCredential = await _auth.signInWithCredential(
-          GoogleAuthProvider.credential(
-            idToken: googleAuth.idToken,
-            accessToken: googleAuth.accessToken,
-          ),
-        );
-
-        final hasProfile = await userHasProfile();
-        late final bool result;
-        if (!hasProfile) {
-          result = await _createProfile(userCredential);
-        } else {
-          result = true;
-        }
-
-        state = state.copyWith(
-          processingState: ProcessingState.loaded,
-        );
-
-        return result;
-      },
-    );
-  }
-
-  /// Sign in with google private
-  Future<Either<Exception, GoogleSignInAccount>> _signInWithGoogle() async {
-    try {
-      final googleSignIn = GoogleSignIn();
-
-      await googleSignIn.signOut();
-      await _auth.signOut();
-
-      final account = await googleSignIn.signIn();
-
-      // sign in was aborted
-      if (account == null) {
-        return Left(Exception('Sign in aborted'));
-      }
-
-      return Right(account);
-    } on FirebaseAuthException catch (e) {
-      log('Error signing in with Google: ${e.message}');
-      return Left(e);
+    if (account == null) {
+      state = state.copyWith(
+        googleInProgress: false,
+      );
+      return false;
     }
+
+    log('User signed in to google: ${account.email}');
+
+    final googleAuth = await account.authentication;
+
+    final userCredential = await _auth.signInWithCredential(
+      GoogleAuthProvider.credential(
+        idToken: googleAuth.idToken,
+        accessToken: googleAuth.accessToken,
+      ),
+    );
+
+    final profileController = ref.read(ProfileController.provider);
+
+    final hasProfile = await profileController.userHasProfile();
+
+    late final bool result;
+    if (!hasProfile) {
+      result = await profileController.createProfile(userCredential);
+    } else {
+      result = true;
+    }
+
+    state = state.copyWith(
+      googleInProgress: false,
+    );
+    return result;
   }
 
   /// Logs in the user with email and password.
@@ -196,28 +172,6 @@ class LoginController extends StateNotifier<LoginState> {
     }
   }
 
-  Future<bool> _createProfile(UserCredential userCredential) async {
-    final user = {
-      'firstName': userCredential.user!.displayName!.split(' ')[0],
-      'lastName': userCredential.user!.displayName!.split(' ')[1],
-      'email': userCredential.user!.email,
-      'createdAt': FieldValue.serverTimestamp(),
-    };
-
-    try {
-      await _db.collection('users').doc(userCredential.user!.uid).set(
-            user,
-            SetOptions(merge: true),
-          );
-
-      log('Profile created: $user');
-      return true;
-    } on FirebaseException catch (e) {
-      log('Error creating profile: ${e.message}');
-      return false;
-    }
-  }
-
   /// Returns true if a user is logged in.
   bool isUserLoggedIn() {
     return _auth.currentUser != null;
@@ -236,19 +190,5 @@ class LoginController extends StateNotifier<LoginState> {
   /// Call only if user is logged in.
   bool isEmailVerifiedSync() {
     return _auth.currentUser!.emailVerified;
-  }
-
-  /// Returns true if the user already has a profile.
-  Future<bool> userHasProfile() async {
-    if (!isUserLoggedIn()) {
-      log('User is not logged in');
-      return false;
-    }
-    return _db.collection('users').doc(_auth.currentUser!.uid).get().then(
-      (value) {
-        log('User has profile: ${value.exists}');
-        return value.exists;
-      },
-    );
   }
 }

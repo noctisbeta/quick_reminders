@@ -38,6 +38,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_hooks: ^0.18.5+1
+  flutter_signin_button: ^2.0.0
   google_sign_in: ^5.4.2
   hooks_riverpod: ^1.0.4
 

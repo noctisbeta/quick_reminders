@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/authentication/controllers/login_controller.dart';
 import 'package:quick_reminders/authentication/models/login/login_data.dart';
@@ -101,27 +102,23 @@ class LoginView extends HookConsumerWidget {
                       ),
                     ),
                     const SizedBox(
-                      height: 16,
+                      height: 12,
                     ),
-                    GestureDetector(
-                      onTap: () => loginController.signInWithGoogle().then((value) {
-                        if (value) {
-                          popAllAndPush(
-                            context,
-                            const HomeView(),
-                          );
-                        }
-                      }),
-                      child: CircleAvatar(
-                        backgroundColor: Colors.white,
-                        child: Icon(
-                          Icons.g_mobiledata,
-                          color: Colors.blue[600],
+                    Align(
+                      alignment: Alignment.centerLeft.add(
+                        const Alignment(0.2, 0),
+                      ),
+                      child: const Text(
+                        'Forgot password',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          decoration: TextDecoration.underline,
                         ),
                       ),
                     ),
                     const SizedBox(
-                      height: 48,
+                      height: 16,
                     ),
                     Hero(
                       tag: 'loginButton',
@@ -153,6 +150,68 @@ class LoginView extends HookConsumerWidget {
                         ),
                       ),
                     ),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            height: 1,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white,
+                            ),
+                            child: Text(
+                              'OR',
+                              style: TextStyle(
+                                color: Colors.blue[500],
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Container(
+                            height: 1,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    if (loginState.googleInProgress)
+                      const CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 3,
+                      )
+                    else
+                      SignInButton(
+                        Buttons.Google,
+                        onPressed: () {
+                          loginController.signInWithGoogle().then(
+                            (value) {
+                              if (value) {
+                                popAllAndPush(
+                                  context,
+                                  const HomeView(),
+                                );
+                              }
+                            },
+                          );
+                        },
+                      ),
                     const SizedBox(
                       height: 16,
                     ),
