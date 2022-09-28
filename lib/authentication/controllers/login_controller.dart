@@ -27,7 +27,7 @@ class LoginController extends StateNotifier<LoginState> {
   final FirebaseAuth auth;
 
   /// Provides the controller.
-  static final provider = StateNotifierProvider<LoginController, LoginState>(
+  static final provider = StateNotifierProvider.autoDispose<LoginController, LoginState>(
     (ref) => LoginController(
       ref,
       FirebaseAuth.instance,
