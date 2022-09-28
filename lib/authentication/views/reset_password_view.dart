@@ -1,16 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:quick_reminders/authentication/controllers/login_controller.dart';
 import 'package:quick_reminders/authentication/widgets/background_gradient.dart';
 import 'package:quick_reminders/authentication/widgets/background_stack.dart';
+import 'package:quick_reminders/common/my_text_field.dart';
 import 'package:quick_reminders/common/rounded_button.dart';
 import 'package:quick_reminders/common/unfocus_on_tap.dart';
 
 /// Reset password view.
-class ResetPasswordView extends StatelessWidget {
+class ResetPasswordView extends HookConsumerWidget {
   /// Default constructor.
   const ResetPasswordView({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final email = useState('');
+
+    final loginController = ref.watch(
+      LoginController.provider.notifier,
+    );
+
+    final loginState = ref.watch(
+      LoginController.provider,
+    );
+
     return UnfocusOnTap(
       child: Scaffold(
         body: BackgroundStack(
@@ -66,25 +80,23 @@ class ResetPasswordView extends StatelessWidget {
                     const SizedBox(
                       height: 16,
                     ),
-                    const TextField(
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                        labelStyle: TextStyle(
-                          color: Colors.white,
-                        ),
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
+                    Hero(
+                      tag: 'email',
+                      child: Material(
+                        type: MaterialType.transparency,
+                        child: MyTextField(
+                          label: 'Email',
+                          initialText: loginState.loginData.email,
+                          errorMessage: loginState.loginDataErrors.email,
+                          textInputAction: TextInputAction.next,
+                          onChanged: (value) {
+                            email.value = value;
+                          },
+                          prefixIcon: const Icon(
+                            Icons.email,
                             color: Colors.white,
                           ),
                         ),
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                      style: TextStyle(
-                        color: Colors.white,
                       ),
                     ),
                     const SizedBox(
@@ -93,7 +105,14 @@ class ResetPasswordView extends StatelessWidget {
                     Hero(
                       tag: 'loginButton',
                       child: RoundedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          loginController.resetPassword(email.value).then((value) {
+                            if (value) {
+                              // push to new screen
+                            }
+                          });
+                        },
+                        isLoading: loginState.isLoading,
                         fillColor: Colors.white,
                         child: Text(
                           'SEND',

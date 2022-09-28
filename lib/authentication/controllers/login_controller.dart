@@ -177,6 +177,65 @@ class LoginController extends StateNotifier<LoginState> {
     }
   }
 
+  /// Resets the password for [email].
+  Future<bool> resetPassword(String email) async {
+    state = state.copyWith(
+      loginDataErrors: state.loginDataErrors.copyWith(
+        email: '',
+      ),
+      processingState: ProcessingState.loading,
+    );
+
+    if (email.isEmpty) {
+      state = state.copyWith(
+        loginDataErrors: state.loginDataErrors.copyWith(
+          email: 'Email is required',
+        ),
+        processingState: ProcessingState.loaded,
+      );
+      return false;
+    }
+
+    try {
+      await auth.sendPasswordResetEmail(email: email);
+
+      log('Password reset email sent to $email');
+
+      state = state.copyWith(
+        processingState: ProcessingState.loaded,
+      );
+
+      return true;
+    } on FirebaseAuthException catch (e) {
+      log('Error resetting password: ${e.message}');
+
+      late final String message;
+
+      switch (e.code) {
+        case 'invalid-email':
+          message = 'Invalid email.';
+          state = state.copyWith(
+            processingState: ProcessingState.loaded,
+            loginDataErrors: state.loginDataErrors.copyWith(
+              email: message,
+            ),
+          );
+          break;
+        case 'user-not-found':
+          message = 'User not found.';
+          state = state.copyWith(
+            processingState: ProcessingState.loaded,
+            loginDataErrors: state.loginDataErrors.copyWith(
+              email: message,
+            ),
+          );
+          break;
+      }
+
+      return false;
+    }
+  }
+
   /// Returns true if a user is logged in.
   bool isUserLoggedIn() {
     return auth.currentUser != null;

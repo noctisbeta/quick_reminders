@@ -12,6 +12,7 @@ class MyTextField extends HookWidget {
     this.prefixIcon,
     this.textCapitalization,
     this.textInputAction,
+    this.initialText,
     super.key,
   });
 
@@ -36,10 +37,17 @@ class MyTextField extends HookWidget {
   /// Text capitalization.
   final TextCapitalization? textCapitalization;
 
+  /// Initial text.
+  final String? initialText;
+
   @override
   Widget build(BuildContext context) {
     final focusNode = useFocusNode();
     final isFocused = useState(false);
+    final textEditingController = useTextEditingController(
+      text: initialText,
+    );
+
     useEffect(
       () {
         focusNode.addListener(() {
@@ -49,11 +57,13 @@ class MyTextField extends HookWidget {
       },
       [focusNode],
     );
+
     final obscuredText = useState(obscured ?? false);
 
     return Column(
       children: [
         TextField(
+          controller: textEditingController,
           textInputAction: textInputAction,
           textCapitalization: textCapitalization ?? TextCapitalization.none,
           onChanged: onChanged,

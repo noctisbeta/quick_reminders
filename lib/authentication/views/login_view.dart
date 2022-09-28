@@ -71,16 +71,22 @@ class LoginView extends HookConsumerWidget {
                   FocusScope(
                     child: Column(
                       children: [
-                        MyTextField(
-                          label: 'Email',
-                          errorMessage: loginState.loginDataErrors.email,
-                          textInputAction: TextInputAction.next,
-                          onChanged: (value) {
-                            loginData.email = value;
-                          },
-                          prefixIcon: const Icon(
-                            Icons.email,
-                            color: Colors.white,
+                        Hero(
+                          tag: 'email',
+                          child: Material(
+                            type: MaterialType.transparency,
+                            child: MyTextField(
+                              label: 'Email',
+                              errorMessage: loginState.loginDataErrors.email,
+                              textInputAction: TextInputAction.next,
+                              onChanged: (value) {
+                                loginData.email = value;
+                              },
+                              prefixIcon: const Icon(
+                                Icons.email,
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
                         ),
                         const SizedBox(
