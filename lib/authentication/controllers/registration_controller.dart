@@ -4,10 +4,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:quick_reminders/authentication/controllers/google_controller.dart';
 import 'package:quick_reminders/authentication/models/processing_state.dart';
 import 'package:quick_reminders/authentication/models/registration/registration_data.dart';
 import 'package:quick_reminders/authentication/models/registration/registration_data_errors.dart';
 import 'package:quick_reminders/authentication/models/registration/registration_state.dart';
+import 'package:quick_reminders/profile/controllers/profile_controller.dart';
 
 /// Firebase authentication controller.
 class RegistrationController extends StateNotifier<RegistrationState> {
@@ -57,18 +59,72 @@ class RegistrationController extends StateNotifier<RegistrationState> {
       },
       (userCredential) async {
         log('User created: ${userCredential.user!.uid}');
+
+        final profileData = {
+          'firstName': state.registrationData.firstName,
+          'lastName': state.registrationData.lastName,
+          'email': state.registrationData.email,
+          'uid': userCredential.user!.uid,
+        };
+
         final List results = await Future.wait([
           userCredential.user!.sendEmailVerification(),
-          _createProfile(userCredential),
+          ref.read(ProfileController.provider).createProfileFromMap(profileData),
         ]);
 
         state = state.copyWith(
           processingState: ProcessingState.loaded,
         );
 
+        /// createProfile result
         return results[1];
       },
     );
+  }
+
+  /// Sign in with google.
+  Future<bool> signInWithGoogle() async {
+    state = state.copyWith(
+      googleInProgress: true,
+    );
+
+    await auth.signOut();
+
+    final account = await ref.read(GoogleController.provider).signInWithGoogle();
+
+    if (account == null) {
+      state = state.copyWith(
+        googleInProgress: false,
+      );
+      return false;
+    }
+
+    log('User signed in to google: ${account.email}');
+
+    final googleAuth = await account.authentication;
+
+    final userCredential = await auth.signInWithCredential(
+      GoogleAuthProvider.credential(
+        idToken: googleAuth.idToken,
+        accessToken: googleAuth.accessToken,
+      ),
+    );
+
+    final profileController = ref.read(ProfileController.provider);
+
+    final hasProfile = await profileController.userHasProfile();
+
+    late final bool result;
+    if (!hasProfile) {
+      result = await profileController.createProfileFromUserCredential(userCredential);
+    } else {
+      result = true;
+    }
+
+    state = state.copyWith(
+      googleInProgress: false,
+    );
+    return result;
   }
 
   /// Creates a user with email and password.
@@ -123,29 +179,6 @@ class RegistrationController extends StateNotifier<RegistrationState> {
           break;
       }
       return Left(e);
-    }
-  }
-
-  /// Creates a user document in firestore.
-  Future<bool> _createProfile(UserCredential userCredential) async {
-    final user = {
-      'firstName': state.registrationData.firstName,
-      'lastName': state.registrationData.lastName,
-      'email': state.registrationData.email,
-      'createdAt': FieldValue.serverTimestamp(),
-    };
-
-    try {
-      await db.collection('users').doc(userCredential.user!.uid).set(
-            user,
-            SetOptions(merge: true),
-          );
-
-      log('Profile created: $user');
-      return true;
-    } on FirebaseException catch (e) {
-      log('Error creating profile: ${e.message}');
-      return false;
     }
   }
 

@@ -42,7 +42,7 @@ class ProfileController {
   });
 
   /// Creates a new profile.
-  Future<bool> createProfile(UserCredential userCredential) async {
+  Future<bool> createProfileFromUserCredential(UserCredential userCredential) async {
     final user = {
       'firstName': userCredential.user!.displayName!.split(' ')[0],
       'lastName': userCredential.user!.displayName!.split(' ')[1],
@@ -52,6 +52,29 @@ class ProfileController {
 
     try {
       await db.collection('users').doc(userCredential.user!.uid).set(
+            user,
+            SetOptions(merge: true),
+          );
+
+      log('Profile created: $user');
+      return true;
+    } on FirebaseException catch (e) {
+      log('Error creating profile: ${e.message}');
+      return false;
+    }
+  }
+
+  /// Creates a user document in firestore.
+  Future<bool> createProfileFromMap(Map<String, dynamic> map) async {
+    final user = {
+      'firstName': map['firstName'],
+      'lastName': map['lastName'],
+      'email': map['email'],
+      'createdAt': FieldValue.serverTimestamp(),
+    };
+
+    try {
+      await db.collection('users').doc(map['uid']).set(
             user,
             SetOptions(merge: true),
           );

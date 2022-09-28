@@ -8,6 +8,7 @@ import 'package:quick_reminders/authentication/views/email_verification_view.dar
 import 'package:quick_reminders/authentication/views/reset_password_view.dart';
 import 'package:quick_reminders/authentication/widgets/animated_background.dart';
 import 'package:quick_reminders/authentication/widgets/background_stack.dart';
+import 'package:quick_reminders/authentication/widgets/or_divider.dart';
 import 'package:quick_reminders/common/my_text_field.dart';
 import 'package:quick_reminders/common/rounded_button.dart';
 import 'package:quick_reminders/common/unfocus_on_tap.dart';
@@ -162,41 +163,7 @@ class LoginView extends HookConsumerWidget {
                   const SizedBox(
                     height: 16,
                   ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          height: 1,
-                          color: Colors.white,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                        ),
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white,
-                          ),
-                          child: Text(
-                            'OR',
-                            style: TextStyle(
-                              color: Colors.blue[500],
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Container(
-                          height: 1,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
+                  const OrDivider(),
                   const SizedBox(
                     height: 16,
                   ),

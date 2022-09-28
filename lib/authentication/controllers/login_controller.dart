@@ -68,7 +68,7 @@ class LoginController extends StateNotifier<LoginState> {
 
     late final bool result;
     if (!hasProfile) {
-      result = await profileController.createProfile(userCredential);
+      result = await profileController.createProfileFromUserCredential(userCredential);
     } else {
       result = true;
     }

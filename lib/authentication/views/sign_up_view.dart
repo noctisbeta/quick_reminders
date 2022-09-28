@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/authentication/controllers/registration_controller.dart';
 import 'package:quick_reminders/authentication/models/registration/registration_data.dart';
 import 'package:quick_reminders/authentication/views/email_verification_view.dart';
 import 'package:quick_reminders/authentication/widgets/animated_background.dart';
 import 'package:quick_reminders/authentication/widgets/background_stack.dart';
+import 'package:quick_reminders/authentication/widgets/or_divider.dart';
 import 'package:quick_reminders/common/my_text_field.dart';
 import 'package:quick_reminders/common/rounded_button.dart';
 import 'package:quick_reminders/common/unfocus_on_tap.dart';
+import 'package:quick_reminders/home/home_view.dart';
 import 'package:quick_reminders/utilities/extensions/iterable_extension.dart';
 import 'package:quick_reminders/utilities/routing_functions.dart';
 
@@ -125,7 +128,7 @@ class SignUpView extends HookConsumerWidget {
                     ),
                   ),
                   const SizedBox(
-                    height: 48,
+                    height: 16,
                   ),
                   Hero(
                     tag: 'signUpButton',
@@ -152,6 +155,34 @@ class SignUpView extends HookConsumerWidget {
                       ),
                     ),
                   ),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  const OrDivider(),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  if (registrationState.googleInProgress)
+                    const CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 3,
+                    )
+                  else
+                    SignInButton(
+                      Buttons.Google,
+                      onPressed: () {
+                        registrationController.signInWithGoogle().then(
+                          (value) {
+                            if (value) {
+                              popAllAndPush(
+                                context,
+                                const HomeView(),
+                              );
+                            }
+                          },
+                        );
+                      },
+                    ),
                   const SizedBox(
                     height: 16,
                   ),
