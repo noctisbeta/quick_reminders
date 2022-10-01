@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/authentication/controllers/login_controller.dart';
+import 'package:quick_reminders/authentication/views/reset_password_successful_view.dart';
 import 'package:quick_reminders/authentication/widgets/background_gradient.dart';
 import 'package:quick_reminders/authentication/widgets/background_stack.dart';
 import 'package:quick_reminders/common/my_text_field.dart';
 import 'package:quick_reminders/common/rounded_button.dart';
 import 'package:quick_reminders/common/unfocus_on_tap.dart';
+import 'package:quick_reminders/utilities/routing_functions.dart';
 
 /// Reset password view.
 class ResetPasswordView extends HookConsumerWidget {
@@ -108,7 +110,16 @@ class ResetPasswordView extends HookConsumerWidget {
                         onPressed: () {
                           loginController.resetPassword(email.value).then((value) {
                             if (value) {
-                              // push to new screen
+                              pushReplacement(
+                                context,
+                                const ResetPasswordSuccessfulView(),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Something went wrong.'),
+                                ),
+                              );
                             }
                           });
                         },
@@ -125,12 +136,17 @@ class ResetPasswordView extends HookConsumerWidget {
                     const SizedBox(
                       height: 16,
                     ),
-                    RoundedButton(
-                      onPressed: () {},
-                      child: const Text(
-                        'BACK TO LOGIN',
-                        style: TextStyle(
-                          color: Colors.white,
+                    Hero(
+                      tag: 'backToLogin',
+                      child: RoundedButton(
+                        onPressed: () {
+                          pop(context);
+                        },
+                        child: const Text(
+                          'BACK TO LOGIN',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
