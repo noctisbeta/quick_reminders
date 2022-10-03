@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/authentication/views/authentication_view.dart';
 import 'package:quick_reminders/authentication/views/email_verification_view.dart';
@@ -9,7 +10,7 @@ import 'package:quick_reminders/initialization/authentication_state.dart';
 import 'package:quick_reminders/initialization/initialization_controller.dart';
 
 /// This widget is used to initialize the app.
-class InitWidget extends ConsumerWidget {
+class InitWidget extends HookConsumerWidget {
   /// Default constructor.
   const InitWidget({super.key});
 
@@ -17,6 +18,15 @@ class InitWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final initializationController = ref.read(
       InitializationController.provider,
+    );
+
+    useEffect(
+      () {
+        initializationController.setupLinkStream();
+        initializationController.getInitialDynamicLink();
+        return;
+      },
+      const [],
     );
 
     switch (initializationController.authenticationState) {
