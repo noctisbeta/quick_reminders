@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:quick_reminders/authentication/widgets/background_gradient.dart';
 import 'package:quick_reminders/authentication/widgets/background_stack.dart';
 import 'package:quick_reminders/common/rounded_button.dart';
-import 'package:quick_reminders/utilities/routing_functions.dart';
 
 /// Reset password mail sent.
 class ResetPasswordSuccessfulView extends StatelessWidget {
@@ -69,7 +69,7 @@ class ResetPasswordSuccessfulView extends StatelessWidget {
                     tag: 'backToLogin',
                     child: RoundedButton(
                       onPressed: () {
-                        pop(context);
+                        context.goNamed('login');
                       },
                       child: const Text(
                         'BACK TO LOGIN',

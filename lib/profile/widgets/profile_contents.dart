@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:quick_reminders/authentication/views/authentication_view.dart';
+import 'package:go_router/go_router.dart';
 import 'package:quick_reminders/constants/colors.dart';
 import 'package:quick_reminders/profile/controllers/profile_controller.dart';
 import 'package:quick_reminders/profile/widgets/tile_button.dart';
 import 'package:quick_reminders/utilities/extensions/iterable_extension.dart';
-import 'package:quick_reminders/utilities/routing_functions.dart';
 
 /// Contents of the profile view.
 class ProfileContents extends StatelessWidget {
@@ -42,10 +41,7 @@ class ProfileContents extends StatelessWidget {
         ),
         TileButton(
           onTap: () {
-            popAllAndPush(
-              context,
-              const AuthenticationView(),
-            );
+            context.goNamed('authentication');
             profileController.signOut();
           },
           leading: const Icon(

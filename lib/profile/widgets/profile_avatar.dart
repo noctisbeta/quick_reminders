@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:quick_reminders/constants/colors.dart';
-import 'package:quick_reminders/profile/views/profile_view.dart';
-import 'package:quick_reminders/utilities/routing_functions.dart';
 
 /// Profile avata.
 class ProfileAvatar extends HookWidget {
@@ -27,10 +26,7 @@ class ProfileAvatar extends HookWidget {
         absorbing: expanded,
         child: GestureDetector(
           onTap: () {
-            push(
-              context,
-              const ProfileView(),
-            );
+            context.goNamed('profile');
           },
           child: CircleAvatar(
             backgroundColor: kQuinaryColor,

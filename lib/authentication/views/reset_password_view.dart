@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/authentication/controllers/login_controller.dart';
-import 'package:quick_reminders/authentication/views/reset_password_successful_view.dart';
 import 'package:quick_reminders/authentication/widgets/background_gradient.dart';
 import 'package:quick_reminders/authentication/widgets/background_stack.dart';
 import 'package:quick_reminders/common/my_text_field.dart';
 import 'package:quick_reminders/common/rounded_button.dart';
 import 'package:quick_reminders/common/unfocus_on_tap.dart';
-import 'package:quick_reminders/utilities/routing_functions.dart';
 
 /// Reset password view.
 class ResetPasswordView extends HookConsumerWidget {
@@ -110,10 +109,7 @@ class ResetPasswordView extends HookConsumerWidget {
                         onPressed: () {
                           loginController.resetPassword(email.value).then((value) {
                             if (value) {
-                              pushReplacement(
-                                context,
-                                const ResetPasswordSuccessfulView(),
-                              );
+                              context.goNamed('resetPasswordSuccessful');
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -140,7 +136,7 @@ class ResetPasswordView extends HookConsumerWidget {
                       tag: 'backToLogin',
                       child: RoundedButton(
                         onPressed: () {
-                          pop(context);
+                          context.goNamed('login');
                         },
                         child: const Text(
                           'BACK TO LOGIN',

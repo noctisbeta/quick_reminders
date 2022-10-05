@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/authentication/controllers/registration_controller.dart';
 import 'package:quick_reminders/authentication/models/registration/registration_data.dart';
-import 'package:quick_reminders/authentication/views/email_verification_view.dart';
 import 'package:quick_reminders/authentication/widgets/animated_background.dart';
 import 'package:quick_reminders/authentication/widgets/background_stack.dart';
 import 'package:quick_reminders/authentication/widgets/or_divider.dart';
 import 'package:quick_reminders/common/my_text_field.dart';
 import 'package:quick_reminders/common/rounded_button.dart';
 import 'package:quick_reminders/common/unfocus_on_tap.dart';
-import 'package:quick_reminders/home/home_view.dart';
 import 'package:quick_reminders/utilities/extensions/iterable_extension.dart';
-import 'package:quick_reminders/utilities/routing_functions.dart';
 
 /// VRegistration view.
 class SignUpView extends HookConsumerWidget {
@@ -140,9 +138,8 @@ class SignUpView extends HookConsumerWidget {
                       )
                           .then((value) {
                         if (value) {
-                          pushReplacement(
-                            context,
-                            const EmailVerificationView(),
+                          context.goNamed(
+                            'verify',
                           );
                         }
                       }),
@@ -174,10 +171,7 @@ class SignUpView extends HookConsumerWidget {
                         registrationController.signInWithGoogle().then(
                           (value) {
                             if (value) {
-                              popAllAndPush(
-                                context,
-                                const HomeView(),
-                              );
+                              context.goNamed('home');
                             }
                           },
                         );

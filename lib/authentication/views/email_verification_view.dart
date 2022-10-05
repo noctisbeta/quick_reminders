@@ -1,27 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/authentication/controllers/registration_controller.dart';
-import 'package:quick_reminders/authentication/views/authentication_view.dart';
-import 'package:quick_reminders/authentication/views/email_verified_view.dart';
 import 'package:quick_reminders/authentication/widgets/animated_background.dart';
 import 'package:quick_reminders/authentication/widgets/background_stack.dart';
 import 'package:quick_reminders/authentication/widgets/rotation_hero.dart';
 import 'package:quick_reminders/common/rounded_button.dart';
 import 'package:quick_reminders/hooks/countdown_hook.dart';
 import 'package:quick_reminders/hooks/periodic_hook.dart';
-import 'package:quick_reminders/utilities/routing_functions.dart';
 
 /// Email verification view.
 class EmailVerificationView extends HookConsumerWidget {
   /// Default constructor.
   const EmailVerificationView({
-    this.fromLogin = false,
     super.key,
   });
-
-  /// Whether this view was pushed from the init widget.
-  final bool fromLogin;
 
   /// Checks if the current user's email is verified and takes appropriate action.
   void emailCheck(WidgetRef ref, BuildContext context) {
@@ -32,10 +26,7 @@ class EmailVerificationView extends HookConsumerWidget {
         .isEmailVerified()
         .then((value) {
       if (value) {
-        pushReplacement(
-          context,
-          const EmailVerifiedView(),
-        );
+        context.goNamed('verified');
       }
     });
   }
@@ -174,14 +165,7 @@ class EmailVerificationView extends HookConsumerWidget {
                 ),
                 RoundedButton(
                   onPressed: () {
-                    if (fromLogin) {
-                      pushReplacement(
-                        context,
-                        const AuthenticationView(),
-                      );
-                    } else {
-                      pop(context);
-                    }
+                    context.goNamed('authentication');
                   },
                   child: const Text(
                     'CANCEL',
