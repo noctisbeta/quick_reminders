@@ -11,19 +11,9 @@ class InitWidget extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final initializationController = ref.read(
-      InitializationController.provider,
-    );
-
-    final routerController = ref.read(
-      RouteController.provider,
-    );
-
     useEffect(
       () {
-        initializationController
-          ..setupLinkStream()
-          ..getInitialDynamicLink();
+        ref.read(InitializationController.provider).initDynamicLinks();
         return;
       },
       const [],
@@ -31,7 +21,7 @@ class InitWidget extends HookConsumerWidget {
 
     return MaterialApp.router(
       title: 'Quick Reminders',
-      routerConfig: routerController.router,
+      routerConfig: ref.read(RouteController.provider).router,
       debugShowCheckedModeBanner: false,
     );
   }

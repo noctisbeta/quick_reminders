@@ -8,8 +8,10 @@ import 'package:quick_reminders/authentication/views/authentication_view.dart';
 import 'package:quick_reminders/authentication/views/email_verification_view.dart';
 import 'package:quick_reminders/authentication/views/email_verified_view.dart';
 import 'package:quick_reminders/authentication/views/login_view.dart';
-import 'package:quick_reminders/authentication/views/reset_password_successful_view.dart';
+import 'package:quick_reminders/authentication/views/reset_password_successful.dart';
 import 'package:quick_reminders/authentication/views/reset_password_view.dart';
+import 'package:quick_reminders/authentication/views/send_password_reset_successful_view.dart';
+import 'package:quick_reminders/authentication/views/send_password_reset_view.dart';
 import 'package:quick_reminders/authentication/views/sign_up_view.dart';
 import 'package:quick_reminders/home/home_view.dart';
 import 'package:quick_reminders/profile/views/profile_view.dart';
@@ -73,17 +75,17 @@ class RouteController {
           },
           routes: [
             GoRoute(
-              path: '/resetPassword',
-              name: 'resetPassword',
+              path: 'sendResetPassword',
+              name: 'sendResetPassword',
               builder: (context, state) {
-                return const ResetPasswordView();
+                return const SendResetPasswordView();
               },
             ),
             GoRoute(
-              path: '/resetPasswordSuccess',
-              name: 'resetPasswordSuccess',
+              path: 'sendResetPasswordSuccessful',
+              name: 'sendResetPasswordSuccessful',
               builder: (context, state) {
-                return const ResetPasswordSuccessfulView();
+                return const SendResetPasswordSuccessfulView();
               },
             ),
           ],
@@ -103,10 +105,26 @@ class RouteController {
           },
         ),
         GoRoute(
-          path: '/verified',
+          path: 'verified',
           name: 'verified',
           builder: (context, state) {
             return const EmailVerifiedView();
+          },
+        ),
+        GoRoute(
+          path: 'resetPassword',
+          name: 'resetPassword',
+          builder: (context, state) {
+            return ResetPasswordView(
+              oobCode: state.extra! as String,
+            );
+          },
+        ),
+        GoRoute(
+          path: 'resetPasswordSuccessful',
+          name: 'resetPasswordSuccessful',
+          builder: (context, state) {
+            return const ResetPasswordSuccessfulView();
           },
         ),
       ],
@@ -119,7 +137,7 @@ class RouteController {
       },
       routes: [
         GoRoute(
-          path: '/profile',
+          path: 'profile',
           name: 'profile',
           builder: (context, state) {
             return const ProfileView();

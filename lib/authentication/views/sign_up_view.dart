@@ -95,6 +95,7 @@ class SignUpView extends HookConsumerWidget {
                         ),
                         MyTextField(
                           label: 'Email',
+                          textInputType: TextInputType.emailAddress,
                           textInputAction: TextInputAction.next,
                           errorMessage: registrationState.registrationDataErrors.email,
                           onChanged: (value) {

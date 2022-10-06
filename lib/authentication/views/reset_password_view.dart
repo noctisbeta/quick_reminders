@@ -12,11 +12,18 @@ import 'package:quick_reminders/common/unfocus_on_tap.dart';
 /// Reset password view.
 class ResetPasswordView extends HookConsumerWidget {
   /// Default constructor.
-  const ResetPasswordView({super.key});
+  const ResetPasswordView({
+    required this.oobCode,
+    super.key,
+  });
+
+  /// OOB code.
+  final String oobCode;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final email = useState('');
+    final password = useState('');
+    final confirmPassword = useState('');
 
     final loginController = ref.watch(
       LoginController.provider.notifier,
@@ -49,19 +56,16 @@ class ResetPasswordView extends HookConsumerWidget {
                     const SizedBox(
                       height: 16,
                     ),
-                    const Hero(
-                      tag: 'logo',
-                      child: Icon(
-                        Icons.label,
-                        size: 100,
-                        color: Colors.white,
-                      ),
+                    const Icon(
+                      Icons.label,
+                      size: 100,
+                      color: Colors.white,
                     ),
                     const SizedBox(
                       height: 16,
                     ),
                     const Text(
-                      'Reset Password',
+                      'New Password',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 24,
@@ -71,7 +75,7 @@ class ResetPasswordView extends HookConsumerWidget {
                       height: 16,
                     ),
                     const Text(
-                      'Enter your email address and we will send you a link to reset your password.',
+                      'Please enter a new password',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 16,
@@ -81,68 +85,76 @@ class ResetPasswordView extends HookConsumerWidget {
                     const SizedBox(
                       height: 16,
                     ),
-                    Hero(
-                      tag: 'email',
-                      child: Material(
-                        type: MaterialType.transparency,
-                        child: MyTextField(
-                          label: 'Email',
-                          initialText: loginState.loginData.email,
-                          errorMessage: loginState.loginDataErrors.email,
-                          textInputAction: TextInputAction.next,
-                          onChanged: (value) {
-                            email.value = value;
-                          },
-                          prefixIcon: const Icon(
-                            Icons.email,
-                            color: Colors.white,
-                          ),
+                    MyTextField(
+                      label: 'New password',
+                      obscured: true,
+                      textInputType: TextInputType.emailAddress,
+                      initialText: loginState.loginData.email,
+                      errorMessage: loginState.loginDataErrors.email,
+                      textInputAction: TextInputAction.next,
+                      onChanged: (value) {
+                        password.value = value;
+                      },
+                      prefixIcon: const Icon(
+                        Icons.lock,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    MyTextField(
+                      label: 'Confirm password',
+                      obscured: true,
+                      textInputType: TextInputType.emailAddress,
+                      initialText: loginState.loginData.email,
+                      errorMessage: loginState.loginDataErrors.email,
+                      textInputAction: TextInputAction.next,
+                      onChanged: (value) {
+                        confirmPassword.value = value;
+                      },
+                      prefixIcon: const Icon(
+                        Icons.lock,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    RoundedButton(
+                      onPressed: () {
+                        loginController.resetPassword(password.value, oobCode).then((value) {
+                          if (value) {
+                            context.goNamed('resetPasswordSuccessful');
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Something went wrong.'),
+                              ),
+                            );
+                          }
+                        });
+                      },
+                      isLoading: loginState.isLoading,
+                      fillColor: Colors.white,
+                      child: Text(
+                        'CONFIRM',
+                        style: TextStyle(
+                          color: Colors.blue[500],
                         ),
                       ),
                     ),
                     const SizedBox(
                       height: 16,
                     ),
-                    Hero(
-                      tag: 'loginButton',
-                      child: RoundedButton(
-                        onPressed: () {
-                          loginController.resetPassword(email.value).then((value) {
-                            if (value) {
-                              context.goNamed('resetPasswordSuccessful');
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Something went wrong.'),
-                                ),
-                              );
-                            }
-                          });
-                        },
-                        isLoading: loginState.isLoading,
-                        fillColor: Colors.white,
-                        child: Text(
-                          'SEND',
-                          style: TextStyle(
-                            color: Colors.blue[500],
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 16,
-                    ),
-                    Hero(
-                      tag: 'backToLogin',
-                      child: RoundedButton(
-                        onPressed: () {
-                          context.goNamed('login');
-                        },
-                        child: const Text(
-                          'BACK TO LOGIN',
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
+                    RoundedButton(
+                      onPressed: () {
+                        context.goNamed('authentication');
+                      },
+                      child: const Text(
+                        'CANCEL',
+                        style: TextStyle(
+                          color: Colors.white,
                         ),
                       ),
                     ),

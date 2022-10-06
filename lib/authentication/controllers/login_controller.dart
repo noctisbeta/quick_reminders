@@ -178,7 +178,7 @@ class LoginController extends StateNotifier<LoginState> {
   }
 
   /// Resets the password for [email].
-  Future<bool> resetPassword(String email) async {
+  Future<bool> sendResetPassword(String email) async {
     state = state.copyWith(
       loginDataErrors: state.loginDataErrors.copyWith(
         email: '',
@@ -197,7 +197,18 @@ class LoginController extends StateNotifier<LoginState> {
     }
 
     try {
-      await auth.sendPasswordResetEmail(email: email);
+      final settings = ActionCodeSettings(
+        url: 'https://quickreminders.page.link/resetPassword?email=$email',
+        handleCodeInApp: true,
+        androidPackageName: 'com.example.quick_reminders',
+        androidInstallApp: true,
+        dynamicLinkDomain: 'quickreminders.page.link',
+      );
+
+      await auth.sendPasswordResetEmail(
+        email: email,
+        actionCodeSettings: settings,
+      );
 
       log('Password reset email sent to $email');
 
@@ -207,6 +218,7 @@ class LoginController extends StateNotifier<LoginState> {
 
       return true;
     } on FirebaseAuthException catch (e) {
+      log('e.code: ${e.code}');
       log('Error resetting password: ${e.message}');
 
       late final String message;
@@ -232,6 +244,17 @@ class LoginController extends StateNotifier<LoginState> {
           break;
       }
 
+      return false;
+    }
+  }
+
+  /// Completes the password reset.
+  Future<bool> resetPassword(String password, String oobCode) async {
+    try {
+      await auth.confirmPasswordReset(code: oobCode, newPassword: password);
+      return true;
+    } on FirebaseAuthException catch (e) {
+      log('Error resetting password: ${e.message}');
       return false;
     }
   }

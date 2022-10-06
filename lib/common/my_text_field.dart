@@ -13,6 +13,7 @@ class MyTextField extends HookWidget {
     this.textCapitalization,
     this.textInputAction,
     this.initialText,
+    this.textInputType,
     super.key,
   });
 
@@ -36,6 +37,9 @@ class MyTextField extends HookWidget {
 
   /// Text capitalization.
   final TextCapitalization? textCapitalization;
+
+  /// Text input type.
+  final TextInputType? textInputType;
 
   /// Initial text.
   final String? initialText;
@@ -63,6 +67,7 @@ class MyTextField extends HookWidget {
     return Column(
       children: [
         TextField(
+          keyboardType: textInputType,
           controller: textEditingController,
           textInputAction: textInputAction,
           textCapitalization: textCapitalization ?? TextCapitalization.none,

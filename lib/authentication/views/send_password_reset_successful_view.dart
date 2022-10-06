@@ -5,9 +5,9 @@ import 'package:quick_reminders/authentication/widgets/background_stack.dart';
 import 'package:quick_reminders/common/rounded_button.dart';
 
 /// Reset password mail sent.
-class ResetPasswordSuccessfulView extends StatelessWidget {
+class SendResetPasswordSuccessfulView extends StatelessWidget {
   /// Default constructor.
-  const ResetPasswordSuccessfulView({super.key});
+  const SendResetPasswordSuccessfulView({super.key});
 
   @override
   Widget build(BuildContext context) {

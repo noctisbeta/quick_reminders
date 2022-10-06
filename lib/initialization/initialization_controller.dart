@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/initialization/authentication_state.dart';
+import 'package:quick_reminders/routing/route_controller.dart';
 
 /// Controller for app initialization.
 class InitializationController {
@@ -45,6 +46,12 @@ class InitializationController {
     }
   }
 
+  /// Initializes dynamic links.
+  void initDynamicLinks() {
+    getInitialDynamicLink();
+    setupLinkStream();
+  }
+
   /// Gets the initial dynamic link.
   Future<void> getInitialDynamicLink() async {
     final PendingDynamicLinkData? data = await links.getInitialLink();
@@ -53,15 +60,48 @@ class InitializationController {
 
     if (deepLink != null) {
       log('deepLink: $deepLink');
+      log('deepLink.path: ${deepLink.path}');
+      log('deepLink.queryParameters: ${deepLink.queryParameters}');
+
+      handleRouting(deepLink);
     }
   }
 
   /// Setup linkStream listeners.
   void setupLinkStream() {
-    links.onLink.listen((event) {
-      final Uri deepLink = event.link;
+    links.onLink.listen(
+      (event) {
+        final Uri deepLink = event.link;
 
-      log('deepLink: $deepLink');
-    });
+        log('deepLink: $deepLink');
+        log('deepLink.path: ${deepLink.path}');
+        log('deepLink.queryParameters: ${deepLink.queryParameters}');
+        log('deepLink.queryParametersAll: ${deepLink.queryParametersAll}');
+
+        handleRouting(deepLink);
+      },
+    );
+  }
+
+  /// Handles app routing based on the dynamic link url path.
+  void handleRouting(Uri deepLink) {
+    final continueUrl = deepLink.queryParameters['continueUrl']!;
+    final path = Uri.parse(continueUrl).path;
+
+    log('handleRouting: $path');
+
+    final router = ref.read(RouteController.provider).router;
+
+    switch (path) {
+      case '/resetPassword':
+        router.goNamed(
+          'resetPassword',
+          // params: {
+          //   'oobCode': deepLink.queryParameters['oobCode']!,
+          // },
+          extra: deepLink.queryParameters['oobCode'],
+        );
+        break;
+    }
   }
 }

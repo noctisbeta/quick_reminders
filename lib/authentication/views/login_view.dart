@@ -74,6 +74,7 @@ class LoginView extends HookConsumerWidget {
                             type: MaterialType.transparency,
                             child: MyTextField(
                               label: 'Email',
+                              textInputType: TextInputType.emailAddress,
                               errorMessage: loginState.loginDataErrors.email,
                               textInputAction: TextInputAction.next,
                               onChanged: (value) {
@@ -115,7 +116,7 @@ class LoginView extends HookConsumerWidget {
                     child: GestureDetector(
                       behavior: HitTestBehavior.opaque,
                       onTap: () {
-                        context.goNamed('resetPassword');
+                        context.goNamed('sendResetPassword');
                       },
                       child: const Text(
                         'Forgot password',
