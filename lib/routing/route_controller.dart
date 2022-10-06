@@ -16,6 +16,7 @@ import 'package:quick_reminders/authentication/views/sign_up_view.dart';
 import 'package:quick_reminders/home/home_view.dart';
 import 'package:quick_reminders/profile/views/profile_view.dart';
 import 'package:quick_reminders/routing/listenable_from_stream.dart';
+import 'package:quick_reminders/routing/routes.dart';
 
 /// Route controller.
 class RouteController {
@@ -60,30 +61,35 @@ class RouteController {
 
   /// Routes.
   static final routes = <GoRoute>[
+    ..._authRoutes,
+    ..._homeRoutes,
+  ];
+
+  static final _authRoutes = {
     GoRoute(
-      path: '/authentication',
-      name: 'authentication',
+      path: Routes.authentication.path,
+      name: Routes.authentication.name,
       builder: (context, state) {
         return const AuthenticationView();
       },
       routes: [
         GoRoute(
-          path: 'login',
-          name: 'login',
+          path: Routes.login.subPath,
+          name: Routes.login.name,
           builder: (context, state) {
             return const LoginView();
           },
           routes: [
             GoRoute(
-              path: 'sendResetPassword',
-              name: 'sendResetPassword',
+              path: Routes.sendResetPassword.subPath,
+              name: Routes.sendResetPassword.name,
               builder: (context, state) {
                 return const SendResetPasswordView();
               },
             ),
             GoRoute(
-              path: 'sendResetPasswordSuccessful',
-              name: 'sendResetPasswordSuccessful',
+              path: Routes.sendResetPasswordSuccessful.subPath,
+              name: Routes.sendResetPasswordSuccessful.name,
               builder: (context, state) {
                 return const SendResetPasswordSuccessfulView();
               },
@@ -91,29 +97,29 @@ class RouteController {
           ],
         ),
         GoRoute(
-          path: 'signUp',
-          name: 'signUp',
+          path: Routes.signUp.subPath,
+          name: Routes.signUp.name,
           builder: (context, state) {
             return const SignUpView();
           },
         ),
         GoRoute(
-          path: 'verify',
-          name: 'verify',
+          path: Routes.verify.subPath,
+          name: Routes.verify.name,
           builder: (context, state) {
             return const EmailVerificationView();
           },
         ),
         GoRoute(
-          path: 'verified',
-          name: 'verified',
+          path: Routes.verified.subPath,
+          name: Routes.verified.name,
           builder: (context, state) {
             return const EmailVerifiedView();
           },
         ),
         GoRoute(
-          path: 'resetPassword',
-          name: 'resetPassword',
+          path: Routes.resetPassword.subPath,
+          name: Routes.resetPassword.name,
           builder: (context, state) {
             return ResetPasswordView(
               oobCode: state.extra! as String,
@@ -121,29 +127,32 @@ class RouteController {
           },
         ),
         GoRoute(
-          path: 'resetPasswordSuccessful',
-          name: 'resetPasswordSuccessful',
+          path: Routes.resetPasswordSuccessful.subPath,
+          name: Routes.resetPasswordSuccessful.name,
           builder: (context, state) {
             return const ResetPasswordSuccessfulView();
           },
         ),
       ],
     ),
+  };
+
+  static final _homeRoutes = {
     GoRoute(
-      path: '/home',
-      name: 'home',
+      path: Routes.home.path,
+      name: Routes.home.name,
       builder: (context, state) {
         return const HomeView();
       },
       routes: [
         GoRoute(
-          path: 'profile',
-          name: 'profile',
+          path: Routes.profile.subPath,
+          name: Routes.profile.name,
           builder: (context, state) {
             return const ProfileView();
           },
         ),
       ],
     ),
-  ];
+  };
 }
