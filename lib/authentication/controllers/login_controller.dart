@@ -198,7 +198,7 @@ class LoginController extends StateNotifier<LoginState> {
 
     try {
       final settings = ActionCodeSettings(
-        url: 'https://quickreminders.page.link/resetPassword?email=$email',
+        url: 'https://quickreminders.page.link/resetPassword',
         handleCodeInApp: true,
         androidPackageName: 'com.example.quick_reminders',
         androidInstallApp: true,

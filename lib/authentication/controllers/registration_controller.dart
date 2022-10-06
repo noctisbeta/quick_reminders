@@ -67,8 +67,18 @@ class RegistrationController extends StateNotifier<RegistrationState> {
           'uid': userCredential.user!.uid,
         };
 
+        final settings = ActionCodeSettings(
+          url: 'https://quickreminders.page.link/verifyEmail',
+          handleCodeInApp: true,
+          androidPackageName: 'com.example.quick_reminders',
+          androidInstallApp: true,
+          dynamicLinkDomain: 'quickreminders.page.link',
+        );
+
         final List results = await Future.wait([
-          userCredential.user!.sendEmailVerification(),
+          userCredential.user!.sendEmailVerification(
+            settings,
+          ),
           ref.read(ProfileController.provider).createProfileFromMap(profileData),
         ]);
 
@@ -202,8 +212,18 @@ class RegistrationController extends StateNotifier<RegistrationState> {
       processingState: ProcessingState.loading,
     );
 
+    final settings = ActionCodeSettings(
+      url: 'https://quickreminders.page.link/verifyEmail',
+      handleCodeInApp: true,
+      androidPackageName: 'com.example.quick_reminders',
+      androidInstallApp: true,
+      dynamicLinkDomain: 'quickreminders.page.link',
+    );
+
     try {
-      await auth.currentUser!.sendEmailVerification();
+      await auth.currentUser!.sendEmailVerification(
+        settings,
+      );
       state = state.copyWith(
         processingState: ProcessingState.loaded,
       );

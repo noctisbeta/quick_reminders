@@ -96,10 +96,13 @@ class InitializationController {
       case '/resetPassword':
         router.goNamed(
           'resetPassword',
-          // params: {
-          //   'oobCode': deepLink.queryParameters['oobCode']!,
-          // },
           extra: deepLink.queryParameters['oobCode'],
+        );
+        break;
+
+      case '/verifyEmail':
+        router.goNamed(
+          'verified',
         );
         break;
     }
