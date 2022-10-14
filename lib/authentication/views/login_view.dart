@@ -166,6 +166,7 @@ class LoginView extends HookConsumerWidget {
                       strokeWidth: 3,
                     )
                   else
+                    // TODO(Janez): Make custom button.
                     SignInButton(
                       Buttons.Google,
                       onPressed: () {
