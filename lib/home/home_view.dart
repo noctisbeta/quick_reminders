@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/constants/colors.dart';
 import 'package:quick_reminders/home/widgets/add_group_card.dart';
-import 'package:quick_reminders/home/widgets/people_group_card.dart';
 import 'package:quick_reminders/home/widgets/reminder_group_card.dart';
 import 'package:quick_reminders/home/widgets/section_header.dart';
 import 'package:quick_reminders/profile/controllers/profile_controller.dart';
