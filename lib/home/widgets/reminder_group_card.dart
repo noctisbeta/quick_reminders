@@ -16,13 +16,19 @@ class ReminderGroupCard extends StatelessWidget {
   /// Number of reminders.
   final int numReminders;
 
+  /// Card height.
+  static double get cardHeight => 80;
+
+  /// Card width.
+  static double get cardWidth => 100;
+
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         Container(
-          height: 80,
-          width: 100,
+          height: cardHeight,
+          width: cardWidth,
           decoration: BoxDecoration(
             color: kTertiaryColor,
             borderRadius: BorderRadius.circular(16),

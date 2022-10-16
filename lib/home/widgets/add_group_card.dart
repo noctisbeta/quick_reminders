@@ -5,28 +5,36 @@ import 'package:quick_reminders/constants/colors.dart';
 class AddGroupCard extends StatelessWidget {
   /// Default constructor.
   const AddGroupCard({
+    required this.onTap,
     super.key,
   });
 
+  /// On tap.
+  final void Function() onTap;
+
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Container(
-          height: 80,
-          width: 100,
-          decoration: BoxDecoration(
-            // color: kTertiaryColor,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: kQuinaryColor),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Stack(
+        children: [
+          Container(
+            height: 80,
+            width: 100,
+            decoration: BoxDecoration(
+              // color: kTertiaryColor,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: kQuinaryColor),
+            ),
+            child: const Icon(
+              Icons.add,
+              color: kQuinaryColor,
+              size: 40,
+            ),
           ),
-          child: const Icon(
-            Icons.add,
-            color: kQuinaryColor,
-            size: 40,
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
