@@ -13,7 +13,9 @@ class InitializationController {
     this.ref,
     this.auth,
     this.links,
-  );
+  ) {
+    _initDynamicLinks();
+  }
 
   /// Provides the controller.
   static final provider = Provider.autoDispose(
@@ -47,7 +49,8 @@ class InitializationController {
   }
 
   /// Initializes dynamic links.
-  void initDynamicLinks() {
+  void _initDynamicLinks() {
+    log('init dynamic links');
     getInitialDynamicLink();
     setupLinkStream();
   }

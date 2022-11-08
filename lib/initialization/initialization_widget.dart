@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:quick_reminders/initialization/initialization_controller.dart';
 import 'package:quick_reminders/routing/route_controller.dart';
 
 /// This widget is used to initialize the app.
@@ -11,13 +9,15 @@ class InitWidget extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    useEffect(
-      () {
-        ref.read(InitializationController.provider).initDynamicLinks();
-        return;
-      },
-      const [],
-    );
+    // useEffect(
+    //   () {
+    //     if (!kIsWeb) {
+    //       ref.read(InitializationController.provider)._initDynamicLinks();
+    //     }
+    //     return;
+    //   },
+    //   const [],
+    // );
 
     return MaterialApp.router(
       title: 'Quick Reminders',
