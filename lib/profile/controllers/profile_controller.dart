@@ -2,7 +2,10 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:functional/functional.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:logger/logger.dart';
+import 'package:quick_reminders/authentication/controllers/auth_store.dart';
 import 'package:quick_reminders/authentication/controllers/login_controller.dart';
 import 'package:quick_reminders/profile/models/profile.dart';
 
@@ -13,6 +16,7 @@ class ProfileController {
     this.ref,
     this.auth,
     this.db,
+    this._authStore,
   );
 
   /// Provides the controller.
@@ -21,6 +25,7 @@ class ProfileController {
       ref,
       FirebaseAuth.instance,
       FirebaseFirestore.instance,
+      ref.watch(AuthStore.provider.notifier),
     ),
   );
 
@@ -33,6 +38,9 @@ class ProfileController {
   /// Firestore database.
   final FirebaseFirestore db;
 
+  /// Auth store.
+  final AuthStore _authStore;
+
   /// Provides the profile stream.
   static final profileStreamProvider = StreamProvider.autoDispose((ref) {
     final db = FirebaseFirestore.instance;
@@ -42,27 +50,28 @@ class ProfileController {
   });
 
   /// Creates a new profile.
-  Future<bool> createProfileFromUserCredential(UserCredential userCredential) async {
-    final user = {
-      'firstName': userCredential.user!.displayName!.split(' ')[0],
-      'lastName': userCredential.user!.displayName!.split(' ')[1],
-      'email': userCredential.user!.email,
-      'createdAt': FieldValue.serverTimestamp(),
-    };
-
-    try {
-      await db.collection('users').doc(userCredential.user!.uid).set(
-            user,
-            SetOptions(merge: true),
+  Future<Either<Exception, Unit>> createProfileFromUserCredential(UserCredential userCredential) async => Task.fromVoid(
+        () => db.collection('users').doc(userCredential.user!.uid).set(
+          {
+            'firstName': userCredential.user!.displayName!.split(' ')[0],
+            'lastName': userCredential.user!.displayName!.split(' ')[1],
+            'email': userCredential.user!.email,
+            'createdAt': FieldValue.serverTimestamp(),
+          },
+          SetOptions(merge: true),
+        ),
+      ).attemptEither<Exception>().run().then(
+            (either) => either.match(
+              (exception) => withEffect(
+                left(exception),
+                () => Logger().e('Error creating profile.', exception, StackTrace.current),
+              ),
+              (unit) => withEffect(
+                right(unit),
+                () => Logger().i('Created profile.'),
+              ),
+            ),
           );
-
-      log('Profile created: $user');
-      return true;
-    } on FirebaseException catch (e) {
-      log('Error creating profile: ${e.message}');
-      return false;
-    }
-  }
 
   /// Creates a user document in firestore.
   Future<bool> createProfileFromMap(Map<String, dynamic> map) async {
@@ -89,16 +98,14 @@ class ProfileController {
 
   /// Returns true if the user already has a profile.
   Future<bool> userHasProfile() async {
-    if (!ref.read(LoginController.provider.notifier).isUserLoggedIn()) {
-      log('User is not logged in');
-      return false;
-    }
-
-    return db.collection('users').doc(auth.currentUser!.uid).get().then(
-      (value) {
-        log('User has profile: ${value.exists}');
-        return value.exists;
-      },
+    return _authStore.isLoggedIn.match(
+      () => withEffect(false, () => Logger().e('User is not logged in')),
+      () => db.collection('users').doc(auth.currentUser!.uid).get().then(
+            (value) => value.exists.match(
+              () => withEffect(true, () => Logger().i('User has a profile')),
+              () => withEffect(false, () => Logger().i('User does not have a profile')),
+            ),
+          ),
     );
   }
 

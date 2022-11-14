@@ -1,9 +1,12 @@
 import 'dart:developer';
 
-import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import 'package:functional/functional.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:quick_reminders/authentication/controllers/google_controller.dart';
+import 'package:quick_reminders/authentication/controllers/google_sign_in_controller.dart';
+import 'package:quick_reminders/authentication/controllers/google_sign_in_controller_web.dart';
+import 'package:quick_reminders/authentication/controllers/google_sign_in_protocol.dart';
 import 'package:quick_reminders/authentication/models/login/login_data.dart';
 import 'package:quick_reminders/authentication/models/login/login_data_errors.dart';
 import 'package:quick_reminders/authentication/models/login/login_state.dart';
@@ -14,24 +17,39 @@ import 'package:quick_reminders/profile/controllers/profile_controller.dart';
 class LoginController extends StateNotifier<LoginState> {
   /// Default constructor.
   LoginController(
-    this.ref,
-    this.auth,
+    this._auth,
+    this._googleController,
+    this._profileController,
   ) : super(
           LoginState.empty(),
         );
 
-  /// Riverpod reference.
-  final Ref ref;
-
   /// Firebase auth.
-  final FirebaseAuth auth;
+  final FirebaseAuth _auth;
+
+  /// Google sign in controller.
+  final GoogleSignInProtocol _googleController;
+
+  /// Profile controller.
+  final ProfileController _profileController;
 
   /// Provides the controller.
   static final provider = StateNotifierProvider.autoDispose<LoginController, LoginState>(
-    (ref) => LoginController(
-      ref,
-      FirebaseAuth.instance,
-    ),
+    (ref) {
+      late final GoogleSignInProtocol googleController;
+
+      if (kIsWeb) {
+        googleController = ref.watch(GoogleSignInControllerWeb.provider);
+      } else {
+        googleController = ref.watch(GoogleSignInController.provider);
+      }
+
+      return LoginController(
+        FirebaseAuth.instance,
+        googleController,
+        ref.watch(ProfileController.provider),
+      );
+    },
   );
 
   /// Sign in with google.
@@ -40,43 +58,43 @@ class LoginController extends StateNotifier<LoginState> {
       googleInProgress: true,
     );
 
-    await auth.signOut();
-
-    final account = await ref.read(GoogleController.provider).signInWithGoogle();
-
-    if (account == null) {
-      state = state.copyWith(
-        googleInProgress: false,
-      );
-      return false;
-    }
-
-    log('User signed in to google: ${account.email}');
-
-    final googleAuth = await account.authentication;
-
-    final userCredential = await auth.signInWithCredential(
-      GoogleAuthProvider.credential(
-        idToken: googleAuth.idToken,
-        accessToken: googleAuth.accessToken,
-      ),
-    );
-
-    final profileController = ref.read(ProfileController.provider);
-
-    final hasProfile = await profileController.userHasProfile();
-
-    late final bool result;
-    if (!hasProfile) {
-      result = await profileController.createProfileFromUserCredential(userCredential);
-    } else {
-      result = true;
-    }
-
-    state = state.copyWith(
-      googleInProgress: false,
-    );
-    return result;
+    return _googleController.signInWithGoogle().then(
+          (googleEither) => googleEither.match(
+            (exception) {
+              state = state.copyWith(
+                googleInProgress: false,
+              );
+              return false;
+            },
+            (userCredential) => Task(
+              _profileController.userHasProfile,
+            ).run().then(
+                  (value) => value.match(
+                    () => _profileController
+                        .createProfileFromUserCredential(
+                          userCredential,
+                        )
+                        .then(
+                          (either) => either.match(
+                            (e) {
+                              state = state.copyWith(
+                                googleInProgress: false,
+                              );
+                              return false;
+                            },
+                            (value) {
+                              state = state.copyWith(
+                                googleInProgress: false,
+                              );
+                              return true;
+                            },
+                          ),
+                        ),
+                    () => true,
+                  ),
+                ),
+          ),
+        );
   }
 
   /// Logs in the user with email and password.
@@ -89,7 +107,7 @@ class LoginController extends StateNotifier<LoginState> {
 
     final result = await _loginUser(state.loginData);
 
-    return await result.fold(
+    return await result.match(
       (exception) {
         state = state.copyWith(
           processingState: ProcessingState.loaded,
@@ -108,7 +126,7 @@ class LoginController extends StateNotifier<LoginState> {
   /// Logs in the user with email and password.
   Future<Either<Exception, UserCredential>> _loginUser(LoginData loginData) async {
     try {
-      await auth.signOut();
+      await _auth.signOut();
 
       if (loginData.email.isEmpty) {
         state = state.copyWith(
@@ -128,7 +146,7 @@ class LoginController extends StateNotifier<LoginState> {
         return Left(Exception('Password is empty'));
       }
 
-      final userCredential = await auth.signInWithEmailAndPassword(
+      final userCredential = await _auth.signInWithEmailAndPassword(
         email: loginData.email.trim(),
         password: loginData.password.trim(),
       );
@@ -205,7 +223,7 @@ class LoginController extends StateNotifier<LoginState> {
         dynamicLinkDomain: 'quickreminders.page.link',
       );
 
-      await auth.sendPasswordResetEmail(
+      await _auth.sendPasswordResetEmail(
         email: email,
         actionCodeSettings: settings,
       );
@@ -251,7 +269,7 @@ class LoginController extends StateNotifier<LoginState> {
   /// Completes the password reset.
   Future<bool> resetPassword(String password, String oobCode) async {
     try {
-      await auth.confirmPasswordReset(code: oobCode, newPassword: password);
+      await _auth.confirmPasswordReset(code: oobCode, newPassword: password);
       return true;
     } on FirebaseAuthException catch (e) {
       log('Error resetting password: ${e.message}');
@@ -261,21 +279,21 @@ class LoginController extends StateNotifier<LoginState> {
 
   /// Returns true if a user is logged in.
   bool isUserLoggedIn() {
-    return auth.currentUser != null;
+    return _auth.currentUser != null;
   }
 
   /// Checks if the current user has their email verified.
   Future<bool> isEmailVerified() async {
-    if (auth.currentUser == null) {
+    if (_auth.currentUser == null) {
       log('No user is signed in.');
       return false;
     }
-    await auth.currentUser!.reload();
-    return auth.currentUser!.emailVerified;
+    await _auth.currentUser!.reload();
+    return _auth.currentUser!.emailVerified;
   }
 
   /// Call only if user is logged in.
   bool isEmailVerifiedSync() {
-    return auth.currentUser!.emailVerified;
+    return _auth.currentUser!.emailVerified;
   }
 }

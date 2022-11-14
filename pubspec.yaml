@@ -43,6 +43,10 @@ dependencies:
   flutter_svg: ^1.1.6
   flutter_web_plugins:
     sdk: flutter
+  fpdart: ^0.3.0
+  functional:
+    git:
+      url: https://github.com/noctisbeta/functional
   go_router: ^5.1.5
   google_fonts: ^3.0.1
   google_sign_in: ^5.4.2

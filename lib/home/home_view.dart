@@ -139,7 +139,7 @@ class HomeView extends ConsumerWidget {
                 },
                 loading: () {
                   log('loading');
-                  return Text('loading');
+                  return const Text('loading');
                 },
                 error: (error, stackTrace) {
                   log(error.toString());
@@ -305,7 +305,7 @@ class HomeView extends ConsumerWidget {
                 },
                 loading: () {
                   log('loading');
-                  return Text('loading');
+                  return const Text('loading');
                 },
                 error: (error, stackTrace) {
                   log(error.toString());

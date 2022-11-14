@@ -1,10 +1,13 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import 'package:functional/functional.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:quick_reminders/authentication/controllers/google_controller.dart';
+import 'package:quick_reminders/authentication/controllers/google_sign_in_controller.dart';
+import 'package:quick_reminders/authentication/controllers/google_sign_in_controller_web.dart';
+import 'package:quick_reminders/authentication/controllers/google_sign_in_protocol.dart';
 import 'package:quick_reminders/authentication/models/processing_state.dart';
 import 'package:quick_reminders/authentication/models/registration/registration_data.dart';
 import 'package:quick_reminders/authentication/models/registration/registration_data_errors.dart';
@@ -16,8 +19,10 @@ class RegistrationController extends StateNotifier<RegistrationState> {
   /// Default constructor.
   RegistrationController(
     this.ref,
-    this.auth,
-    this.db,
+    this._auth,
+    this._db,
+    this._googleController,
+    this._profileController,
   ) : super(
           RegistrationState.empty(),
         );
@@ -26,18 +31,35 @@ class RegistrationController extends StateNotifier<RegistrationState> {
   final Ref ref;
 
   /// Firebase auth
-  final FirebaseAuth auth;
+  final FirebaseAuth _auth;
 
   /// Firestore db.
-  final FirebaseFirestore db;
+  final FirebaseFirestore _db;
+
+  /// Google sign in controller.
+  final GoogleSignInProtocol _googleController;
+
+  final ProfileController _profileController;
 
   /// Provides the controller.
   static final provider = StateNotifierProvider.autoDispose<RegistrationController, RegistrationState>(
-    (ref) => RegistrationController(
-      ref,
-      FirebaseAuth.instance,
-      FirebaseFirestore.instance,
-    ),
+    (ref) {
+      late final GoogleSignInProtocol googleController;
+
+      if (kIsWeb) {
+        googleController = ref.watch(GoogleSignInControllerWeb.provider);
+      } else {
+        googleController = ref.watch(GoogleSignInController.provider);
+      }
+
+      return RegistrationController(
+        ref,
+        FirebaseAuth.instance,
+        FirebaseFirestore.instance,
+        googleController,
+        ref.watch(ProfileController.provider),
+      );
+    },
   );
 
   /// Registers the user with email and password, then creates a user document in Firestore.
@@ -50,7 +72,7 @@ class RegistrationController extends StateNotifier<RegistrationState> {
 
     final result = await _createUser(state.registrationData);
 
-    return await result.fold(
+    return await result.match(
       (exception) {
         state = state.copyWith(
           processingState: ProcessingState.loaded,
@@ -93,54 +115,53 @@ class RegistrationController extends StateNotifier<RegistrationState> {
   }
 
   /// Sign in with google.
-  Future<bool> signInWithGoogle() async {
-    state = state.copyWith(
-      googleInProgress: true,
-    );
-
-    await auth.signOut();
-
-    final account = await ref.read(GoogleController.provider).signInWithGoogle();
-
-    if (account == null) {
-      state = state.copyWith(
-        googleInProgress: false,
+  Future<bool> signInWithGoogle() async => withEffect(
+        _googleController.signInWithGoogle().then(
+              (either) => either.match(
+                (exception) => withEffect(
+                  false,
+                  () {
+                    state = state.copyWith(
+                      googleInProgress: false,
+                    );
+                  },
+                ),
+                (userCredential) => _profileController.userHasProfile().then(
+                      (value) => value.match(
+                        () => _profileController.createProfileFromUserCredential(userCredential).then(
+                              (either) => either.match(
+                                (exception) => withEffect(
+                                  false,
+                                  () {
+                                    state = state.copyWith(
+                                      googleInProgress: false,
+                                    );
+                                  },
+                                ),
+                                (value) => withEffect(
+                                  true,
+                                  () {
+                                    state = state.copyWith(
+                                      googleInProgress: false,
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                        () => true,
+                      ),
+                    ),
+              ),
+            ),
+        () => state = state.copyWith(
+          googleInProgress: true,
+        ),
       );
-      return false;
-    }
-
-    log('User signed in to google: ${account.email}');
-
-    final googleAuth = await account.authentication;
-
-    final userCredential = await auth.signInWithCredential(
-      GoogleAuthProvider.credential(
-        idToken: googleAuth.idToken,
-        accessToken: googleAuth.accessToken,
-      ),
-    );
-
-    final profileController = ref.read(ProfileController.provider);
-
-    final hasProfile = await profileController.userHasProfile();
-
-    late final bool result;
-    if (!hasProfile) {
-      result = await profileController.createProfileFromUserCredential(userCredential);
-    } else {
-      result = true;
-    }
-
-    state = state.copyWith(
-      googleInProgress: false,
-    );
-    return result;
-  }
 
   /// Creates a user with email and password.
   Future<Either<Exception, UserCredential>> _createUser(RegistrationData data) async {
     try {
-      final userCredential = await auth.createUserWithEmailAndPassword(
+      final userCredential = await _auth.createUserWithEmailAndPassword(
         email: data.email.trim(),
         password: data.password.trim(),
       );
@@ -194,17 +215,17 @@ class RegistrationController extends StateNotifier<RegistrationState> {
 
   /// Checks if the current user has their email verified.
   Future<bool> isEmailVerified() async {
-    if (auth.currentUser == null) {
+    if (_auth.currentUser == null) {
       log('No user is signed in.');
       return false;
     }
-    await auth.currentUser!.reload();
-    return auth.currentUser!.emailVerified;
+    await _auth.currentUser!.reload();
+    return _auth.currentUser!.emailVerified;
   }
 
   /// Sends a verification email to the current user.
   Future<bool> resendEmailVerification() async {
-    if (auth.currentUser == null) {
+    if (_auth.currentUser == null) {
       log('No user is signed in.');
       return false;
     }
@@ -221,7 +242,7 @@ class RegistrationController extends StateNotifier<RegistrationState> {
     );
 
     try {
-      await auth.currentUser!.sendEmailVerification(
+      await _auth.currentUser!.sendEmailVerification(
         settings,
       );
       state = state.copyWith(

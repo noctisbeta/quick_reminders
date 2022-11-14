@@ -21,7 +21,6 @@ Future<Unit> main() async {
     final license = await rootBundle.loadString('assets/fonts/LICENSE.txt');
     yield LicenseEntryWithLineBreaks(['google_fonts'], license);
   });
-
   GoogleFonts.config.allowRuntimeFetching = false;
 
   if (kIsWeb) {

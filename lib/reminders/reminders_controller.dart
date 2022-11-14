@@ -65,6 +65,7 @@ class RemindersController {
     },
   );
 
+  /// Creates a new reminder group.
   Future<void> createReminderGroup(String name) async {
     final collection = db.collection('users').doc(auth.currentUser!.uid).collection('reminderGroups');
 
