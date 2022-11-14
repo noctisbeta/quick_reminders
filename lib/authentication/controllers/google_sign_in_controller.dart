@@ -22,15 +22,15 @@ class GoogleSignInController implements GoogleSignInProtocol {
   );
 
   @override
-  Future<Either<GoogleSignInException, UserCredential>> signInWithGoogle() async => Task(
+  Future<Either<GoogleSignInException, UserCredential>> signInWithGoogle() async => Task.fromNullable(
         () => GoogleSignIn().signIn(),
-      ).attemptOption().run().then(
+      ).run().then(
             (value) => value.match(
               () => withEffect(
                 const Left(GoogleSignInException('Error signing in with Google.')),
                 () => Logger().e('Error signing in with Google.', 'error', StackTrace.current),
               ),
-              (account) => account!.authentication.then(
+              (account) => account.authentication.then(
                 (googleAuth) => Task(
                   () => _auth.signInWithCredential(
                     GoogleAuthProvider.credential(

@@ -1,6 +1,5 @@
 import 'dart:developer';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:functional/functional.dart';
@@ -20,7 +19,6 @@ class RegistrationController extends StateNotifier<RegistrationState> {
   RegistrationController(
     this.ref,
     this._auth,
-    this._db,
     this._googleController,
     this._profileController,
   ) : super(
@@ -33,9 +31,6 @@ class RegistrationController extends StateNotifier<RegistrationState> {
   /// Firebase auth
   final FirebaseAuth _auth;
 
-  /// Firestore db.
-  final FirebaseFirestore _db;
-
   /// Google sign in controller.
   final GoogleSignInProtocol _googleController;
 
@@ -44,19 +39,13 @@ class RegistrationController extends StateNotifier<RegistrationState> {
   /// Provides the controller.
   static final provider = StateNotifierProvider.autoDispose<RegistrationController, RegistrationState>(
     (ref) {
-      late final GoogleSignInProtocol googleController;
-
-      if (kIsWeb) {
-        googleController = ref.watch(GoogleSignInControllerWeb.provider);
-      } else {
-        googleController = ref.watch(GoogleSignInController.provider);
-      }
-
       return RegistrationController(
         ref,
         FirebaseAuth.instance,
-        FirebaseFirestore.instance,
-        googleController,
+        kIsWeb.match(
+          () => ref.watch(GoogleSignInController.provider),
+          () => ref.watch(GoogleSignInControllerWeb.provider),
+        ),
         ref.watch(ProfileController.provider),
       );
     },

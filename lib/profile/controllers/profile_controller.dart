@@ -6,7 +6,6 @@ import 'package:functional/functional.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/logger.dart';
 import 'package:quick_reminders/authentication/controllers/auth_store.dart';
-import 'package:quick_reminders/authentication/controllers/login_controller.dart';
 import 'package:quick_reminders/profile/models/profile.dart';
 
 /// Profile controller.

@@ -1,9 +1,9 @@
-import 'package:dartz/dartz.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:functional/functional.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/firebase/firebase_options.dart';
@@ -23,15 +23,12 @@ Future<Unit> main() async {
   });
   GoogleFonts.config.allowRuntimeFetching = false;
 
-  if (kIsWeb) {
-    usePathUrlStrategy();
-  }
-
   final container = ProviderContainer();
 
-  if (!kIsWeb) {
-    container.read(InitializationController.provider);
-  }
+  kIsWeb.match(
+    () => container.read(InitializationController.provider),
+    usePathUrlStrategy,
+  );
 
   final routerConfig = container.read(RouteController.provider).router;
 

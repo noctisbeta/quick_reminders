@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:functional/functional.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:logger/logger.dart';
 import 'package:quick_reminders/authentication/controllers/google_sign_in_controller.dart';
 import 'package:quick_reminders/authentication/controllers/google_sign_in_controller_web.dart';
 import 'package:quick_reminders/authentication/controllers/google_sign_in_protocol.dart';
@@ -36,66 +37,60 @@ class LoginController extends StateNotifier<LoginState> {
   /// Provides the controller.
   static final provider = StateNotifierProvider.autoDispose<LoginController, LoginState>(
     (ref) {
-      late final GoogleSignInProtocol googleController;
-
-      if (kIsWeb) {
-        googleController = ref.watch(GoogleSignInControllerWeb.provider);
-      } else {
-        googleController = ref.watch(GoogleSignInController.provider);
-      }
-
       return LoginController(
         FirebaseAuth.instance,
-        googleController,
+        kIsWeb.match(
+          () => ref.watch(GoogleSignInController.provider),
+          () => ref.watch(GoogleSignInControllerWeb.provider),
+        ),
         ref.watch(ProfileController.provider),
       );
     },
   );
 
   /// Sign in with google.
-  Future<bool> signInWithGoogle() async {
-    state = state.copyWith(
-      googleInProgress: true,
-    );
-
-    return _googleController.signInWithGoogle().then(
-          (googleEither) => googleEither.match(
-            (exception) {
-              state = state.copyWith(
-                googleInProgress: false,
-              );
-              return false;
-            },
-            (userCredential) => Task(
-              _profileController.userHasProfile,
-            ).run().then(
-                  (value) => value.match(
-                    () => _profileController
-                        .createProfileFromUserCredential(
-                          userCredential,
-                        )
-                        .then(
-                          (either) => either.match(
-                            (e) {
-                              state = state.copyWith(
-                                googleInProgress: false,
-                              );
-                              return false;
-                            },
-                            (value) {
-                              state = state.copyWith(
-                                googleInProgress: false,
-                              );
-                              return true;
-                            },
-                          ),
-                        ),
-                    () => true,
-                  ),
-                ),
-          ),
-        );
-  }
+  Future<bool> signInWithGoogle() async => withEffect(
+        _googleController.signInWithGoogle().then(
+              (googleEither) => googleEither.match(
+                (exception) {
+                  state = state.copyWith(
+                    googleInProgress: false,
+                  );
+                  return false;
+                },
+                (userCredential) => Task(
+                  _profileController.userHasProfile,
+                ).run().then(
+                      (value) => value.match(
+                        () => _profileController
+                            .createProfileFromUserCredential(
+                              userCredential,
+                            )
+                            .then(
+                              (either) => either.match(
+                                (e) {
+                                  state = state.copyWith(
+                                    googleInProgress: false,
+                                  );
+                                  return false;
+                                },
+                                (value) {
+                                  state = state.copyWith(
+                                    googleInProgress: false,
+                                  );
+                                  return true;
+                                },
+                              ),
+                            ),
+                        () => true,
+                      ),
+                    ),
+              ),
+            ),
+        () => state = state.copyWith(
+          googleInProgress: true,
+        ),
+      );
 
   /// Logs in the user with email and password.
   Future<bool> login(LoginData loginData) async {

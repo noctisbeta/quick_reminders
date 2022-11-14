@@ -155,7 +155,7 @@ class HomeView extends ConsumerWidget {
               const SizedBox(
                 height: 8,
               ),
-              // TODO (Janez): Grid view with carousel pages.
+              // TODO(Janez): Grid view with carousel pages.
               reminderGroupStream.when(
                 data: (data) {
                   log(data.docs.toString());

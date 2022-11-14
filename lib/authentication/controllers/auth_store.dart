@@ -6,7 +6,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 class AuthStore extends StateNotifier<Option<User>> {
   /// Default constructor.
   AuthStore(
-    this.ref,
     this.auth,
   ) : super(const None()) {
     auth.authStateChanges().listen(
@@ -17,16 +16,12 @@ class AuthStore extends StateNotifier<Option<User>> {
         );
   }
 
-  /// Riverpod reference.
-  final Ref ref;
-
   /// Auth.
   FirebaseAuth auth;
 
   /// Provider.
   static final provider = StateNotifierProvider.autoDispose<AuthStore, Option<User>>(
     (ref) => AuthStore(
-      ref,
       FirebaseAuth.instance,
     ),
   );
