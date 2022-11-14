@@ -14,7 +14,7 @@ class ProfileController {
   const ProfileController(
     this.ref,
     this.auth,
-    this.db,
+    this._db,
     this._authStore,
   );
 
@@ -35,7 +35,7 @@ class ProfileController {
   final FirebaseAuth auth;
 
   /// Firestore database.
-  final FirebaseFirestore db;
+  final FirebaseFirestore _db;
 
   /// Auth store.
   final AuthStore _authStore;
@@ -50,7 +50,7 @@ class ProfileController {
 
   /// Creates a new profile.
   Future<Either<Exception, Unit>> createProfileFromUserCredential(UserCredential userCredential) async => Task.fromVoid(
-        () => db.collection('users').doc(userCredential.user!.uid).set(
+        () => _db.collection('users').doc(userCredential.user!.uid).set(
           {
             'firstName': userCredential.user!.displayName!.split(' ')[0],
             'lastName': userCredential.user!.displayName!.split(' ')[1],
@@ -74,7 +74,7 @@ class ProfileController {
 
   /// Creates a user document in firestore.
   Future<Either<Exception, Unit>> createProfileFromMap(Map<String, dynamic> map) async => Task.fromVoid(
-        () => db.collection('users').doc(map['uid']).set(
+        () => _db.collection('users').doc(map['uid']).set(
           {
             'firstName': map['firstName'],
             'lastName': map['lastName'],
@@ -100,10 +100,10 @@ class ProfileController {
   Future<bool> userHasProfile() async {
     return _authStore.isLoggedIn.match(
       () => withEffect(false, () => Logger().e('User is not logged in')),
-      () => db.collection('users').doc(auth.currentUser!.uid).get().then(
+      () => _db.collection('users').doc(auth.currentUser!.uid).get().then(
             (value) => value.exists.match(
-              () => withEffect(true, () => Logger().i('User has a profile')),
               () => withEffect(false, () => Logger().i('User does not have a profile')),
+              () => withEffect(true, () => Logger().i('User has a profile')),
             ),
           ),
     );
@@ -112,7 +112,7 @@ class ProfileController {
   /// Signs the user out.
   Future<void> signOut() async {
     // Stop the database reads when the user is signed out, to prevent errors caused by rules.
-    await db.terminate();
+    // await _db.terminate();
 
     await auth.signOut();
     log('Signed out the user.');

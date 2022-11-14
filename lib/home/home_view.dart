@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:logger/logger.dart';
 import 'package:quick_reminders/common/my_text_field.dart';
 import 'package:quick_reminders/constants/colors.dart';
 import 'package:quick_reminders/home/widgets/add_group_card.dart';
@@ -57,9 +58,10 @@ class HomeView extends ConsumerWidget {
                       );
                     },
                     error: (error, stackTrace) {
-                      log(
-                        'Error in profile stream: $error \n stackTrace: $stackTrace',
-                        stackTrace: stackTrace,
+                      Logger().e(
+                        'Error in profile stream: $error',
+                        error,
+                        stackTrace,
                       );
 
                       return const ProfileAvatar(

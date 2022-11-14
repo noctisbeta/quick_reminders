@@ -80,7 +80,12 @@ class LoginController extends StateNotifier<LoginState> {
                                 },
                               ),
                             ),
-                        () => true,
+                        () => withEffect(
+                          true,
+                          () => state = state.copyWith(
+                            googleInProgress: false,
+                          ),
+                        ),
                       ),
                     ),
               ),

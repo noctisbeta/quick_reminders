@@ -33,7 +33,7 @@ class RouteController {
   final RouteObserver<ModalRoute> routeObserver;
 
   /// Provides the router.
-  static final provider = Provider(
+  static final provider = Provider.autoDispose(
     (ref) => RouteController(
       FirebaseAuth.instance,
       RouteObserver<ModalRoute>(),

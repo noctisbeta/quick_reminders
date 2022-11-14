@@ -11,6 +11,7 @@ import 'package:quick_reminders/authentication/widgets/or_divider.dart';
 import 'package:quick_reminders/common/my_text_field.dart';
 import 'package:quick_reminders/common/rounded_button.dart';
 import 'package:quick_reminders/common/unfocus_on_tap.dart';
+import 'package:quick_reminders/responsive/max_width_constraint.dart';
 import 'package:quick_reminders/utilities/extensions/iterable_extension.dart';
 
 /// VRegistration view.
@@ -50,137 +51,139 @@ class SignUpView extends HookConsumerWidget {
           child: SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Column(
-                children: [
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  const Hero(
-                    tag: 'logo',
-                    child: Icon(
-                      Icons.app_registration,
-                      size: 100,
-                      color: Colors.white,
+              child: MaxWidthConstraint(
+                child: Column(
+                  children: [
+                    const SizedBox(
+                      height: 16,
                     ),
-                  ),
-                  const SizedBox(
-                    height: 48,
-                  ),
-                  FocusScope(
-                    child: Column(
-                      children: <Widget>[
-                        MyTextField(
-                          label: 'First Name',
-                          textCapitalization: TextCapitalization.words,
-                          textInputAction: TextInputAction.next,
-                          onChanged: (value) {
-                            registrationData.firstName = value;
-                          },
-                          prefixIcon: const Icon(
-                            Icons.person,
-                            color: Colors.white,
+                    const Hero(
+                      tag: 'logo',
+                      child: Icon(
+                        Icons.app_registration,
+                        size: 100,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 48,
+                    ),
+                    FocusScope(
+                      child: Column(
+                        children: <Widget>[
+                          MyTextField(
+                            label: 'First Name',
+                            textCapitalization: TextCapitalization.words,
+                            textInputAction: TextInputAction.next,
+                            onChanged: (value) {
+                              registrationData.firstName = value;
+                            },
+                            prefixIcon: const Icon(
+                              Icons.person,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                        MyTextField(
-                          label: 'Last Name',
-                          textCapitalization: TextCapitalization.words,
-                          textInputAction: TextInputAction.next,
-                          onChanged: (value) {
-                            registrationData.lastName = value;
-                          },
-                          prefixIcon: const Icon(
-                            Icons.person,
-                            color: Colors.white,
+                          MyTextField(
+                            label: 'Last Name',
+                            textCapitalization: TextCapitalization.words,
+                            textInputAction: TextInputAction.next,
+                            onChanged: (value) {
+                              registrationData.lastName = value;
+                            },
+                            prefixIcon: const Icon(
+                              Icons.person,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                        MyTextField(
-                          label: 'Email',
-                          textInputType: TextInputType.emailAddress,
-                          textInputAction: TextInputAction.next,
-                          errorMessage: registrationState.registrationDataErrors.email,
-                          onChanged: (value) {
-                            registrationData.email = value;
-                          },
-                          prefixIcon: const Icon(
-                            Icons.email,
-                            color: Colors.white,
+                          MyTextField(
+                            label: 'Email',
+                            textInputType: TextInputType.emailAddress,
+                            textInputAction: TextInputAction.next,
+                            errorMessage: registrationState.registrationDataErrors.email,
+                            onChanged: (value) {
+                              registrationData.email = value;
+                            },
+                            prefixIcon: const Icon(
+                              Icons.email,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                        MyTextField(
-                          label: 'Password',
-                          textInputAction: TextInputAction.go,
-                          errorMessage: registrationState.registrationDataErrors.password,
-                          onChanged: (value) {
-                            registrationData.password = value;
-                          },
-                          obscured: true,
-                          prefixIcon: const Icon(
-                            Icons.lock,
-                            color: Colors.white,
+                          MyTextField(
+                            label: 'Password',
+                            textInputAction: TextInputAction.go,
+                            errorMessage: registrationState.registrationDataErrors.password,
+                            onChanged: (value) {
+                              registrationData.password = value;
+                            },
+                            obscured: true,
+                            prefixIcon: const Icon(
+                              Icons.lock,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                      ].separatedByToList(
-                        const SizedBox(
-                          height: 16,
+                        ].separatedByToList(
+                          const SizedBox(
+                            height: 16,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  Hero(
-                    tag: 'signUpButton',
-                    child: RoundedButton(
-                      isLoading: registrationState.isLoading,
-                      onPressed: () => registrationController
-                          .completeRegistration(
-                        registrationData,
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    Hero(
+                      tag: 'signUpButton',
+                      child: RoundedButton(
+                        isLoading: registrationState.isLoading,
+                        onPressed: () => registrationController
+                            .completeRegistration(
+                          registrationData,
+                        )
+                            .then((value) {
+                          if (value) {
+                            context.goNamed(
+                              'verify',
+                            );
+                          }
+                        }),
+                        fillColor: Colors.white,
+                        child: Text(
+                          'SIGN UP',
+                          style: TextStyle(
+                            color: Colors.blue[500],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    const OrDivider(),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    if (registrationState.googleInProgress)
+                      const CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 3,
                       )
-                          .then((value) {
-                        if (value) {
-                          context.goNamed(
-                            'verify',
+                    else
+                      GoogleButton(
+                        onPressed: () {
+                          registrationController.signInWithGoogle().then(
+                            (value) {
+                              if (value) {
+                                context.goNamed('home');
+                              }
+                            },
                           );
-                        }
-                      }),
-                      fillColor: Colors.white,
-                      child: Text(
-                        'SIGN UP',
-                        style: TextStyle(
-                          color: Colors.blue[500],
-                        ),
+                        },
                       ),
+                    const SizedBox(
+                      height: 16,
                     ),
-                  ),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  const OrDivider(),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  if (registrationState.googleInProgress)
-                    const CircularProgressIndicator(
-                      color: Colors.white,
-                      strokeWidth: 3,
-                    )
-                  else
-                    GoogleButton(
-                      onPressed: () {
-                        registrationController.signInWithGoogle().then(
-                          (value) {
-                            if (value) {
-                              context.goNamed('home');
-                            }
-                          },
-                        );
-                      },
-                    ),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

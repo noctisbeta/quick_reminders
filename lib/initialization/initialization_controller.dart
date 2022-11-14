@@ -18,7 +18,7 @@ class InitializationController {
   }
 
   /// Provides the controller.
-  static final provider = Provider.autoDispose(
+  static final provider = Provider(
     (ref) => InitializationController(
       ref,
       FirebaseAuth.instance,

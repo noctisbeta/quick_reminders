@@ -6,6 +6,7 @@ import 'package:quick_reminders/authentication/widgets/animated_background.dart'
 import 'package:quick_reminders/authentication/widgets/background_stack.dart';
 import 'package:quick_reminders/common/rounded_button.dart';
 import 'package:quick_reminders/hooks/route_aware_hook.dart';
+import 'package:quick_reminders/responsive/max_width_constraint.dart';
 import 'package:quick_reminders/routing/route_controller.dart';
 
 /// View for user authentication.
@@ -52,54 +53,56 @@ class AuthenticationView extends HookConsumerWidget {
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
-            child: Column(
-              children: [
-                const Spacer(),
-                const Hero(
-                  tag: 'logo',
-                  child: Icon(
-                    Icons.label,
-                    size: 100,
-                    color: Colors.white,
+            child: MaxWidthConstraint(
+              child: Column(
+                children: [
+                  const Spacer(),
+                  const Hero(
+                    tag: 'logo',
+                    child: Icon(
+                      Icons.label,
+                      size: 100,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-                const Spacer(
-                  flex: 4,
-                ),
-                Hero(
-                  tag: 'signUpButton',
-                  child: RoundedButton(
-                    onPressed: () {
-                      context.goNamed('signUp');
-                    },
-                    child: const Text(
-                      'SIGN UP',
-                      style: TextStyle(
-                        color: Colors.white,
+                  const Spacer(
+                    flex: 4,
+                  ),
+                  Hero(
+                    tag: 'signUpButton',
+                    child: RoundedButton(
+                      onPressed: () {
+                        context.goNamed('signUp');
+                      },
+                      child: const Text(
+                        'SIGN UP',
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(
-                  height: 16,
-                ),
-                Hero(
-                  tag: 'loginButton',
-                  child: RoundedButton(
-                    onPressed: () {
-                      context.goNamed('login');
-                    },
-                    fillColor: Colors.white,
-                    child: const Text(
-                      'LOGIN',
-                      style: TextStyle(
-                        color: Colors.blue,
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  Hero(
+                    tag: 'loginButton',
+                    child: RoundedButton(
+                      onPressed: () {
+                        context.goNamed('login');
+                      },
+                      fillColor: Colors.white,
+                      child: const Text(
+                        'LOGIN',
+                        style: TextStyle(
+                          color: Colors.blue,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const Spacer(),
-              ],
+                  const Spacer(),
+                ],
+              ),
             ),
           ),
         ),
