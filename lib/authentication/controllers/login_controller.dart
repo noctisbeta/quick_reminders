@@ -262,33 +262,30 @@ class LoginController extends StateNotifier<LoginState> {
   }
 
   /// Completes the password reset.
-  Future<bool> resetPassword(String password, String oobCode) async {
-    try {
-      await _auth.confirmPasswordReset(code: oobCode, newPassword: password);
-      return true;
-    } on FirebaseAuthException catch (e) {
-      log('Error resetting password: ${e.message}');
-      return false;
-    }
-  }
+  Future<bool> resetPassword(String password, String oobCode) async => Task.fromVoid(
+        () => _auth.confirmPasswordReset(
+          code: oobCode,
+          newPassword: password,
+        ),
+      ).attemptEither<FirebaseAuthException>().run().then(
+            (either) => either.match(
+              (left) => withEffect(
+                false,
+                () => Logger().e('Error resetting password: ${left.message}'),
+              ),
+              (right) => true,
+            ),
+          );
 
   /// Returns true if a user is logged in.
-  bool isUserLoggedIn() {
-    return _auth.currentUser != null;
-  }
+  bool isUserLoggedIn() => _auth.currentUser != null;
 
   /// Checks if the current user has their email verified.
-  Future<bool> isEmailVerified() async {
-    if (_auth.currentUser == null) {
-      log('No user is signed in.');
-      return false;
-    }
-    await _auth.currentUser!.reload();
-    return _auth.currentUser!.emailVerified;
-  }
+  Future<bool> isEmailVerified() async => Option.of(_auth.currentUser).match(
+        () => withEffect(false, () => Logger().e('No user logged in')),
+        (user) => Task.fromVoid(() => user.reload()).run().then((value) => user.emailVerified),
+      );
 
   /// Call only if user is logged in.
-  bool isEmailVerifiedSync() {
-    return _auth.currentUser!.emailVerified;
-  }
+  bool isEmailVerifiedSync() => _auth.currentUser!.emailVerified;
 }
