@@ -91,30 +91,26 @@ class LoginController extends StateNotifier<LoginState> {
       );
 
   /// Logs in the user with email and password.
-  Future<bool> login(LoginData loginData) async {
-    state = state.copyWith(
-      loginData: loginData,
-      loginDataErrors: LoginDataErrors.empty(),
-      processingState: ProcessingState.loading,
-    );
-
-    final result = await _loginUser(state.loginData);
-
-    return await result.match(
-      (exception) {
-        state = state.copyWith(
-          processingState: ProcessingState.loaded,
-        );
-        return false;
-      },
-      (userCredential) async {
-        state = state.copyWith(
-          processingState: ProcessingState.loaded,
-        );
-        return true;
-      },
-    );
-  }
+  Future<bool> login(LoginData loginData) async => withEffect(
+        Task(
+          () => _loginUser(loginData),
+        ).run().then(
+              (either) => withEffect(
+                either.match(
+                  (left) => false,
+                  (right) => true,
+                ),
+                () => state = state.copyWith(
+                  processingState: ProcessingState.loaded,
+                ),
+              ),
+            ),
+        () => state = state.copyWith(
+          loginData: loginData,
+          loginDataErrors: LoginDataErrors.empty(),
+          processingState: ProcessingState.loading,
+        ),
+      );
 
   /// Logs in the user with email and password.
   Future<Either<Exception, UserCredential>> _loginUser(LoginData loginData) async {
