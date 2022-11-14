@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:functional/functional.dart';
@@ -33,13 +31,13 @@ class RegistrationController extends StateNotifier<RegistrationState> {
 
   final ProfileController _profileController;
 
-  ActionCodeSettings get _emailSettings => ActionCodeSettings(
-        url: 'https://quickreminders.page.link/verifyEmail',
-        handleCodeInApp: true,
-        androidPackageName: 'com.example.quick_reminders',
-        androidInstallApp: true,
-        dynamicLinkDomain: 'quickreminders.page.link',
-      );
+  static final _emailSettings = ActionCodeSettings(
+    url: 'https://quickreminders.page.link/verifyEmail',
+    handleCodeInApp: true,
+    androidPackageName: 'com.example.quick_reminders',
+    androidInstallApp: true,
+    dynamicLinkDomain: 'quickreminders.page.link',
+  );
 
   /// Provides the controller.
   static final provider = StateNotifierProvider.autoDispose<RegistrationController, RegistrationState>(
@@ -65,7 +63,38 @@ class RegistrationController extends StateNotifier<RegistrationState> {
                     processingState: ProcessingState.loaded,
                   ),
                 ),
-                (userCredential) => null,
+                (userCredential) => Option.of(userCredential.user).match(
+                  () => withEffect(false, () => Logger().e('User is null')),
+                  (user) => _profileController.createProfileFromMap(
+                    {
+                      'firstName': state.registrationData.firstName,
+                      'lastName': state.registrationData.lastName,
+                      'email': state.registrationData.email,
+                      'uid': userCredential.user!.uid,
+                    },
+                  ).then(
+                    (either) => either.match(
+                      (left) => withEffect(
+                        false,
+                        () => {
+                          user.sendEmailVerification(),
+                          state = state.copyWith(
+                            processingState: ProcessingState.loaded,
+                          ),
+                        },
+                      ),
+                      (right) => withEffect(
+                        true,
+                        () => {
+                          user.sendEmailVerification(),
+                          state = state.copyWith(
+                            processingState: ProcessingState.loaded,
+                          ),
+                        },
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
         () => state = state.copyWith(
@@ -74,58 +103,6 @@ class RegistrationController extends StateNotifier<RegistrationState> {
           processingState: ProcessingState.loading,
         ),
       );
-
-  /// Registers the user with email and password, then creates a user document in Firestore.
-  Future<bool> completeRegistration(RegistrationData registrationData) async {
-    state = state.copyWith(
-      registrationData: registrationData,
-      registrationDataErrors: RegistrationDataErrors.empty(),
-      processingState: ProcessingState.loading,
-    );
-
-    final result = await _createUser(state.registrationData);
-
-    return await result.match(
-      (exception) {
-        state = state.copyWith(
-          processingState: ProcessingState.loaded,
-        );
-        return false;
-      },
-      (userCredential) async {
-        log('User created: ${userCredential.user!.uid}');
-
-        final profileData = {
-          'firstName': state.registrationData.firstName,
-          'lastName': state.registrationData.lastName,
-          'email': state.registrationData.email,
-          'uid': userCredential.user!.uid,
-        };
-
-        final settings = ActionCodeSettings(
-          url: 'https://quickreminders.page.link/verifyEmail',
-          handleCodeInApp: true,
-          androidPackageName: 'com.example.quick_reminders',
-          androidInstallApp: true,
-          dynamicLinkDomain: 'quickreminders.page.link',
-        );
-
-        final List results = await Future.wait([
-          userCredential.user!.sendEmailVerification(
-            settings,
-          ),
-          _profileController.createProfileFromMap(profileData),
-        ]);
-
-        state = state.copyWith(
-          processingState: ProcessingState.loaded,
-        );
-
-        /// createProfile result
-        return results[1];
-      },
-    );
-  }
 
   /// Sign in with google.
   Future<bool> signInWithGoogle() async => withEffect(
@@ -172,59 +149,61 @@ class RegistrationController extends StateNotifier<RegistrationState> {
       );
 
   /// Creates a user with email and password.
-  Future<Either<Exception, UserCredential>> _createUser(RegistrationData data) async {
-    try {
-      final userCredential = await _auth.createUserWithEmailAndPassword(
-        email: data.email.trim(),
-        password: data.password.trim(),
-      );
+  Future<Either<Exception, UserCredential>> _createUser(RegistrationData data) async => Task(
+        () => _auth.createUserWithEmailAndPassword(
+          email: data.email.trim(),
+          password: data.password.trim(),
+        ),
+      ).attemptEither<FirebaseAuthException>().run().then(
+            (either) => either.match(
+              (exception) => withEffect(
+                Left(exception),
+                () {
+                  Logger().e('Error creating user: ${exception.message}');
+                  final String message;
 
-      return Right(userCredential);
-    } on FirebaseAuthException catch (e) {
-      log('Error creating user: ${e.message}');
-
-      late final String message;
-
-      switch (e.code) {
-        case 'email-already-in-use':
-          message = 'Email already in use.';
-          state = state.copyWith(
-            registrationDataErrors: state.registrationDataErrors.copyWith(
-              email: message,
+                  switch (exception.code) {
+                    case 'email-already-in-use':
+                      message = 'Email already in use.';
+                      state = state.copyWith(
+                        registrationDataErrors: state.registrationDataErrors.copyWith(
+                          email: message,
+                        ),
+                      );
+                      break;
+                    case 'invalid-email':
+                      message = 'Invalid email.';
+                      state = state.copyWith(
+                        registrationDataErrors: state.registrationDataErrors.copyWith(
+                          email: message,
+                        ),
+                      );
+                      break;
+                    case 'operation-not-allowed':
+                      message = 'Operation not allowed.';
+                      state = state.copyWith(
+                        registrationDataErrors: state.registrationDataErrors.copyWith(
+                          email: message,
+                          firstName: message,
+                          lastName: message,
+                          password: message,
+                        ),
+                      );
+                      break;
+                    case 'weak-password':
+                      message = 'Weak password.';
+                      state = state.copyWith(
+                        registrationDataErrors: state.registrationDataErrors.copyWith(
+                          password: message,
+                        ),
+                      );
+                      break;
+                  }
+                },
+              ),
+              Right.new,
             ),
           );
-          break;
-        case 'invalid-email':
-          message = 'Invalid email.';
-          state = state.copyWith(
-            registrationDataErrors: state.registrationDataErrors.copyWith(
-              email: message,
-            ),
-          );
-          break;
-        case 'operation-not-allowed':
-          message = 'Operation not allowed.';
-          state = state.copyWith(
-            registrationDataErrors: state.registrationDataErrors.copyWith(
-              email: message,
-              firstName: message,
-              lastName: message,
-              password: message,
-            ),
-          );
-          break;
-        case 'weak-password':
-          message = 'Weak password.';
-          state = state.copyWith(
-            registrationDataErrors: state.registrationDataErrors.copyWith(
-              password: message,
-            ),
-          );
-          break;
-      }
-      return Left(e);
-    }
-  }
 
   /// Checks if the current user has their email verified.
   Future<bool> isEmailVerified() async => Option.of(_auth.currentUser).match(

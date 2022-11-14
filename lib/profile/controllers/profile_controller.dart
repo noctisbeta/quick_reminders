@@ -73,27 +73,28 @@ class ProfileController {
           );
 
   /// Creates a user document in firestore.
-  Future<bool> createProfileFromMap(Map<String, dynamic> map) async {
-    final user = {
-      'firstName': map['firstName'],
-      'lastName': map['lastName'],
-      'email': map['email'],
-      'createdAt': FieldValue.serverTimestamp(),
-    };
-
-    try {
-      await db.collection('users').doc(map['uid']).set(
-            user,
-            SetOptions(merge: true),
+  Future<Either<Exception, Unit>> createProfileFromMap(Map<String, dynamic> map) async => Task.fromVoid(
+        () => db.collection('users').doc(map['uid']).set(
+          {
+            'firstName': map['firstName'],
+            'lastName': map['lastName'],
+            'email': map['email'],
+            'createdAt': FieldValue.serverTimestamp(),
+          },
+          SetOptions(merge: true),
+        ),
+      ).attemptEither<Exception>().run().then(
+            (either) => either.match(
+              (exception) => withEffect(
+                left(exception),
+                () => Logger().e('Error creating profile.', exception, StackTrace.current),
+              ),
+              (unit) => withEffect(
+                right(unit),
+                () => Logger().i('Created profile.'),
+              ),
+            ),
           );
-
-      log('Profile created: $user');
-      return true;
-    } on FirebaseException catch (e) {
-      log('Error creating profile: ${e.message}');
-      return false;
-    }
-  }
 
   /// Returns true if the user already has a profile.
   Future<bool> userHasProfile() async {
