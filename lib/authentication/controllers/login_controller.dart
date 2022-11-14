@@ -36,16 +36,14 @@ class LoginController extends StateNotifier<LoginState> {
 
   /// Provides the controller.
   static final provider = StateNotifierProvider.autoDispose<LoginController, LoginState>(
-    (ref) {
-      return LoginController(
-        FirebaseAuth.instance,
-        kIsWeb.match(
-          () => ref.watch(GoogleSignInController.provider),
-          () => ref.watch(GoogleSignInControllerWeb.provider),
-        ),
-        ref.watch(ProfileController.provider),
-      );
-    },
+    (ref) => LoginController(
+      FirebaseAuth.instance,
+      kIsWeb.match(
+        () => ref.watch(GoogleSignInController.provider),
+        () => ref.watch(GoogleSignInControllerWeb.provider),
+      ),
+      ref.watch(ProfileController.provider),
+    ),
   );
 
   /// Sign in with google.

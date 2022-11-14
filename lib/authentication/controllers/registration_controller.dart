@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:functional/functional.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:logger/logger.dart';
 import 'package:quick_reminders/authentication/controllers/google_sign_in_controller.dart';
 import 'package:quick_reminders/authentication/controllers/google_sign_in_controller_web.dart';
 import 'package:quick_reminders/authentication/controllers/google_sign_in_protocol.dart';
@@ -17,16 +18,12 @@ import 'package:quick_reminders/profile/controllers/profile_controller.dart';
 class RegistrationController extends StateNotifier<RegistrationState> {
   /// Default constructor.
   RegistrationController(
-    this.ref,
     this._auth,
     this._googleController,
     this._profileController,
   ) : super(
           RegistrationState.empty(),
         );
-
-  /// Riverpod reference.
-  final Ref ref;
 
   /// Firebase auth
   final FirebaseAuth _auth;
@@ -36,20 +33,47 @@ class RegistrationController extends StateNotifier<RegistrationState> {
 
   final ProfileController _profileController;
 
+  ActionCodeSettings get _emailSettings => ActionCodeSettings(
+        url: 'https://quickreminders.page.link/verifyEmail',
+        handleCodeInApp: true,
+        androidPackageName: 'com.example.quick_reminders',
+        androidInstallApp: true,
+        dynamicLinkDomain: 'quickreminders.page.link',
+      );
+
   /// Provides the controller.
   static final provider = StateNotifierProvider.autoDispose<RegistrationController, RegistrationState>(
-    (ref) {
-      return RegistrationController(
-        ref,
-        FirebaseAuth.instance,
-        kIsWeb.match(
-          () => ref.watch(GoogleSignInController.provider),
-          () => ref.watch(GoogleSignInControllerWeb.provider),
-        ),
-        ref.watch(ProfileController.provider),
-      );
-    },
+    (ref) => RegistrationController(
+      FirebaseAuth.instance,
+      kIsWeb.match(
+        () => ref.watch(GoogleSignInController.provider),
+        () => ref.watch(GoogleSignInControllerWeb.provider),
+      ),
+      ref.watch(ProfileController.provider),
+    ),
   );
+
+  /// Registers the user with email and password, then creates a user document in Firestore.
+  Future<bool> completeRegistration(RegistrationData registrationData) async => withEffect(
+        Task(
+          () => _createUser(registrationData),
+        ).run().then(
+              (either) => either.match(
+                (exception) => withEffect(
+                  false,
+                  () => state = state.copyWith(
+                    processingState: ProcessingState.loaded,
+                  ),
+                ),
+                (userCredential) => null,
+              ),
+            ),
+        () => state = state.copyWith(
+          registrationData: registrationData,
+          registrationDataErrors: RegistrationDataErrors.empty(),
+          processingState: ProcessingState.loading,
+        ),
+      );
 
   /// Registers the user with email and password, then creates a user document in Firestore.
   Future<bool> completeRegistration(RegistrationData registrationData) async {
@@ -90,7 +114,7 @@ class RegistrationController extends StateNotifier<RegistrationState> {
           userCredential.user!.sendEmailVerification(
             settings,
           ),
-          ref.read(ProfileController.provider).createProfileFromMap(profileData),
+          _profileController.createProfileFromMap(profileData),
         ]);
 
         state = state.copyWith(
@@ -203,47 +227,28 @@ class RegistrationController extends StateNotifier<RegistrationState> {
   }
 
   /// Checks if the current user has their email verified.
-  Future<bool> isEmailVerified() async {
-    if (_auth.currentUser == null) {
-      log('No user is signed in.');
-      return false;
-    }
-    await _auth.currentUser!.reload();
-    return _auth.currentUser!.emailVerified;
-  }
+  Future<bool> isEmailVerified() async => Option.of(_auth.currentUser).match(
+        () => withEffect(false, () => Logger().e('No user logged in')),
+        (user) => Task.fromVoid(() => user.reload()).run().then((value) => user.emailVerified),
+      );
 
   /// Sends a verification email to the current user.
-  Future<bool> resendEmailVerification() async {
-    if (_auth.currentUser == null) {
-      log('No user is signed in.');
-      return false;
-    }
-    state = state.copyWith(
-      processingState: ProcessingState.loading,
-    );
-
-    final settings = ActionCodeSettings(
-      url: 'https://quickreminders.page.link/verifyEmail',
-      handleCodeInApp: true,
-      androidPackageName: 'com.example.quick_reminders',
-      androidInstallApp: true,
-      dynamicLinkDomain: 'quickreminders.page.link',
-    );
-
-    try {
-      await _auth.currentUser!.sendEmailVerification(
-        settings,
+  Future<bool> resendEmailVerification() async => Option.of(_auth.currentUser).match(
+        () => withEffect(false, () => Logger().e('No user logged in')),
+        (user) => withEffect(
+          Task.fromVoid(
+            () => user.sendEmailVerification(_emailSettings),
+          ),
+          () => state = state.copyWith(
+            processingState: ProcessingState.loading,
+          ),
+        ).run().then(
+              (_) => withEffect(
+                true,
+                () => state = state.copyWith(
+                  processingState: ProcessingState.loaded,
+                ),
+              ),
+            ),
       );
-      state = state.copyWith(
-        processingState: ProcessingState.loaded,
-      );
-      return true;
-    } on FirebaseAuthException catch (e) {
-      log('Error sending verification email: ${e.message}');
-      state = state.copyWith(
-        processingState: ProcessingState.loaded,
-      );
-      return false;
-    }
-  }
 }
