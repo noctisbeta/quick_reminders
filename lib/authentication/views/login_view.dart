@@ -174,13 +174,13 @@ class LoginView extends HookConsumerWidget {
                         onPressed: () {
                           loginController.signInWithGoogle().then(
                                 (value) => value.match(
-                                  () => ScaffoldMessenger.of(context)
+                                  ifFalse: () => ScaffoldMessenger.of(context)
                                       .showSnackBar(
                                     const SnackBar(
                                       content: Text('Login failed'),
                                     ),
                                   ),
-                                  () => context.goNamed('home'),
+                                  ifTrue: () => context.goNamed('home'),
                                 ),
                               );
                         },

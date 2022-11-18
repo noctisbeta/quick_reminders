@@ -10,30 +10,30 @@ import 'package:quick_reminders/routing/route_controller.dart';
 class InitializationController {
   /// Default constructor.
   InitializationController(
-    this.ref,
     this.auth,
     this.links,
+    this._routeController,
   ) {
     _initDynamicLinks();
   }
 
   /// Provides the controller.
-  static final provider = Provider(
+  static final provider = Provider.autoDispose(
     (ref) => InitializationController(
-      ref,
       FirebaseAuth.instance,
       FirebaseDynamicLinks.instance,
+      ref.watch(RouteController.provider),
     ),
   );
-
-  /// Riverpod ref.
-  final Ref ref;
 
   /// Firebase auth instance.
   final FirebaseAuth auth;
 
   /// Firebase dynamic links instance.
   final FirebaseDynamicLinks links;
+
+  /// Router.
+  final RouteController _routeController;
 
   /// Returns the current authentication state.
   AuthenticationState get authenticationState {
@@ -93,7 +93,7 @@ class InitializationController {
 
     log('handleRouting: $path');
 
-    final router = ref.read(RouteController.provider).router;
+    final router = _routeController.router;
 
     switch (path) {
       case '/resetPassword':

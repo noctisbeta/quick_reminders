@@ -45,8 +45,8 @@ class RegistrationController extends StateNotifier<RegistrationState> {
     (ref) => RegistrationController(
       FirebaseAuth.instance,
       kIsWeb.match(
-        () => ref.watch(GoogleSignInController.provider),
-        () => ref.watch(GoogleSignInControllerWeb.provider),
+        ifFalse: () => ref.watch(GoogleSignInController.provider),
+        ifTrue: () => ref.watch(GoogleSignInControllerWeb.provider),
       ),
       ref.watch(ProfileController.provider),
     ),
@@ -121,7 +121,7 @@ class RegistrationController extends StateNotifier<RegistrationState> {
                 ),
                 (userCredential) => _profileController.userHasProfile().then(
                       (value) => value.match(
-                        () => _profileController
+                        ifFalse: () => _profileController
                             .createProfileFromUserCredential(userCredential)
                             .then(
                               (either) => either.match(
@@ -143,7 +143,7 @@ class RegistrationController extends StateNotifier<RegistrationState> {
                                 ),
                               ),
                             ),
-                        () => true,
+                        ifTrue: () => true,
                       ),
                     ),
               ),

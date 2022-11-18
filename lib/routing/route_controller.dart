@@ -1,9 +1,9 @@
-import 'dart:developer';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:logger/logger.dart';
+import 'package:quick_reminders/authentication/controllers/auth_store.dart';
 import 'package:quick_reminders/authentication/views/authentication_view.dart';
 import 'package:quick_reminders/authentication/views/email_verification_view.dart';
 import 'package:quick_reminders/authentication/views/email_verified_view.dart';
@@ -22,21 +22,26 @@ import 'package:quick_reminders/routing/routes.dart';
 class RouteController {
   /// Default constructor.
   RouteController(
-    this.auth,
     this.routeObserver,
+    this._authStore,
+    this._auth,
   );
 
   /// Firebase auth instance.
-  final FirebaseAuth auth;
+  final FirebaseAuth _auth;
 
   /// Route observer.
   final RouteObserver<ModalRoute> routeObserver;
 
+  /// Auth store.
+  final AuthStore _authStore;
+
   /// Provides the router.
   static final provider = Provider.autoDispose(
     (ref) => RouteController(
-      FirebaseAuth.instance,
       RouteObserver<ModalRoute>(),
+      ref.watch(AuthStore.provider.notifier),
+      FirebaseAuth.instance,
     ),
   );
 
@@ -44,18 +49,25 @@ class RouteController {
   late final GoRouter router = GoRouter(
     debugLogDiagnostics: true,
     routes: routes,
-    refreshListenable: ListenableFromStream(auth.authStateChanges()),
+    refreshListenable: ListenableFromStream(_auth.authStateChanges()),
     observers: [routeObserver],
-    initialLocation: auth.currentUser == null
-        ? '/authentication'
-        : auth.currentUser!.emailVerified
-            ? '/home'
-            : '/authentication/verify',
+    initialLocation: _authStore.user.match(
+      () => Routes.authentication.path,
+      (user) => user.emailVerified
+          ? Routes.home.path
+          : Routes.authentication.path + Routes.verify.path,
+    ),
     redirect: (context, state) {
-      log('redirecting');
-      log('location ${state.location}');
-      // TODO(Janez): Implement redirect for auth state changes.
-      return null;
+      Logger().d('Redirecting to ${state.location}');
+
+      return _authStore.user.match(
+        () => state.location.contains(Routes.authentication.path)
+            ? null
+            : Routes.authentication.path,
+        (user) => user.emailVerified
+            ? null
+            : Routes.authentication.path + Routes.verify.path,
+      );
     },
   );
 

@@ -114,11 +114,12 @@ class ProfileController {
       () => withEffect(false, () => Logger().e('User is not logged in')),
       (user) => _db.collection('users').doc(user.uid).get().then(
             (value) => value.exists.match(
-              () => withEffect(
+              ifFalse: () => withEffect(
                 false,
                 () => Logger().i('User does not have a profile'),
               ),
-              () => withEffect(true, () => Logger().i('User has a profile')),
+              ifTrue: () =>
+                  withEffect(true, () => Logger().i('User has a profile')),
             ),
           ),
     );

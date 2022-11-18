@@ -40,8 +40,8 @@ class LoginController extends StateNotifier<LoginState> {
     (ref) => LoginController(
       FirebaseAuth.instance,
       kIsWeb.match(
-        () => ref.watch(GoogleSignInController.provider),
-        () => ref.watch(GoogleSignInControllerWeb.provider),
+        ifFalse: () => ref.watch(GoogleSignInController.provider),
+        ifTrue: () => ref.watch(GoogleSignInControllerWeb.provider),
       ),
       ref.watch(ProfileController.provider),
     ),
@@ -61,7 +61,7 @@ class LoginController extends StateNotifier<LoginState> {
                   _profileController.userHasProfile,
                 ).run().then(
                       (value) => value.match(
-                        () => _profileController
+                        ifFalse: () => _profileController
                             .createProfileFromUserCredential(
                               userCredential,
                             )
@@ -81,7 +81,7 @@ class LoginController extends StateNotifier<LoginState> {
                                 },
                               ),
                             ),
-                        () => withEffect(
+                        ifTrue: () => withEffect(
                           true,
                           () => state = state.copyWith(
                             googleInProgress: false,

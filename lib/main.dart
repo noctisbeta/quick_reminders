@@ -27,8 +27,8 @@ Future<Unit> main() async {
   final container = ProviderContainer();
 
   kIsWeb.match(
-    () => container.read(InitializationController.provider),
-    () => {
+    ifFalse: () => container.read(InitializationController.provider),
+    ifTrue: () => {
       usePathUrlStrategy(),
       FirebaseAuth.instance.setPersistence(Persistence.LOCAL),
     },
