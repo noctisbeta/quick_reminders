@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:quick_reminders/authentication/components/animated_background.dart';
+import 'package:quick_reminders/authentication/components/background_stack.dart';
+import 'package:quick_reminders/authentication/components/rotation_hero.dart';
 import 'package:quick_reminders/authentication/controllers/login_controller.dart';
-import 'package:quick_reminders/authentication/widgets/animated_background.dart';
-import 'package:quick_reminders/authentication/widgets/background_stack.dart';
-import 'package:quick_reminders/authentication/widgets/rotation_hero.dart';
 import 'package:quick_reminders/common/rounded_button.dart';
 
 /// Email verifiedn view.

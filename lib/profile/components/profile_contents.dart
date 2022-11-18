@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:quick_reminders/constants/colors.dart';
+import 'package:quick_reminders/profile/components/tile_button.dart';
 import 'package:quick_reminders/profile/controllers/profile_controller.dart';
-import 'package:quick_reminders/profile/widgets/tile_button.dart';
 import 'package:quick_reminders/utilities/extensions/iterable_extension.dart';
 
 /// Contents of the profile view.

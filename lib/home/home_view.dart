@@ -5,12 +5,12 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/logger.dart';
 import 'package:quick_reminders/common/my_text_field.dart';
 import 'package:quick_reminders/constants/colors.dart';
-import 'package:quick_reminders/home/widgets/add_group_card.dart';
-import 'package:quick_reminders/home/widgets/people_group_card.dart';
-import 'package:quick_reminders/home/widgets/reminder_group_card.dart';
-import 'package:quick_reminders/home/widgets/section_header.dart';
+import 'package:quick_reminders/home/components/add_group_card.dart';
+import 'package:quick_reminders/home/components/people_group_card.dart';
+import 'package:quick_reminders/home/components/reminder_group_card.dart';
+import 'package:quick_reminders/home/components/section_header.dart';
+import 'package:quick_reminders/profile/components/profile_avatar.dart';
 import 'package:quick_reminders/profile/controllers/profile_controller.dart';
-import 'package:quick_reminders/profile/widgets/profile_avatar.dart';
 import 'package:quick_reminders/reminders/reminders_controller.dart';
 import 'package:quick_reminders/utilities/extensions/iterable_extension.dart';
 

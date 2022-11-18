@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/common/rounded_button.dart';
 import 'package:quick_reminders/constants/colors.dart';
+import 'package:quick_reminders/profile/components/edit_tile.dart';
 import 'package:quick_reminders/profile/controllers/profile_controller.dart';
 import 'package:quick_reminders/profile/models/profile.dart';
-import 'package:quick_reminders/profile/widgets/edit_tile.dart';
 import 'package:quick_reminders/utilities/extensions/iterable_extension.dart';
 
 /// Contents of the edit profile view.

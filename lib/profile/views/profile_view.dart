@@ -2,13 +2,13 @@ import 'package:expandable_page_view/expandable_page_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:quick_reminders/authentication/widgets/animated_background.dart';
-import 'package:quick_reminders/authentication/widgets/background_stack.dart';
+import 'package:quick_reminders/authentication/components/animated_background.dart';
+import 'package:quick_reminders/authentication/components/background_stack.dart';
 import 'package:quick_reminders/constants/colors.dart';
+import 'package:quick_reminders/profile/components/edit_profile_contents.dart';
+import 'package:quick_reminders/profile/components/profile_card.dart';
+import 'package:quick_reminders/profile/components/profile_contents.dart';
 import 'package:quick_reminders/profile/controllers/profile_controller.dart';
-import 'package:quick_reminders/profile/widgets/edit_profile_contents.dart';
-import 'package:quick_reminders/profile/widgets/profile_card.dart';
-import 'package:quick_reminders/profile/widgets/profile_contents.dart';
 
 /// Profile view.
 class ProfileView extends HookConsumerWidget {
