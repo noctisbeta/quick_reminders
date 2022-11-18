@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/logger.dart';
@@ -37,9 +35,7 @@ class HomeView extends ConsumerWidget {
       backgroundColor: kQuaternaryColor,
       floatingActionButton: FloatingActionButton(
         backgroundColor: kPrimaryColor,
-        onPressed: () {
-          log('Add reminder');
-        },
+        onPressed: () {},
         child: const Icon(Icons.add),
       ),
       body: SafeArea(
@@ -107,7 +103,6 @@ class HomeView extends ConsumerWidget {
               // with a vertical list, every group card has a hero tag.
               peopleGroupStream.when(
                 data: (data) {
-                  log(data.toString());
                   return Align(
                     alignment: Alignment.centerLeft,
                     child: SizedBox(
@@ -124,9 +119,7 @@ class HomeView extends ConsumerWidget {
                         itemBuilder: (context, index) {
                           if (index == 0) {
                             return AddGroupCard(
-                              onTap: () {
-                                log('Add group');
-                              },
+                              onTap: () {},
                             );
                           }
 
@@ -140,7 +133,6 @@ class HomeView extends ConsumerWidget {
                   );
                 },
                 loading: () {
-                  log('loading');
                   return const Text('loading');
                 },
                 error: (error, stackTrace) {
@@ -164,7 +156,6 @@ class HomeView extends ConsumerWidget {
               // TODO(Janez): Grid view with carousel pages.
               reminderGroupStream.when(
                 data: (data) {
-                  log(data.toString());
                   return Align(
                     alignment: Alignment.centerLeft,
                     child: SizedBox(
@@ -325,11 +316,9 @@ class HomeView extends ConsumerWidget {
                   );
                 },
                 loading: () {
-                  log('loading');
                   return const Text('loading');
                 },
                 error: (error, stackTrace) {
-                  log(error.toString());
                   return Text(error.toString());
                 },
               ),

@@ -1,7 +1,6 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:logger/logger.dart';
 import 'package:quick_reminders/constants/colors.dart';
 import 'package:quick_reminders/profile/components/profile_avatar.dart';
 import 'package:quick_reminders/profile/models/profile.dart';
@@ -48,9 +47,9 @@ class ProfileCard extends StatelessWidget {
               );
             },
             error: (error, stackTrace) {
-              log(
+              Logger().e(
                 'Error in profile stream: $error \n stackTrace: $stackTrace',
-                stackTrace: stackTrace,
+                stackTrace,
               );
               return const ProfileAvatar(
                 expanded: true,
@@ -89,9 +88,9 @@ class ProfileCard extends StatelessWidget {
               );
             },
             error: (error, stackTrace) {
-              log(
+              Logger().e(
                 'Error in profile stream: $error \n stackTrace: $stackTrace',
-                stackTrace: stackTrace,
+                stackTrace,
               );
               return const Text(
                 '',

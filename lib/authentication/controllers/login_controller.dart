@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:functional/functional.dart';
@@ -147,8 +145,8 @@ class LoginController extends StateNotifier<LoginState> {
         password: loginData.password.trim(),
       );
       return Right(userCredential);
-    } on FirebaseAuthException catch (e) {
-      log('Error loging in user: ${e.message}');
+    } on FirebaseAuthException catch (e, s) {
+      Logger().e('Error loging in user: ${e.message}', e, s);
 
       late final String message;
 
@@ -224,16 +222,15 @@ class LoginController extends StateNotifier<LoginState> {
         actionCodeSettings: settings,
       );
 
-      log('Password reset email sent to $email');
+      Logger().i('Password reset email sent to $email');
 
       state = state.copyWith(
         processingState: ProcessingState.idle,
       );
 
       return true;
-    } on FirebaseAuthException catch (e) {
-      log('e.code: ${e.code}');
-      log('Error resetting password: ${e.message}');
+    } on FirebaseAuthException catch (e, s) {
+      Logger().e('Error resetting password: ${e.message}', e, s);
 
       late final String message;
 
