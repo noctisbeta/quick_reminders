@@ -107,7 +107,7 @@ class HomeView extends ConsumerWidget {
               // with a vertical list, every group card has a hero tag.
               peopleGroupStream.when(
                 data: (data) {
-                  log(data.docs.toString());
+                  log(data.toString());
                   return Align(
                     alignment: Alignment.centerLeft,
                     child: SizedBox(
@@ -115,7 +115,7 @@ class HomeView extends ConsumerWidget {
                       child: ListView.separated(
                         scrollDirection: Axis.horizontal,
                         shrinkWrap: true,
-                        itemCount: data.size + 1,
+                        itemCount: data.length + 1,
                         separatorBuilder: (context, index) {
                           return const SizedBox(
                             width: 16,
@@ -144,7 +144,11 @@ class HomeView extends ConsumerWidget {
                   return const Text('loading');
                 },
                 error: (error, stackTrace) {
-                  log(error.toString());
+                  Logger().e(
+                    'Error in people group stream: $error',
+                    error,
+                    stackTrace,
+                  );
                   return Text(error.toString());
                 },
               ),
@@ -160,7 +164,7 @@ class HomeView extends ConsumerWidget {
               // TODO(Janez): Grid view with carousel pages.
               reminderGroupStream.when(
                 data: (data) {
-                  log(data.docs.toString());
+                  log(data.toString());
                   return Align(
                     alignment: Alignment.centerLeft,
                     child: SizedBox(
@@ -168,8 +172,9 @@ class HomeView extends ConsumerWidget {
                       child: GridView.builder(
                         scrollDirection: Axis.horizontal,
                         shrinkWrap: true,
-                        itemCount: data.size + 1,
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        itemCount: data.length + 1,
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 1,
                           childAspectRatio: 80 / 100,
                         ),
@@ -196,11 +201,13 @@ class HomeView extends ConsumerWidget {
                                           builder: (context, controller) {
                                             return DecoratedBox(
                                               decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.circular(16),
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
                                                 color: kQuaternaryColor,
                                               ),
                                               child: SingleChildScrollView(
-                                                padding: const EdgeInsets.all(16),
+                                                padding:
+                                                    const EdgeInsets.all(16),
                                                 controller: controller,
                                                 child: Column(
                                                   children: [
@@ -237,8 +244,10 @@ class HomeView extends ConsumerWidget {
                                                           Colors.cyan,
                                                         ].mapToList(
                                                           (c) => DecoratedBox(
-                                                            decoration: BoxDecoration(
-                                                              shape: BoxShape.circle,
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              shape: BoxShape
+                                                                  .circle,
                                                               color: c,
                                                             ),
                                                           ),
@@ -259,24 +268,34 @@ class HomeView extends ConsumerWidget {
                                                           Icons.abc,
                                                           Icons.access_alarm,
                                                           Icons.accessibility,
-                                                          Icons.accessibility_new,
+                                                          Icons
+                                                              .accessibility_new,
                                                           Icons.accessible,
-                                                          Icons.accessible_forward,
+                                                          Icons
+                                                              .accessible_forward,
                                                           Icons.account_balance,
-                                                          Icons.account_balance_wallet,
+                                                          Icons
+                                                              .account_balance_wallet,
                                                           Icons.account_box,
                                                           Icons.account_circle,
                                                           Icons.adb,
                                                           Icons.add,
                                                         ].mapToList(
                                                           (i) => DecoratedBox(
-                                                            decoration: BoxDecoration(
-                                                              shape: BoxShape.circle,
-                                                              border: Border.all(color: Colors.white),
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              shape: BoxShape
+                                                                  .circle,
+                                                              border:
+                                                                  Border.all(
+                                                                color: Colors
+                                                                    .white,
+                                                              ),
                                                             ),
                                                             child: Icon(
                                                               i,
-                                                              color: Colors.white,
+                                                              color:
+                                                                  Colors.white,
                                                             ),
                                                           ),
                                                         ),

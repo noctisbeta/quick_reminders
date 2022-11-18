@@ -55,7 +55,8 @@ class SendResetPasswordSuccessfulView extends StatelessWidget {
                     height: 16,
                   ),
                   const Text(
-                    'A password reset email has been sent to your email address.',
+                    'A password reset email has been sent to your email '
+                    'address.',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,

@@ -43,7 +43,8 @@ class RegistrationState {
   }) {
     return RegistrationState(
       registrationData: registrationData ?? this.registrationData,
-      registrationDataErrors: registrationDataErrors ?? this.registrationDataErrors,
+      registrationDataErrors:
+          registrationDataErrors ?? this.registrationDataErrors,
       processingState: processingState ?? this.processingState,
       googleInProgress: googleInProgress ?? this.googleInProgress,
     );

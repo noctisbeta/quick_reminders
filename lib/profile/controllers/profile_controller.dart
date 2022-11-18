@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:functional/functional.dart';
@@ -12,8 +11,7 @@ import 'package:quick_reminders/profile/models/profile.dart';
 class ProfileController {
   /// Default constructor.
   const ProfileController(
-    this.ref,
-    this.auth,
+    this._auth,
     this._db,
     this._authStore,
   );
@@ -21,18 +19,14 @@ class ProfileController {
   /// Provides the controller.
   static final provider = Provider.autoDispose<ProfileController>(
     (ref) => ProfileController(
-      ref,
       FirebaseAuth.instance,
       FirebaseFirestore.instance,
       ref.watch(AuthStore.provider.notifier),
     ),
   );
 
-  /// Riverpod reference.
-  final Ref ref;
-
   /// Firebase auth.
-  final FirebaseAuth auth;
+  final FirebaseAuth _auth;
 
   /// Firestore database.
   final FirebaseFirestore _db;
@@ -43,13 +37,20 @@ class ProfileController {
   /// Provides the profile stream.
   static final profileStreamProvider = StreamProvider.autoDispose((ref) {
     final db = FirebaseFirestore.instance;
-    final auth = FirebaseAuth.instance;
 
-    return db.collection('users').doc(auth.currentUser!.uid).snapshots().map(Profile.fromSnapshot);
+    return ref.watch(AuthStore.provider).match(
+          () => Stream.value(Profile.empty()),
+          (user) => db.collection('users').doc(user.uid).snapshots().map(
+                Profile.fromSnapshot,
+              ),
+        );
   });
 
   /// Creates a new profile.
-  Future<Either<Exception, Unit>> createProfileFromUserCredential(UserCredential userCredential) async => Task.fromVoid(
+  Future<Either<Exception, Unit>> createProfileFromUserCredential(
+    UserCredential userCredential,
+  ) async =>
+      Task.fromVoid(
         () => _db.collection('users').doc(userCredential.user!.uid).set(
           {
             'firstName': userCredential.user!.displayName!.split(' ')[0],
@@ -63,7 +64,11 @@ class ProfileController {
             (either) => either.match(
               (exception) => withEffect(
                 left(exception),
-                () => Logger().e('Error creating profile.', exception, StackTrace.current),
+                () => Logger().e(
+                  'Error creating profile.',
+                  exception,
+                  StackTrace.current,
+                ),
               ),
               (unit) => withEffect(
                 right(unit),
@@ -73,7 +78,10 @@ class ProfileController {
           );
 
   /// Creates a user document in firestore.
-  Future<Either<Exception, Unit>> createProfileFromMap(Map<String, dynamic> map) async => Task.fromVoid(
+  Future<Either<Exception, Unit>> createProfileFromMap(
+    Map<String, dynamic> map,
+  ) async =>
+      Task.fromVoid(
         () => _db.collection('users').doc(map['uid']).set(
           {
             'firstName': map['firstName'],
@@ -87,7 +95,11 @@ class ProfileController {
             (either) => either.match(
               (exception) => withEffect(
                 left(exception),
-                () => Logger().e('Error creating profile.', exception, StackTrace.current),
+                () => Logger().e(
+                  'Error creating profile.',
+                  exception,
+                  StackTrace.current,
+                ),
               ),
               (unit) => withEffect(
                 right(unit),
@@ -98,11 +110,14 @@ class ProfileController {
 
   /// Returns true if the user already has a profile.
   Future<bool> userHasProfile() async {
-    return _authStore.isLoggedIn.match(
+    return _authStore.user.match(
       () => withEffect(false, () => Logger().e('User is not logged in')),
-      () => _db.collection('users').doc(auth.currentUser!.uid).get().then(
+      (user) => _db.collection('users').doc(user.uid).get().then(
             (value) => value.exists.match(
-              () => withEffect(false, () => Logger().i('User does not have a profile')),
+              () => withEffect(
+                false,
+                () => Logger().i('User does not have a profile'),
+              ),
               () => withEffect(true, () => Logger().i('User has a profile')),
             ),
           ),
@@ -110,11 +125,6 @@ class ProfileController {
   }
 
   /// Signs the user out.
-  Future<void> signOut() async {
-    // Stop the database reads when the user is signed out, to prevent errors caused by rules.
-    // await _db.terminate();
-
-    await auth.signOut();
-    log('Signed out the user.');
-  }
+  Future<void> signOut() async =>
+      withEffect(_auth.signOut(), () => Logger().i('Signed out'));
 }

@@ -28,4 +28,7 @@ class AuthStore extends StateNotifier<Option<User>> {
 
   /// Is logged in.
   bool get isLoggedIn => state.match(() => false, (some) => true);
+
+  /// Returns the current user.
+  Option<User> get user => state;
 }

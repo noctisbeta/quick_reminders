@@ -10,6 +10,13 @@ class Profile {
     required this.createdAt,
   });
 
+  /// Empty profile.
+  Profile.empty()
+      : firstName = '',
+        lastName = '',
+        email = '',
+        createdAt = Timestamp(0, 0);
+
   /// Creates a profile from a snapshot.
   factory Profile.fromSnapshot(DocumentSnapshot snapshot) {
     final data = snapshot.data()! as Map<String, dynamic>;
@@ -34,8 +41,12 @@ class Profile {
   /// Creation date.
   final Timestamp createdAt;
 
-  /// Returns the initials of the first and last name or the first two letters of the email.
+  /// Returns the initials of the first and last name or the first two letters
+  /// of the email.
   String get initials {
+    if (firstName.isEmpty && lastName.isEmpty && email.isEmpty) {
+      return '';
+    }
     if (firstName.isEmpty || lastName.isEmpty) {
       return email.substring(0, 2).toUpperCase();
     }

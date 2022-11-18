@@ -71,7 +71,8 @@ class SendResetPasswordView extends HookConsumerWidget {
                       height: 16,
                     ),
                     const Text(
-                      'Enter your email address and we will send you a link to reset your password.',
+                      'Enter your email address and we will send you a link'
+                      ' to reset your password.',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 16,
@@ -108,7 +109,9 @@ class SendResetPasswordView extends HookConsumerWidget {
                       tag: 'loginButton',
                       child: RoundedButton(
                         onPressed: () {
-                          loginController.sendResetPassword(email.value).then((value) {
+                          loginController
+                              .sendResetPassword(email.value)
+                              .then((value) {
                             if (value) {
                               context.goNamed('resetPasswordSuccessful');
                             } else {

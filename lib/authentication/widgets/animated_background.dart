@@ -19,8 +19,8 @@ class AnimatedBackground extends HookWidget {
   /// The colors of the background after the animation.
   final List<Color> finalColors;
 
-  /// Animation controller. If null, a default one is provided and plays the animation
-  /// on rebuilds.
+  /// Animation controller. If null, a default one is provided and plays the
+  /// animation on rebuilds.
   final AnimationController? controller;
 
   /// Gradient stops.

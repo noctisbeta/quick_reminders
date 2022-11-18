@@ -11,12 +11,14 @@ extension IterableExtension<T> on Iterable<T> {
     }
   }
 
-  /// Puts [separator] between each element of the iterable and returns it as a [List].
+  /// Puts [separator] between each element of the iterable and returns it as a
+  /// [List].
   List<T> separatedByToList(T separator) {
     return separatedBy(separator).toList();
   }
 
-  /// Applies [f] to each element of the iterable and returns the result as a [List].
+  /// Applies [f] to each element of the iterable and returns the result as a
+  /// [List].
   List<R> mapToList<R>(R Function(T) f) {
     return map(f).toList();
   }

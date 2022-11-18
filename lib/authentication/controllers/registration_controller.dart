@@ -3,9 +3,9 @@ import 'package:flutter/foundation.dart';
 import 'package:functional/functional.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/logger.dart';
-import 'package:quick_reminders/authentication/controllers/google_sign_in_controller.dart';
-import 'package:quick_reminders/authentication/controllers/google_sign_in_controller_web.dart';
-import 'package:quick_reminders/authentication/controllers/google_sign_in_protocol.dart';
+import 'package:quick_reminders/authentication/controllers/google/google_sign_in_controller.dart';
+import 'package:quick_reminders/authentication/controllers/google/google_sign_in_controller_web.dart';
+import 'package:quick_reminders/authentication/controllers/google/google_sign_in_protocol.dart';
 import 'package:quick_reminders/authentication/models/processing_state.dart';
 import 'package:quick_reminders/authentication/models/registration/registration_data.dart';
 import 'package:quick_reminders/authentication/models/registration/registration_data_errors.dart';
@@ -40,7 +40,8 @@ class RegistrationController extends StateNotifier<RegistrationState> {
   );
 
   /// Provides the controller.
-  static final provider = StateNotifierProvider.autoDispose<RegistrationController, RegistrationState>(
+  static final provider = StateNotifierProvider.autoDispose<
+      RegistrationController, RegistrationState>(
     (ref) => RegistrationController(
       FirebaseAuth.instance,
       kIsWeb.match(
@@ -51,8 +52,10 @@ class RegistrationController extends StateNotifier<RegistrationState> {
     ),
   );
 
-  /// Registers the user with email and password, then creates a user document in Firestore.
-  Future<bool> completeRegistration(RegistrationData registrationData) async => withEffect(
+  /// Registers the user with email and password, then creates a user document
+  /// in Firestore.
+  Future<bool> completeRegistration(RegistrationData registrationData) async =>
+      withEffect(
         Task(
           () => _createUser(registrationData),
         ).run().then(
@@ -118,7 +121,9 @@ class RegistrationController extends StateNotifier<RegistrationState> {
                 ),
                 (userCredential) => _profileController.userHasProfile().then(
                       (value) => value.match(
-                        () => _profileController.createProfileFromUserCredential(userCredential).then(
+                        () => _profileController
+                            .createProfileFromUserCredential(userCredential)
+                            .then(
                               (either) => either.match(
                                 (exception) => withEffect(
                                   false,
@@ -149,7 +154,10 @@ class RegistrationController extends StateNotifier<RegistrationState> {
       );
 
   /// Creates a user with email and password.
-  Future<Either<Exception, UserCredential>> _createUser(RegistrationData data) async => Task(
+  Future<Either<Exception, UserCredential>> _createUser(
+    RegistrationData data,
+  ) async =>
+      Task(
         () => _auth.createUserWithEmailAndPassword(
           email: data.email.trim(),
           password: data.password.trim(),
@@ -166,7 +174,8 @@ class RegistrationController extends StateNotifier<RegistrationState> {
                     case 'email-already-in-use':
                       message = 'Email already in use.';
                       state = state.copyWith(
-                        registrationDataErrors: state.registrationDataErrors.copyWith(
+                        registrationDataErrors:
+                            state.registrationDataErrors.copyWith(
                           email: message,
                         ),
                       );
@@ -174,7 +183,8 @@ class RegistrationController extends StateNotifier<RegistrationState> {
                     case 'invalid-email':
                       message = 'Invalid email.';
                       state = state.copyWith(
-                        registrationDataErrors: state.registrationDataErrors.copyWith(
+                        registrationDataErrors:
+                            state.registrationDataErrors.copyWith(
                           email: message,
                         ),
                       );
@@ -182,7 +192,8 @@ class RegistrationController extends StateNotifier<RegistrationState> {
                     case 'operation-not-allowed':
                       message = 'Operation not allowed.';
                       state = state.copyWith(
-                        registrationDataErrors: state.registrationDataErrors.copyWith(
+                        registrationDataErrors:
+                            state.registrationDataErrors.copyWith(
                           email: message,
                           firstName: message,
                           lastName: message,
@@ -193,7 +204,8 @@ class RegistrationController extends StateNotifier<RegistrationState> {
                     case 'weak-password':
                       message = 'Weak password.';
                       state = state.copyWith(
-                        registrationDataErrors: state.registrationDataErrors.copyWith(
+                        registrationDataErrors:
+                            state.registrationDataErrors.copyWith(
                           password: message,
                         ),
                       );
@@ -208,11 +220,14 @@ class RegistrationController extends StateNotifier<RegistrationState> {
   /// Checks if the current user has their email verified.
   Future<bool> isEmailVerified() async => Option.of(_auth.currentUser).match(
         () => withEffect(false, () => Logger().e('No user logged in')),
-        (user) => Task.fromVoid(() => user.reload()).run().then((value) => user.emailVerified),
+        (user) => Task.fromVoid(() => user.reload())
+            .run()
+            .then((value) => user.emailVerified),
       );
 
   /// Sends a verification email to the current user.
-  Future<bool> resendEmailVerification() async => Option.of(_auth.currentUser).match(
+  Future<bool> resendEmailVerification() async =>
+      Option.of(_auth.currentUser).match(
         () => withEffect(false, () => Logger().e('No user logged in')),
         (user) => withEffect(
           Task.fromVoid(

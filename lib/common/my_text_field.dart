@@ -91,7 +91,9 @@ class MyTextField extends HookWidget {
                       obscuredText.value = !obscuredText.value;
                     },
                     icon: Icon(
-                      obscuredText.value ? Icons.visibility_off : Icons.visibility,
+                      obscuredText.value
+                          ? Icons.visibility_off
+                          : Icons.visibility,
                       color: Colors.white,
                     ),
                   )

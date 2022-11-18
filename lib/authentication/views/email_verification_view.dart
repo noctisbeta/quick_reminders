@@ -17,7 +17,8 @@ class EmailVerificationView extends HookConsumerWidget {
     super.key,
   });
 
-  /// Checks if the current user's email is verified and takes appropriate action.
+  /// Checks if the current user's email is verified and takes appropriate
+  /// action.
   void emailCheck(WidgetRef ref, BuildContext context) {
     ref
         .read(
@@ -112,7 +113,8 @@ class EmailVerificationView extends HookConsumerWidget {
                   height: 16,
                 ),
                 const Text(
-                  'Please check your email and click on the link to verify your account.',
+                  'Please check your email and click on the link to verify your'
+                  ' account.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,
@@ -134,7 +136,10 @@ class EmailVerificationView extends HookConsumerWidget {
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('Something went wrong. Please try again later.'),
+                                content: Text(
+                                  'Something went wrong. Please try again '
+                                  'later.',
+                                ),
                               ),
                             );
                           }
@@ -144,7 +149,9 @@ class EmailVerificationView extends HookConsumerWidget {
                     fillColor: !resent.value ? Colors.white : null,
                     child: AnimatedCrossFade(
                       duration: const Duration(milliseconds: 300),
-                      crossFadeState: resent.value ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                      crossFadeState: resent.value
+                          ? CrossFadeState.showSecond
+                          : CrossFadeState.showFirst,
                       firstChild: Text(
                         'RESEND EMAIL',
                         style: TextStyle(

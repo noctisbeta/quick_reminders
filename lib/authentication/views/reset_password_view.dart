@@ -123,7 +123,9 @@ class ResetPasswordView extends HookConsumerWidget {
                     ),
                     RoundedButton(
                       onPressed: () {
-                        loginController.resetPassword(password.value, oobCode).then((value) {
+                        loginController
+                            .resetPassword(password.value, oobCode)
+                            .then((value) {
                           if (value) {
                             context.goNamed('resetPasswordSuccessful');
                           } else {

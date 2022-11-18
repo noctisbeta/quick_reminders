@@ -5,6 +5,7 @@ import 'package:quick_reminders/authentication/models/google_sign_in_exception.d
 /// Google sign in protocol.
 // ignore: one_member_abstracts
 abstract class GoogleSignInProtocol {
-  /// Sign in with google and return the account or user credential if successful.
+  /// Sign in with google and return the account or user credential if
+  /// successful.
   Future<Either<GoogleSignInException, UserCredential>> signInWithGoogle();
 }

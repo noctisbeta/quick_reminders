@@ -99,7 +99,8 @@ class SignUpView extends HookConsumerWidget {
                             label: 'Email',
                             textInputType: TextInputType.emailAddress,
                             textInputAction: TextInputAction.next,
-                            errorMessage: registrationState.registrationDataErrors.email,
+                            errorMessage:
+                                registrationState.registrationDataErrors.email,
                             onChanged: (value) {
                               registrationData.email = value;
                             },
@@ -111,7 +112,8 @@ class SignUpView extends HookConsumerWidget {
                           MyTextField(
                             label: 'Password',
                             textInputAction: TextInputAction.go,
-                            errorMessage: registrationState.registrationDataErrors.password,
+                            errorMessage: registrationState
+                                .registrationDataErrors.password,
                             onChanged: (value) {
                               registrationData.password = value;
                             },

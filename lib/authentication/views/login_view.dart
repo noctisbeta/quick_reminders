@@ -138,7 +138,8 @@ class LoginView extends HookConsumerWidget {
                       tag: 'loginButton',
                       child: RoundedButton(
                         isLoading: loginState.isLoading,
-                        onPressed: () => loginController.login(loginData).then((value) {
+                        onPressed: () =>
+                            loginController.login(loginData).then((value) {
                           if (value) {
                             if (loginController.isEmailVerifiedSync()) {
                               context.goNamed('home');
@@ -173,7 +174,8 @@ class LoginView extends HookConsumerWidget {
                         onPressed: () {
                           loginController.signInWithGoogle().then(
                                 (value) => value.match(
-                                  () => ScaffoldMessenger.of(context).showSnackBar(
+                                  () => ScaffoldMessenger.of(context)
+                                      .showSnackBar(
                                     const SnackBar(
                                       content: Text('Login failed'),
                                     ),
