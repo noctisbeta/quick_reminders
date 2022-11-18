@@ -16,7 +16,7 @@ import 'package:quick_reminders/responsive/max_width_constraint.dart';
 import 'package:quick_reminders/routing/routes.dart';
 import 'package:quick_reminders/utilities/extensions/iterable_extension.dart';
 
-/// VRegistration view.
+/// Registration view.
 class SignUpView extends HookConsumerWidget {
   /// Default constructor.
   const SignUpView({super.key});

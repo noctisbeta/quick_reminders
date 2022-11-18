@@ -9,15 +9,13 @@ class RegistrationState {
     required this.registrationData,
     required this.registrationDataErrors,
     required this.processingState,
-    required this.googleInProgress,
   });
 
   /// Empty constructor.
   RegistrationState.empty()
       : registrationData = RegistrationData.empty(),
         registrationDataErrors = RegistrationDataErrors.empty(),
-        processingState = ProcessingState.loaded,
-        googleInProgress = false;
+        processingState = ProcessingState.idle;
 
   /// Registration data.
   final RegistrationData registrationData;
@@ -28,25 +26,23 @@ class RegistrationState {
   /// Processing state.
   final ProcessingState processingState;
 
-  /// Whether the Google sign in is in progress.
-  final bool googleInProgress;
+  /// True if the google sign in is loading.
+  bool get googleInProgress => processingState == ProcessingState.googleLoading;
 
   /// True if the state is loading.
-  bool get isLoading => processingState == ProcessingState.loading;
+  bool get isLoading => processingState == ProcessingState.registrationLoading;
 
   /// Copy with method.
   RegistrationState copyWith({
     RegistrationData? registrationData,
     RegistrationDataErrors? registrationDataErrors,
     ProcessingState? processingState,
-    bool? googleInProgress,
   }) {
     return RegistrationState(
       registrationData: registrationData ?? this.registrationData,
       registrationDataErrors:
           registrationDataErrors ?? this.registrationDataErrors,
       processingState: processingState ?? this.processingState,
-      googleInProgress: googleInProgress ?? this.googleInProgress,
     );
   }
 }

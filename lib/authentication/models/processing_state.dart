@@ -1,8 +1,14 @@
 /// Processing state.
 enum ProcessingState {
   ///
-  loading,
+  loginLoading,
 
   ///
-  loaded,
+  registrationLoading,
+
+  ///
+  googleLoading,
+
+  ///
+  idle,
 }

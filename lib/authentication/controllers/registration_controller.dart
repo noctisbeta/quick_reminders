@@ -63,7 +63,7 @@ class RegistrationController extends StateNotifier<RegistrationState> {
                 (exception) => withEffect(
                   false,
                   () => state = state.copyWith(
-                    processingState: ProcessingState.loaded,
+                    processingState: ProcessingState.idle,
                   ),
                 ),
                 (userCredential) => Option.of(userCredential.user).match(
@@ -82,7 +82,7 @@ class RegistrationController extends StateNotifier<RegistrationState> {
                         () => {
                           user.sendEmailVerification(),
                           state = state.copyWith(
-                            processingState: ProcessingState.loaded,
+                            processingState: ProcessingState.idle,
                           ),
                         },
                       ),
@@ -91,7 +91,7 @@ class RegistrationController extends StateNotifier<RegistrationState> {
                         () => {
                           user.sendEmailVerification(),
                           state = state.copyWith(
-                            processingState: ProcessingState.loaded,
+                            processingState: ProcessingState.idle,
                           ),
                         },
                       ),
@@ -103,7 +103,7 @@ class RegistrationController extends StateNotifier<RegistrationState> {
         () => state = state.copyWith(
           registrationData: registrationData,
           registrationDataErrors: RegistrationDataErrors.empty(),
-          processingState: ProcessingState.loading,
+          processingState: ProcessingState.loginLoading,
         ),
       );
 
@@ -113,11 +113,9 @@ class RegistrationController extends StateNotifier<RegistrationState> {
               (either) => either.match(
                 (exception) => withEffect(
                   false,
-                  () {
-                    state = state.copyWith(
-                      googleInProgress: false,
-                    );
-                  },
+                  () => state = state.copyWith(
+                    processingState: ProcessingState.idle,
+                  ),
                 ),
                 (userCredential) => _profileController.userHasProfile().then(
                       (value) => value.match(
@@ -127,19 +125,15 @@ class RegistrationController extends StateNotifier<RegistrationState> {
                               (either) => either.match(
                                 (exception) => withEffect(
                                   false,
-                                  () {
-                                    state = state.copyWith(
-                                      googleInProgress: false,
-                                    );
-                                  },
+                                  () => state = state.copyWith(
+                                    processingState: ProcessingState.idle,
+                                  ),
                                 ),
                                 (value) => withEffect(
                                   true,
-                                  () {
-                                    state = state.copyWith(
-                                      googleInProgress: false,
-                                    );
-                                  },
+                                  () => state = state.copyWith(
+                                    processingState: ProcessingState.idle,
+                                  ),
                                 ),
                               ),
                             ),
@@ -149,7 +143,7 @@ class RegistrationController extends StateNotifier<RegistrationState> {
               ),
             ),
         () => state = state.copyWith(
-          googleInProgress: true,
+          processingState: ProcessingState.loginLoading,
         ),
       );
 
@@ -234,13 +228,13 @@ class RegistrationController extends StateNotifier<RegistrationState> {
             () => user.sendEmailVerification(_emailSettings),
           ),
           () => state = state.copyWith(
-            processingState: ProcessingState.loading,
+            processingState: ProcessingState.loginLoading,
           ),
         ).run().then(
               (_) => withEffect(
                 true,
                 () => state = state.copyWith(
-                  processingState: ProcessingState.loaded,
+                  processingState: ProcessingState.idle,
                 ),
               ),
             ),

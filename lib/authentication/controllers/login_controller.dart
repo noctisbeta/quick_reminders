@@ -51,12 +51,11 @@ class LoginController extends StateNotifier<LoginState> {
   Future<bool> signInWithGoogle() async => withEffect(
         _googleController.signInWithGoogle().then(
               (googleEither) => googleEither.match(
-                (exception) {
-                  state = state.copyWith(
-                    googleInProgress: false,
-                  );
-                  return false;
-                },
+                (exception) => withEffect(
+                  false,
+                  () => state =
+                      state.copyWith(processingState: ProcessingState.idle),
+                ),
                 (userCredential) => Task(
                   _profileController.userHasProfile,
                 ).run().then(
@@ -67,24 +66,24 @@ class LoginController extends StateNotifier<LoginState> {
                             )
                             .then(
                               (either) => either.match(
-                                (e) {
-                                  state = state.copyWith(
-                                    googleInProgress: false,
-                                  );
-                                  return false;
-                                },
-                                (value) {
-                                  state = state.copyWith(
-                                    googleInProgress: false,
-                                  );
-                                  return true;
-                                },
+                                (exception) => withEffect(
+                                  false,
+                                  () => state = state.copyWith(
+                                    processingState: ProcessingState.idle,
+                                  ),
+                                ),
+                                (success) => withEffect(
+                                  true,
+                                  () => state = state.copyWith(
+                                    processingState: ProcessingState.idle,
+                                  ),
+                                ),
                               ),
                             ),
                         ifTrue: () => withEffect(
                           true,
                           () => state = state.copyWith(
-                            googleInProgress: false,
+                            processingState: ProcessingState.idle,
                           ),
                         ),
                       ),
@@ -92,7 +91,7 @@ class LoginController extends StateNotifier<LoginState> {
               ),
             ),
         () => state = state.copyWith(
-          googleInProgress: true,
+          processingState: ProcessingState.googleLoading,
         ),
       );
 
@@ -107,14 +106,14 @@ class LoginController extends StateNotifier<LoginState> {
                   (right) => true,
                 ),
                 () => state = state.copyWith(
-                  processingState: ProcessingState.loaded,
+                  processingState: ProcessingState.idle,
                 ),
               ),
             ),
         () => state = state.copyWith(
           loginData: loginData,
           loginDataErrors: LoginDataErrors.empty(),
-          processingState: ProcessingState.loading,
+          processingState: ProcessingState.loginLoading,
         ),
       );
 
@@ -198,7 +197,7 @@ class LoginController extends StateNotifier<LoginState> {
       loginDataErrors: state.loginDataErrors.copyWith(
         email: '',
       ),
-      processingState: ProcessingState.loading,
+      processingState: ProcessingState.loginLoading,
     );
 
     if (email.isEmpty) {
@@ -206,7 +205,7 @@ class LoginController extends StateNotifier<LoginState> {
         loginDataErrors: state.loginDataErrors.copyWith(
           email: 'Email is required',
         ),
-        processingState: ProcessingState.loaded,
+        processingState: ProcessingState.idle,
       );
       return false;
     }
@@ -228,7 +227,7 @@ class LoginController extends StateNotifier<LoginState> {
       log('Password reset email sent to $email');
 
       state = state.copyWith(
-        processingState: ProcessingState.loaded,
+        processingState: ProcessingState.idle,
       );
 
       return true;
@@ -242,7 +241,7 @@ class LoginController extends StateNotifier<LoginState> {
         case 'invalid-email':
           message = 'Invalid email.';
           state = state.copyWith(
-            processingState: ProcessingState.loaded,
+            processingState: ProcessingState.idle,
             loginDataErrors: state.loginDataErrors.copyWith(
               email: message,
             ),
@@ -251,7 +250,7 @@ class LoginController extends StateNotifier<LoginState> {
         case 'user-not-found':
           message = 'User not found.';
           state = state.copyWith(
-            processingState: ProcessingState.loaded,
+            processingState: ProcessingState.idle,
             loginDataErrors: state.loginDataErrors.copyWith(
               email: message,
             ),
@@ -272,25 +271,18 @@ class LoginController extends StateNotifier<LoginState> {
         ),
       ).attemptEither<FirebaseAuthException>().run().then(
             (either) => either.match(
-              (left) => withEffect(
+              (exception) => withEffect(
                 false,
-                () => Logger().e('Error resetting password: ${left.message}'),
+                () => Logger()
+                    .e('Error resetting password: ${exception.message}'),
               ),
-              (right) => true,
+              (unit) => true,
             ),
           );
 
   /// Returns true if a user is logged in.
   bool isUserLoggedIn() => _auth.currentUser != null;
 
-  /// Checks if the current user has their email verified.
-  Future<bool> isEmailVerified() async => Option.of(_auth.currentUser).match(
-        () => withEffect(false, () => Logger().e('No user logged in')),
-        (user) => Task.fromVoid(() => user.reload())
-            .run()
-            .then((value) => user.emailVerified),
-      );
-
   /// Call only if user is logged in.
-  bool isEmailVerifiedSync() => _auth.currentUser!.emailVerified;
+  bool isEmailVerified() => _auth.currentUser!.emailVerified;
 }

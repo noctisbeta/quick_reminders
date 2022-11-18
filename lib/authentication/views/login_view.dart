@@ -148,7 +148,7 @@ class LoginView extends HookConsumerWidget {
                                   ),
                                 ),
                                 ifTrue: () => loginController
-                                    .isEmailVerifiedSync()
+                                    .isEmailVerified()
                                     .match(
                                       ifFalse: () =>
                                           context.goNamed(Routes.verify.name),
