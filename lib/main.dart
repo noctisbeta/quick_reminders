@@ -8,7 +8,7 @@ import 'package:functional/functional.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/firebase/firebase_options.dart';
-import 'package:quick_reminders/initialization/initialization_controller.dart';
+import 'package:quick_reminders/initialization/dynamic_link_manager.dart';
 import 'package:quick_reminders/routing/route_controller.dart';
 
 Future<Unit> main() async {
@@ -27,7 +27,7 @@ Future<Unit> main() async {
   final container = ProviderContainer();
 
   kIsWeb.match(
-    ifFalse: () => container.read(InitializationController.provider),
+    ifFalse: () => container.read(DynamicLinkManager.provider),
     ifTrue: () => {
       usePathUrlStrategy(),
       FirebaseAuth.instance.setPersistence(Persistence.LOCAL),
