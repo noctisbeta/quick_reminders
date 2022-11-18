@@ -3,16 +3,17 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:functional/functional.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:quick_reminders/authentication/components/animated_background.dart';
-import 'package:quick_reminders/authentication/components/background_stack.dart';
 import 'package:quick_reminders/authentication/components/google_button.dart';
 import 'package:quick_reminders/authentication/components/or_divider.dart';
 import 'package:quick_reminders/authentication/controllers/login_controller.dart';
 import 'package:quick_reminders/authentication/models/login/login_data.dart';
+import 'package:quick_reminders/common/animated_background.dart';
+import 'package:quick_reminders/common/background_stack.dart';
 import 'package:quick_reminders/common/my_text_field.dart';
 import 'package:quick_reminders/common/rounded_button.dart';
 import 'package:quick_reminders/common/unfocus_on_tap.dart';
 import 'package:quick_reminders/responsive/max_width_constraint.dart';
+import 'package:quick_reminders/routing/routes.dart';
 
 /// Login view.
 class LoginView extends HookConsumerWidget {
@@ -49,9 +50,9 @@ class LoginView extends HookConsumerWidget {
             ],
           ),
           child: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: MaxWidthConstraint(
+            child: MaxWidthConstraint(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: Column(
                   children: [
                     const SizedBox(
@@ -138,16 +139,24 @@ class LoginView extends HookConsumerWidget {
                       tag: 'loginButton',
                       child: RoundedButton(
                         isLoading: loginState.isLoading,
-                        onPressed: () =>
-                            loginController.login(loginData).then((value) {
-                          if (value) {
-                            if (loginController.isEmailVerifiedSync()) {
-                              context.goNamed('home');
-                            } else {
-                              context.goNamed('verify');
-                            }
-                          }
-                        }),
+                        onPressed: () => loginController.login(loginData).then(
+                              (value) => value.match(
+                                ifFalse: () =>
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Login failed'),
+                                  ),
+                                ),
+                                ifTrue: () => loginController
+                                    .isEmailVerifiedSync()
+                                    .match(
+                                      ifFalse: () =>
+                                          context.goNamed(Routes.verify.name),
+                                      ifTrue: () =>
+                                          context.goNamed(Routes.home.name),
+                                    ),
+                              ),
+                            ),
                         fillColor: Colors.white,
                         child: Text(
                           'LOGIN',
@@ -164,27 +173,25 @@ class LoginView extends HookConsumerWidget {
                     const SizedBox(
                       height: 16,
                     ),
-                    if (loginState.googleInProgress)
-                      const CircularProgressIndicator(
+                    loginState.googleInProgress.match(
+                      ifFalse: () => GoogleButton(
+                        onPressed: () => loginController
+                            .signInWithGoogle()
+                            .then(
+                              (value) => value
+                                  ? context.goNamed(Routes.home.name)
+                                  : ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Login failed'),
+                                      ),
+                                    ),
+                            ),
+                      ),
+                      ifTrue: () => const CircularProgressIndicator(
                         color: Colors.white,
                         strokeWidth: 3,
-                      )
-                    else
-                      GoogleButton(
-                        onPressed: () {
-                          loginController.signInWithGoogle().then(
-                                (value) => value.match(
-                                  ifFalse: () => ScaffoldMessenger.of(context)
-                                      .showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Login failed'),
-                                    ),
-                                  ),
-                                  ifTrue: () => context.goNamed('home'),
-                                ),
-                              );
-                        },
                       ),
+                    ),
                     const SizedBox(
                       height: 16,
                     ),

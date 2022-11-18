@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:quick_reminders/authentication/components/background_gradient.dart';
-import 'package:quick_reminders/authentication/components/background_stack.dart';
 import 'package:quick_reminders/authentication/controllers/login_controller.dart';
+import 'package:quick_reminders/common/background_gradient.dart';
+import 'package:quick_reminders/common/background_stack.dart';
 import 'package:quick_reminders/common/my_text_field.dart';
 import 'package:quick_reminders/common/rounded_button.dart';
 import 'package:quick_reminders/common/unfocus_on_tap.dart';
+import 'package:quick_reminders/routing/routes.dart';
 
 /// Reset password view.
 class SendResetPasswordView extends HookConsumerWidget {
@@ -92,9 +93,7 @@ class SendResetPasswordView extends HookConsumerWidget {
                           initialText: loginState.loginData.email,
                           errorMessage: loginState.loginDataErrors.email,
                           textInputAction: TextInputAction.next,
-                          onChanged: (value) {
-                            email.value = value;
-                          },
+                          onChanged: (value) => email.value = value,
                           prefixIcon: const Icon(
                             Icons.email,
                             color: Colors.white,
@@ -108,21 +107,19 @@ class SendResetPasswordView extends HookConsumerWidget {
                     Hero(
                       tag: 'loginButton',
                       child: RoundedButton(
-                        onPressed: () {
-                          loginController
-                              .sendResetPassword(email.value)
-                              .then((value) {
-                            if (value) {
-                              context.goNamed('resetPasswordSuccessful');
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Something went wrong.'),
-                                ),
-                              );
-                            }
-                          });
-                        },
+                        onPressed: () => loginController
+                            .sendResetPassword(email.value)
+                            .then(
+                              (value) => value
+                                  ? context.goNamed(
+                                      Routes.resetPasswordSuccessful.name,
+                                    )
+                                  : ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Something went wrong.'),
+                                      ),
+                                    ),
+                            ),
                         isLoading: loginState.isLoading,
                         fillColor: Colors.white,
                         child: Text(
@@ -139,9 +136,7 @@ class SendResetPasswordView extends HookConsumerWidget {
                     Hero(
                       tag: 'backToLogin',
                       child: RoundedButton(
-                        onPressed: () {
-                          context.goNamed('login');
-                        },
+                        onPressed: () => context.goNamed('login'),
                         child: const Text(
                           'BACK TO LOGIN',
                           style: TextStyle(

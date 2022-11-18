@@ -3,13 +3,15 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:more_hooks/more_hooks.dart';
-import 'package:quick_reminders/authentication/components/animated_background.dart';
-import 'package:quick_reminders/authentication/components/background_stack.dart';
+import 'package:quick_reminders/common/animated_background.dart';
+import 'package:quick_reminders/common/background_stack.dart';
 import 'package:quick_reminders/common/rounded_button.dart';
 import 'package:quick_reminders/responsive/max_width_constraint.dart';
 import 'package:quick_reminders/routing/route_controller.dart';
+import 'package:quick_reminders/routing/routes.dart';
 
-/// View for user authentication.
+/// The first view that the user sees. Shows login and sign up buttons that lead
+/// to the respective views.
 class AuthenticationView extends HookConsumerWidget {
   /// Default constructor.
   const AuthenticationView({
@@ -28,11 +30,9 @@ class AuthenticationView extends HookConsumerWidget {
 
     useRouteObserver(
       routeController.routeObserver,
-      didPopNext: () {
-        animationController
-          ..value = 1
-          ..reverse();
-      },
+      didPopNext: () => animationController
+        ..value = 1
+        ..reverse(),
     );
 
     return Scaffold(
@@ -71,9 +71,7 @@ class AuthenticationView extends HookConsumerWidget {
                   Hero(
                     tag: 'signUpButton',
                     child: RoundedButton(
-                      onPressed: () {
-                        context.goNamed('signUp');
-                      },
+                      onPressed: () => context.goNamed(Routes.signUp.name),
                       child: const Text(
                         'SIGN UP',
                         style: TextStyle(
@@ -88,9 +86,7 @@ class AuthenticationView extends HookConsumerWidget {
                   Hero(
                     tag: 'loginButton',
                     child: RoundedButton(
-                      onPressed: () {
-                        context.goNamed('login');
-                      },
+                      onPressed: () => context.goNamed(Routes.login.name),
                       fillColor: Colors.white,
                       child: const Text(
                         'LOGIN',

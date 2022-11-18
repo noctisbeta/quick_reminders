@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:functional/functional.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:quick_reminders/authentication/components/animated_background.dart';
-import 'package:quick_reminders/authentication/components/background_stack.dart';
-import 'package:quick_reminders/authentication/components/rotation_hero.dart';
 import 'package:quick_reminders/authentication/controllers/login_controller.dart';
+import 'package:quick_reminders/common/animated_background.dart';
+import 'package:quick_reminders/common/background_stack.dart';
+import 'package:quick_reminders/common/rotation_hero.dart';
 import 'package:quick_reminders/common/rounded_button.dart';
+import 'package:quick_reminders/routing/routes.dart';
 
 /// Email verifiedn view.
 class EmailVerifiedView extends HookConsumerWidget {
@@ -77,13 +79,9 @@ class EmailVerifiedView extends HookConsumerWidget {
                   Hero(
                     tag: 'signUpButton',
                     child: RoundedButton(
-                      onPressed: () {
-                        if (loginController.isUserLoggedIn()) {
-                          context.goNamed('home');
-                        } else {
-                          context.goNamed('authentication');
-                        }
-                      },
+                      onPressed: () => loginController.isUserLoggedIn()
+                          ? context.goNamed(Routes.home.name)
+                          : context.goNamed(Routes.authentication.name),
                       fillColor: Colors.white,
                       child: Text(
                         'CONTINUE',

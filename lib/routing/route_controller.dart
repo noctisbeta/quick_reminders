@@ -8,7 +8,7 @@ import 'package:quick_reminders/authentication/views/authentication_view.dart';
 import 'package:quick_reminders/authentication/views/email_verification_view.dart';
 import 'package:quick_reminders/authentication/views/email_verified_view.dart';
 import 'package:quick_reminders/authentication/views/login_view.dart';
-import 'package:quick_reminders/authentication/views/reset_password_successful.dart';
+import 'package:quick_reminders/authentication/views/reset_password_successful_view.dart';
 import 'package:quick_reminders/authentication/views/reset_password_view.dart';
 import 'package:quick_reminders/authentication/views/send_password_reset_successful_view.dart';
 import 'package:quick_reminders/authentication/views/send_password_reset_view.dart';

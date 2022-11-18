@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:functional/functional.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:more_hooks/more_hooks.dart';
-import 'package:quick_reminders/authentication/components/animated_background.dart';
-import 'package:quick_reminders/authentication/components/background_stack.dart';
-import 'package:quick_reminders/authentication/components/rotation_hero.dart';
 import 'package:quick_reminders/authentication/controllers/registration_controller.dart';
+import 'package:quick_reminders/common/animated_background.dart';
+import 'package:quick_reminders/common/background_stack.dart';
+import 'package:quick_reminders/common/rotation_hero.dart';
 import 'package:quick_reminders/common/rounded_button.dart';
+import 'package:quick_reminders/routing/routes.dart';
 
 /// Email verification view.
 class EmailVerificationView extends HookConsumerWidget {
@@ -24,11 +26,9 @@ class EmailVerificationView extends HookConsumerWidget {
           RegistrationController.provider.notifier,
         )
         .isEmailVerified()
-        .then((value) {
-      if (value) {
-        context.goNamed('verified');
-      }
-    });
+        .then(
+          (value) => value ? context.go(Routes.verified.name) : unit,
+        );
   }
 
   @override
@@ -61,9 +61,7 @@ class EmailVerificationView extends HookConsumerWidget {
 
     final seconds = useCountdown(
       duration: const Duration(seconds: 60),
-      callback: () {
-        firstResend.value = false;
-      },
+      callback: () => firstResend.value = false,
       active: resent,
     );
 
@@ -127,24 +125,19 @@ class EmailVerificationView extends HookConsumerWidget {
                   child: RoundedButton(
                     isLoading: registrationState.isLoading,
                     isDisabled: resent.value,
-                    onPressed: () {
-                      registrationController.resendEmailVerification().then(
-                        (value) {
-                          if (value) {
-                            resent.value = true;
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'Something went wrong. Please try again '
-                                  'later.',
-                                ),
-                              ),
-                            );
-                          }
-                        },
-                      );
-                    },
+                    onPressed: () =>
+                        registrationController.resendEmailVerification().then(
+                              (value) => value
+                                  ? resent.value = true
+                                  : ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Something went wrong. Please try '
+                                          'again later.',
+                                        ),
+                                      ),
+                                    ),
+                            ),
                     fillColor: !resent.value ? Colors.white : null,
                     child: AnimatedCrossFade(
                       duration: const Duration(milliseconds: 300),
@@ -170,9 +163,7 @@ class EmailVerificationView extends HookConsumerWidget {
                   height: 16,
                 ),
                 RoundedButton(
-                  onPressed: () {
-                    context.goNamed('authentication');
-                  },
+                  onPressed: () => context.goNamed(Routes.authentication.name),
                   child: const Text(
                     'CANCEL',
                     style: TextStyle(

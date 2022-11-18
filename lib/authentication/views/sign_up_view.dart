@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:functional/functional.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:quick_reminders/authentication/components/animated_background.dart';
-import 'package:quick_reminders/authentication/components/background_stack.dart';
 import 'package:quick_reminders/authentication/components/google_button.dart';
 import 'package:quick_reminders/authentication/components/or_divider.dart';
 import 'package:quick_reminders/authentication/controllers/registration_controller.dart';
 import 'package:quick_reminders/authentication/models/registration/registration_data.dart';
+import 'package:quick_reminders/common/animated_background.dart';
+import 'package:quick_reminders/common/background_stack.dart';
 import 'package:quick_reminders/common/my_text_field.dart';
 import 'package:quick_reminders/common/rounded_button.dart';
 import 'package:quick_reminders/common/unfocus_on_tap.dart';
 import 'package:quick_reminders/responsive/max_width_constraint.dart';
+import 'package:quick_reminders/routing/routes.dart';
 import 'package:quick_reminders/utilities/extensions/iterable_extension.dart';
 
 /// VRegistration view.
@@ -49,9 +51,9 @@ class SignUpView extends HookConsumerWidget {
             ],
           ),
           child: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: MaxWidthConstraint(
+            child: MaxWidthConstraint(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: Column(
                   children: [
                     const SizedBox(
@@ -114,9 +116,8 @@ class SignUpView extends HookConsumerWidget {
                             textInputAction: TextInputAction.go,
                             errorMessage: registrationState
                                 .registrationDataErrors.password,
-                            onChanged: (value) {
-                              registrationData.password = value;
-                            },
+                            onChanged: (value) =>
+                                registrationData.password = value,
                             obscured: true,
                             prefixIcon: const Icon(
                               Icons.lock,
@@ -138,16 +139,16 @@ class SignUpView extends HookConsumerWidget {
                       child: RoundedButton(
                         isLoading: registrationState.isLoading,
                         onPressed: () => registrationController
-                            .completeRegistration(
-                          registrationData,
-                        )
-                            .then((value) {
-                          if (value) {
-                            context.goNamed(
-                              'verify',
-                            );
-                          }
-                        }),
+                            .completeRegistration(registrationData)
+                            .then(
+                              (value) => value
+                                  ? context.go(Routes.verify.name)
+                                  : ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Registration failed'),
+                                      ),
+                                    ),
+                            ),
                         fillColor: Colors.white,
                         child: Text(
                           'SIGN UP',
@@ -164,23 +165,25 @@ class SignUpView extends HookConsumerWidget {
                     const SizedBox(
                       height: 16,
                     ),
-                    if (registrationState.googleInProgress)
-                      const CircularProgressIndicator(
+                    registrationState.googleInProgress.match(
+                      ifFalse: () => GoogleButton(
+                        onPressed: () => registrationController
+                            .signInWithGoogle()
+                            .then(
+                              (value) => value
+                                  ? context.go(Routes.home.name)
+                                  : ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Login failed'),
+                                      ),
+                                    ),
+                            ),
+                      ),
+                      ifTrue: () => const CircularProgressIndicator(
                         color: Colors.white,
                         strokeWidth: 3,
-                      )
-                    else
-                      GoogleButton(
-                        onPressed: () {
-                          registrationController.signInWithGoogle().then(
-                            (value) {
-                              if (value) {
-                                context.goNamed('home');
-                              }
-                            },
-                          );
-                        },
                       ),
+                    ),
                     const SizedBox(
                       height: 16,
                     ),
