@@ -375,6 +375,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.8.0"
+  more_hooks:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: d19f5a32879100dba14d9328cda1086dd4098e08
+      url: "https://github.com/noctisbeta/more_hooks"
+    source: git
+    version: "0.0.1"
   path:
     dependency: transitive
     description:
