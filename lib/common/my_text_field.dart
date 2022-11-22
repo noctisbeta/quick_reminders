@@ -6,7 +6,8 @@ class MyTextField extends HookWidget {
   /// Default constructor.
   const MyTextField({
     required this.label,
-    required this.onChanged,
+    this.controller,
+    this.onChanged,
     this.errorMessage = '',
     this.obscured,
     this.prefixIcon,
@@ -44,6 +45,9 @@ class MyTextField extends HookWidget {
   /// Initial text.
   final String? initialText;
 
+  /// The controller of the text field.
+  final TextEditingController? controller;
+
   @override
   Widget build(BuildContext context) {
     final focusNode = useFocusNode();
@@ -68,7 +72,7 @@ class MyTextField extends HookWidget {
       children: [
         TextField(
           keyboardType: textInputType,
-          controller: textEditingController,
+          controller: controller ?? textEditingController,
           textInputAction: textInputAction,
           textCapitalization: textCapitalization ?? TextCapitalization.none,
           onChanged: onChanged,

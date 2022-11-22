@@ -7,7 +7,8 @@ import 'package:quick_reminders/home/components/people_group_card.dart';
 import 'package:quick_reminders/home/components/reminder_group_card.dart';
 import 'package:quick_reminders/home/components/section_header.dart';
 import 'package:quick_reminders/profile/components/profile_avatar.dart';
-import 'package:quick_reminders/reminders/add_reminder_group_modal.dart';
+import 'package:quick_reminders/reminders/components/add_people_group_modal.dart';
+import 'package:quick_reminders/reminders/components/add_reminder_group_modal.dart';
 import 'package:quick_reminders/reminders/reminders_controller.dart';
 
 /// Home screen.
@@ -75,7 +76,13 @@ class HomeView extends ConsumerWidget {
                         itemBuilder: (context, index) {
                           if (index == 0) {
                             return AddGroupCard(
-                              onTap: () {},
+                              onTap: () => showModalBottomSheet(
+                                context: context,
+                                backgroundColor: Colors.transparent,
+                                isScrollControlled: true,
+                                builder: (context) =>
+                                    const AddPeopleGroupModal(),
+                              ),
                             );
                           }
 
@@ -134,15 +141,13 @@ class HomeView extends ConsumerWidget {
                         itemBuilder: (context, index) {
                           if (index == 0) {
                             return AddGroupCard(
-                              onTap: () {
-                                showModalBottomSheet(
-                                  context: context,
-                                  backgroundColor: Colors.transparent,
-                                  isScrollControlled: true,
-                                  builder: (context) =>
-                                      const AddReminderGroupModal(),
-                                );
-                              },
+                              onTap: () => showModalBottomSheet(
+                                context: context,
+                                backgroundColor: Colors.transparent,
+                                isScrollControlled: true,
+                                builder: (context) =>
+                                    const AddReminderGroupModal(),
+                              ),
                             );
                           }
 

@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:quick_reminders/common/my_text_field.dart';
 import 'package:quick_reminders/constants/colors.dart';
+import 'package:quick_reminders/reminders/components/modal_header.dart';
 import 'package:quick_reminders/utilities/extensions/iterable_extension.dart';
 
 /// Add reminder group modal.
-class AddReminderGroupModal extends ConsumerWidget {
+class AddReminderGroupModal extends HookWidget {
   /// Default constructor.
   const AddReminderGroupModal({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    final groupName = useState('');
+
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => Navigator.pop(context),
@@ -34,24 +37,9 @@ class AddReminderGroupModal extends ConsumerWidget {
                 controller: controller,
                 child: Column(
                   children: [
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(
-                            Icons.close,
-                            color: kSecondaryColor,
-                          ),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                        const Spacer(),
-                        IconButton(
-                          icon: const Icon(
-                            Icons.check,
-                            color: kSecondaryColor,
-                          ),
-                          onPressed: () {},
-                        ),
-                      ],
+                    ModalHeader(
+                      title: 'Add Reminder Group',
+                      disabled: groupName.value.isEmpty,
                     ),
                     const SizedBox(
                       height: 16,
@@ -62,7 +50,7 @@ class AddReminderGroupModal extends ConsumerWidget {
                         Icons.title,
                         color: Colors.white,
                       ),
-                      onChanged: (value) {},
+                      onChanged: (val) => groupName.value = val,
                     ),
                     const SizedBox(
                       height: 16,
