@@ -1,21 +1,31 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:functional/functional.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:logger/logger.dart';
 import 'package:quick_reminders/authentication/controllers/auth_store.dart';
 
 /// Reminders controller.
 class RemindersController {
   /// Default constructor.
   const RemindersController(
-    this._auth,
     this._db,
+    this._authStore,
   );
-
-  /// Firebase auth.
-  final FirebaseAuth _auth;
 
   /// Firestore.
   final FirebaseFirestore _db;
+
+  /// Auth store.
+  final AuthStore _authStore;
+
+  /// Provides the controller.
+  static final provider = Provider.autoDispose<RemindersController>(
+    (ref) => RemindersController(
+      FirebaseFirestore.instance,
+      ref.watch(AuthStore.provider.notifier),
+    ),
+  );
 
   /// Stream of people groups.
   static final peopleGroupStream = StreamProvider.autoDispose<List>(
@@ -90,14 +100,27 @@ class RemindersController {
   );
 
   /// Creates a new reminder group.
-  Future<void> createReminderGroup(String name) async {
-    final collection = _db
-        .collection('users')
-        .doc(_auth.currentUser!.uid)
-        .collection('reminderGroups');
-
-    await collection.add({
-      'name': name,
-    });
-  }
+  Future<bool> createReminderGroup(String name) async => _authStore.user.match(
+        () => withEffect(false, () => Logger().e('User not logged in')),
+        (user) => Task(
+          () => _db
+              .collection('users')
+              .doc(user.uid)
+              .collection('reminderGroups')
+              .add({
+            'name': name,
+          }),
+        ).attemptAll().run().then(
+              (either) => either.match(
+                (failure) => withEffect(
+                  false,
+                  () => Logger().e('Failed to create reminder group: $failure'),
+                ),
+                (success) => withEffect(
+                  true,
+                  () => Logger().d('Created reminder group: $success'),
+                ),
+              ),
+            ),
+      );
 }
