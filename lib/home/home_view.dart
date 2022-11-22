@@ -8,7 +8,6 @@ import 'package:quick_reminders/home/components/people_group_card.dart';
 import 'package:quick_reminders/home/components/reminder_group_card.dart';
 import 'package:quick_reminders/home/components/section_header.dart';
 import 'package:quick_reminders/profile/components/profile_avatar.dart';
-import 'package:quick_reminders/profile/controllers/profile_controller.dart';
 import 'package:quick_reminders/reminders/reminders_controller.dart';
 import 'package:quick_reminders/utilities/extensions/iterable_extension.dart';
 
@@ -19,10 +18,6 @@ class HomeView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profileStream = ref.watch(
-      ProfileController.profileStreamProvider,
-    );
-
     final peopleGroupStream = ref.watch(
       RemindersController.peopleGroupStream,
     );
@@ -45,40 +40,7 @@ class HomeView extends ConsumerWidget {
             children: [
               Row(
                 children: [
-                  profileStream.when(
-                    data: (profile) {
-                      return ProfileAvatar(
-                        child: Text(
-                          profile.initials,
-                        ),
-                      );
-                    },
-                    error: (error, stackTrace) {
-                      Logger().e(
-                        'Error in profile stream: $error',
-                        error,
-                        stackTrace,
-                      );
-
-                      return const ProfileAvatar(
-                        child: Text(
-                          '',
-                        ),
-                      );
-                    },
-                    loading: () {
-                      return const ProfileAvatar(
-                        child: SizedBox(
-                          height: 37,
-                          width: 37,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                  const ProfileAvatar(),
                   const Spacer(),
                   // notification bell
                   IconButton(

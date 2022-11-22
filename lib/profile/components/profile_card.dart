@@ -34,45 +34,8 @@ class ProfileCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          profileStream.when(
-            data: (profile) {
-              return ProfileAvatar(
-                expanded: true,
-                child: Text(
-                  profile.initials,
-                  style: const TextStyle(
-                    fontSize: 40,
-                  ),
-                ),
-              );
-            },
-            error: (error, stackTrace) {
-              Logger().e(
-                'Error in profile stream: $error \n stackTrace: $stackTrace',
-                stackTrace,
-              );
-              return const ProfileAvatar(
-                expanded: true,
-                child: Text(
-                  '',
-                  style: TextStyle(
-                    fontSize: 40,
-                  ),
-                ),
-              );
-            },
-            loading: () {
-              return const ProfileAvatar(
-                expanded: true,
-                child: SizedBox(
-                  height: 76,
-                  width: 76,
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                  ),
-                ),
-              );
-            },
+          const ProfileAvatar(
+            expanded: true,
           ),
           const SizedBox(
             height: 12,
