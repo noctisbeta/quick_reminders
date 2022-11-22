@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
+import 'package:logger/logger.dart';
 
 /// Creates a [Listenable] from a stream.
 class ListenableFromStream extends ChangeNotifier {
@@ -8,8 +9,9 @@ class ListenableFromStream extends ChangeNotifier {
   ListenableFromStream(
     Stream stream,
   ) {
-    notifyListeners();
-    _subscription = stream.asBroadcastStream().listen((_) {
+    _subscription = stream.asBroadcastStream().listen((value) {
+      Logger().d('ListenableFromStream: notifyListeners() with value: $value');
+
       notifyListeners();
     });
   }

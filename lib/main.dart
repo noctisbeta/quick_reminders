@@ -7,6 +7,7 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:functional/functional.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:logger/logger.dart';
 import 'package:quick_reminders/firebase/firebase_options.dart';
 import 'package:quick_reminders/initialization/dynamic_link_manager.dart';
 import 'package:quick_reminders/routing/route_controller.dart';
@@ -26,13 +27,7 @@ Future<Unit> main() async {
 
   final container = ProviderContainer();
 
-  kIsWeb.match(
-    ifFalse: () => container.read(DynamicLinkManager.provider),
-    ifTrue: () => {
-      usePathUrlStrategy(),
-      FirebaseAuth.instance.setPersistence(Persistence.LOCAL),
-    },
-  );
+  kIsWeb ? await webSetup() : container.read(DynamicLinkManager.provider);
 
   final routerConfig = container.read(RouteController.provider).router;
 
@@ -46,6 +41,16 @@ Future<Unit> main() async {
       ),
     ),
   );
+
+  return unit;
+}
+
+/// Web setup.
+Future<Unit> webSetup() async {
+  usePathUrlStrategy();
+  Logger().i('Before persistence set to local');
+  await FirebaseAuth.instance.setPersistence(Persistence.LOCAL);
+  Logger().i('Persistence set to local');
 
   return unit;
 }

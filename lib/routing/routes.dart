@@ -12,7 +12,9 @@ enum Routes {
   resetPassword,
   resetPasswordSuccessful,
   home,
-  profile;
+  profile,
+  loading,
+  error;
 
   /// Returns the route's name.
   String get name {
@@ -39,6 +41,10 @@ enum Routes {
         return 'home';
       case profile:
         return 'profile';
+      case loading:
+        return 'loading';
+      case error:
+        return 'error';
     }
   }
 
@@ -66,6 +72,10 @@ enum Routes {
         return '/home';
       case profile:
         return '/profile';
+      case loading:
+        return '/loading';
+      case error:
+        return '/error';
     }
   }
 
@@ -93,6 +103,10 @@ enum Routes {
         return 'home';
       case profile:
         return 'profile';
+      case loading:
+        return 'loading';
+      case error:
+        return 'error';
     }
   }
 }

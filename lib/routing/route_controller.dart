@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:functional/functional.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/logger.dart';
@@ -14,6 +15,8 @@ import 'package:quick_reminders/authentication/views/send_password_reset_success
 import 'package:quick_reminders/authentication/views/send_password_reset_view.dart';
 import 'package:quick_reminders/authentication/views/sign_up_view.dart';
 import 'package:quick_reminders/home/home_view.dart';
+import 'package:quick_reminders/initialization/error_view.dart';
+import 'package:quick_reminders/initialization/loading_view.dart';
 import 'package:quick_reminders/profile/views/profile_view.dart';
 import 'package:quick_reminders/routing/listenable_from_stream.dart';
 import 'package:quick_reminders/routing/routes.dart';
@@ -23,8 +26,8 @@ class RouteController {
   /// Default constructor.
   RouteController(
     this.routeObserver,
-    this._authStore,
     this._auth,
+    this._authStore,
   );
 
   /// Firebase auth instance.
@@ -40,8 +43,8 @@ class RouteController {
   static final provider = Provider.autoDispose(
     (ref) => RouteController(
       RouteObserver<ModalRoute>(),
-      ref.watch(AuthStore.provider.notifier),
       FirebaseAuth.instance,
+      ref.watch(AuthStore.provider.notifier),
     ),
   );
 
@@ -51,30 +54,62 @@ class RouteController {
     routes: routes,
     refreshListenable: ListenableFromStream(_auth.authStateChanges()),
     observers: [routeObserver],
+    // initialLocation: Option.of(_auth.currentUser).match(
+    //   () => Routes.authentication.path,
+    //   (user) => user.emailVerified
+    //       ? Routes.home.path
+    //       : Routes.authentication.path + Routes.verify.path,
+    // ),
+
     initialLocation: _authStore.user.match(
       () => Routes.authentication.path,
       (user) => user.emailVerified
           ? Routes.home.path
           : Routes.authentication.path + Routes.verify.path,
     ),
-    redirect: (context, state) {
-      Logger().d('Redirecting to ${state.location}');
 
-      return _authStore.user.match(
-        () => state.location.contains(Routes.authentication.path)
-            ? null
-            : Routes.authentication.path,
-        (user) => user.emailVerified
-            ? null
-            : Routes.authentication.path + Routes.verify.path,
-      );
-    },
+    errorBuilder: (context, state) => const ErrorView(),
+    redirect: (context, state) => Option.of(_auth.currentUser).match(
+      () => state.location.contains(Routes.authentication.path)
+          ? withEffect(
+              null,
+              () => Logger().d('User not signed in, not redirecting, inside'
+                  ' authentication routes'
+                  ' ${state.location}'),
+            )
+          : withEffect(
+              Routes.authentication.path,
+              () => Logger().d('User not signed in, redirecting to '
+                  '${Routes.authentication.path}'),
+            ),
+      (user) => user.emailVerified
+          ? withEffect(
+              null,
+              () => Logger().d('Not redirecting, user is'
+                  ' verified ${state.location}'),
+            )
+          : withEffect(
+              Routes.authentication.path + Routes.verify.path,
+              () => Logger().d('Email not verified, redirecting to '
+                  '${Routes.authentication.path + Routes.verify.path}'),
+            ),
+    ),
   );
 
   /// Routes.
   static final routes = <GoRoute>[
     ..._authRoutes,
     ..._homeRoutes,
+    GoRoute(
+      path: Routes.loading.path,
+      name: Routes.loading.name,
+      builder: (context, state) => const LoadingView(),
+    ),
+    GoRoute(
+      path: Routes.error.path,
+      name: Routes.error.name,
+      builder: (context, state) => const ErrorView(),
+    ),
   ];
 
   static final _authRoutes = {
