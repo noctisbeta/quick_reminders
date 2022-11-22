@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/logger.dart';
-import 'package:quick_reminders/common/my_text_field.dart';
 import 'package:quick_reminders/constants/colors.dart';
 import 'package:quick_reminders/home/components/add_group_card.dart';
 import 'package:quick_reminders/home/components/people_group_card.dart';
 import 'package:quick_reminders/home/components/reminder_group_card.dart';
 import 'package:quick_reminders/home/components/section_header.dart';
 import 'package:quick_reminders/profile/components/profile_avatar.dart';
+import 'package:quick_reminders/reminders/add_reminder_group_modal.dart';
 import 'package:quick_reminders/reminders/reminders_controller.dart';
-import 'package:quick_reminders/utilities/extensions/iterable_extension.dart';
 
 /// Home screen.
 class HomeView extends ConsumerWidget {
@@ -28,11 +27,6 @@ class HomeView extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: kQuaternaryColor,
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: kPrimaryColor,
-        onPressed: () {},
-        child: const Icon(Icons.add),
-      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -42,7 +36,6 @@ class HomeView extends ConsumerWidget {
                 children: [
                   const ProfileAvatar(),
                   const Spacer(),
-                  // notification bell
                   IconButton(
                     icon: const Icon(
                       Icons.notifications,
@@ -53,7 +46,7 @@ class HomeView extends ConsumerWidget {
                 ],
               ),
               const SizedBox(
-                height: 8,
+                height: 16,
               ),
               const SectionHeader(
                 title: 'People Groups',
@@ -61,7 +54,8 @@ class HomeView extends ConsumerWidget {
               const SizedBox(
                 height: 8,
               ),
-              // TODO(Janez): Horizontal scrollable list of groups, on edit pushes a new screen
+              // TODO(Janez): Horizontal scrollable list of groups, on edit
+              // pushes a new screen
               // with a vertical list, every group card has a hero tag.
               peopleGroupStream.when(
                 data: (data) {
@@ -94,16 +88,22 @@ class HomeView extends ConsumerWidget {
                     ),
                   );
                 },
-                loading: () {
-                  return const Text('loading');
-                },
+                loading: () => const Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                  ),
+                ),
                 error: (error, stackTrace) {
                   Logger().e(
                     'Error in people group stream: $error',
                     error,
                     stackTrace,
                   );
-                  return Text(error.toString());
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: Colors.red,
+                    ),
+                  );
                 },
               ),
               const SizedBox(
@@ -139,130 +139,8 @@ class HomeView extends ConsumerWidget {
                                   context: context,
                                   backgroundColor: Colors.transparent,
                                   isScrollControlled: true,
-                                  builder: (context) {
-                                    return GestureDetector(
-                                      behavior: HitTestBehavior.opaque,
-                                      onTap: () {
-                                        Navigator.pop(context);
-                                      },
-                                      child: GestureDetector(
-                                        onTap: () {},
-                                        child: DraggableScrollableSheet(
-                                          initialChildSize: 0.9,
-                                          maxChildSize: 0.9,
-                                          minChildSize: 0.9,
-                                          builder: (context, controller) {
-                                            return DecoratedBox(
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(16),
-                                                color: kQuaternaryColor,
-                                              ),
-                                              child: SingleChildScrollView(
-                                                padding:
-                                                    const EdgeInsets.all(16),
-                                                controller: controller,
-                                                child: Column(
-                                                  children: [
-                                                    MyTextField(
-                                                      label: 'Group Title',
-                                                      prefixIcon: const Icon(
-                                                        Icons.title,
-                                                        color: Colors.white,
-                                                      ),
-                                                      onChanged: (value) {},
-                                                    ),
-                                                    const SizedBox(
-                                                      height: 16,
-                                                    ),
-                                                    SizedBox(
-                                                      height: 100,
-                                                      child: GridView.count(
-                                                        crossAxisCount: 6,
-                                                        controller: controller,
-                                                        crossAxisSpacing: 16,
-                                                        mainAxisSpacing: 16,
-                                                        children: const [
-                                                          Colors.white,
-                                                          Colors.red,
-                                                          Colors.green,
-                                                          Colors.blue,
-                                                          Colors.yellow,
-                                                          Colors.purple,
-                                                          Colors.orange,
-                                                          Colors.pink,
-                                                          Colors.brown,
-                                                          Colors.grey,
-                                                          Colors.teal,
-                                                          Colors.cyan,
-                                                        ].mapToList(
-                                                          (c) => DecoratedBox(
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              shape: BoxShape
-                                                                  .circle,
-                                                              color: c,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(
-                                                      height: 16,
-                                                    ),
-                                                    SizedBox(
-                                                      height: 100,
-                                                      child: GridView.count(
-                                                        crossAxisCount: 6,
-                                                        controller: controller,
-                                                        crossAxisSpacing: 16,
-                                                        mainAxisSpacing: 16,
-                                                        children: const [
-                                                          Icons.abc,
-                                                          Icons.access_alarm,
-                                                          Icons.accessibility,
-                                                          Icons
-                                                              .accessibility_new,
-                                                          Icons.accessible,
-                                                          Icons
-                                                              .accessible_forward,
-                                                          Icons.account_balance,
-                                                          Icons
-                                                              .account_balance_wallet,
-                                                          Icons.account_box,
-                                                          Icons.account_circle,
-                                                          Icons.adb,
-                                                          Icons.add,
-                                                        ].mapToList(
-                                                          (i) => DecoratedBox(
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              shape: BoxShape
-                                                                  .circle,
-                                                              border:
-                                                                  Border.all(
-                                                                color: Colors
-                                                                    .white,
-                                                              ),
-                                                            ),
-                                                            child: Icon(
-                                                              i,
-                                                              color:
-                                                                  Colors.white,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                    );
-                                  },
+                                  builder: (context) =>
+                                      const AddReminderGroupModal(),
                                 );
                               },
                             );
@@ -277,11 +155,22 @@ class HomeView extends ConsumerWidget {
                     ),
                   );
                 },
-                loading: () {
-                  return const Text('loading');
-                },
+                loading: () => const Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                  ),
+                ),
                 error: (error, stackTrace) {
-                  return Text(error.toString());
+                  Logger().e(
+                    'Error in reminder group stream: $error',
+                    error,
+                    stackTrace,
+                  );
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: Colors.red,
+                    ),
+                  );
                 },
               ),
               const SizedBox(
