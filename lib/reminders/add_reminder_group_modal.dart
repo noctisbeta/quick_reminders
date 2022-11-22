@@ -34,6 +34,28 @@ class AddReminderGroupModal extends ConsumerWidget {
                 controller: controller,
                 child: Column(
                   children: [
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(
+                            Icons.close,
+                            color: kSecondaryColor,
+                          ),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.check,
+                            color: kSecondaryColor,
+                          ),
+                          onPressed: () {},
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ),
                     MyTextField(
                       label: 'Group Title',
                       prefixIcon: const Icon(
