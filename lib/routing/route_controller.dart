@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:functional/functional.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:quick_reminders/authentication/controllers/auth_store.dart';
 import 'package:quick_reminders/authentication/views/authentication_view.dart';
 import 'package:quick_reminders/authentication/views/email_verification_view.dart';
 import 'package:quick_reminders/authentication/views/email_verified_view.dart';
@@ -20,6 +19,7 @@ import 'package:quick_reminders/logging/log_profile.dart';
 import 'package:quick_reminders/profile/views/profile_view.dart';
 import 'package:quick_reminders/routing/listenable_from_stream.dart';
 import 'package:quick_reminders/routing/routes.dart';
+import 'package:riverpod_firebase_authentication/riverpod_firebase_authentication.dart';
 
 /// Route controller.
 class RouteController {

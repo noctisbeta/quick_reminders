@@ -3,9 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:functional/functional.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:quick_reminders/authentication/controllers/auth_store.dart';
 import 'package:quick_reminders/logging/log_profile.dart';
 import 'package:quick_reminders/profile/models/profile.dart';
+import 'package:riverpod_firebase_authentication/riverpod_firebase_authentication.dart';
 
 /// Profile controller.
 class ProfileController {

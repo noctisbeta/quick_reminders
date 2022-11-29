@@ -245,7 +245,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "23071f4ea8cc27cbe59f824fa26c4a7dcd30509f"
+      resolved-ref: "7fcc01901d95d6c6a2567a49c06a19129038512f"
       url: "https://github.com/noctisbeta/functional"
     source: git
     version: "0.0.1"
@@ -501,7 +501,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "71ec43ef920aeda82e94639c977b155a6407d2b0"
+      resolved-ref: "6444d57e8b5ce78e90f966f3f3bc1b5009b9ac61"
       url: "https://github.com/noctisbeta/riverpod_firebase_authentication"
     source: git
     version: "0.0.1"
