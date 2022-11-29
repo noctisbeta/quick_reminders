@@ -18,6 +18,20 @@ class AddReminderGroupModal extends HookConsumerWidget {
 
     final groupTitle = useState('');
 
+    void handleSubmit() {
+      reminderCtl.createReminderGroup(groupTitle.value).then(
+            (either) => either.peekLeft(
+              (exception) => ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Failed to create group.'),
+                ),
+              ),
+            ),
+          );
+
+      Navigator.pop(context);
+    }
+
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => Navigator.pop(context),
@@ -44,23 +58,7 @@ class AddReminderGroupModal extends HookConsumerWidget {
                     ModalHeader(
                       title: 'Add Reminder Group',
                       disabled: groupTitle.value.isEmpty,
-                      onSubmit: () => reminderCtl
-                          .createReminderGroup(
-                            groupTitle.value,
-                          )
-                          .then(
-                            (either) => either.match(
-                              (exception) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Failed to create group.'),
-                                  ),
-                                );
-                                Navigator.of(context).pop();
-                              },
-                              (docref) => Navigator.of(context).pop(),
-                            ),
-                          ),
+                      onSubmit: handleSubmit,
                     ),
                     const SizedBox(
                       height: 16,
