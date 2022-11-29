@@ -1,7 +1,7 @@
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:functional/functional.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:logger/logger.dart';
+import 'package:quick_reminders/logging/log_profile.dart';
 import 'package:quick_reminders/routing/route_controller.dart';
 
 /// Controller for app initialization.
@@ -30,7 +30,7 @@ class DynamicLinkManager {
 
   /// Initializes dynamic links.
   void _initDynamicLinks() {
-    Logger().d('Initializing dynamic links');
+    myLog.d('Initializing dynamic links');
     _getInitialDynamicLink();
     _setupLinkStream();
   }
@@ -58,7 +58,7 @@ class DynamicLinkManager {
     final continueUrl = deepLink.queryParameters['continueUrl']!;
     final path = Uri.parse(continueUrl).path;
 
-    Logger().d('Handling dynamic link: $path');
+    myLog.d('Handling dynamic link: $path');
 
     final router = _routeController.router;
 

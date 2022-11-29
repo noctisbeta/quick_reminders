@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:functional/functional.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:logger/logger.dart';
 import 'package:quick_reminders/authentication/controllers/auth_store.dart';
+import 'package:quick_reminders/logging/log_profile.dart';
 
 /// Reminders controller.
 class RemindersController {
@@ -102,7 +102,7 @@ class RemindersController {
   /// Creates a new reminder group.
   Future<bool> createReminderGroup(String name) async => _authStore.user.match(
         none: () =>
-            tap(tapped: false, effect: () => Logger().e('User not logged in')),
+            tap(tapped: false, effect: () => myLog.e('User not logged in')),
         some: (user) => Task(
           () => _db
               .collection('users')
@@ -116,11 +116,11 @@ class RemindersController {
                 (failure) => tap(
                   tapped: false,
                   effect: () =>
-                      Logger().e('Failed to create reminder group: $failure'),
+                      myLog.e('Failed to create reminder group: $failure'),
                 ),
                 (success) => tap(
                   tapped: true,
-                  effect: () => Logger().d('Created reminder group: $success'),
+                  effect: () => myLog.d('Created reminder group: $success'),
                 ),
               ),
             ),

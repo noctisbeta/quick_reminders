@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:functional/functional.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:logger/logger.dart';
 import 'package:quick_reminders/authentication/controllers/auth_store.dart';
 import 'package:quick_reminders/authentication/views/authentication_view.dart';
 import 'package:quick_reminders/authentication/views/email_verification_view.dart';
@@ -17,6 +16,7 @@ import 'package:quick_reminders/authentication/views/sign_up_view.dart';
 import 'package:quick_reminders/home/home_view.dart';
 import 'package:quick_reminders/initialization/error_view.dart';
 import 'package:quick_reminders/initialization/loading_view.dart';
+import 'package:quick_reminders/logging/log_profile.dart';
 import 'package:quick_reminders/profile/views/profile_view.dart';
 import 'package:quick_reminders/routing/listenable_from_stream.dart';
 import 'package:quick_reminders/routing/routes.dart';
@@ -66,24 +66,24 @@ class RouteController {
           ? tap(
               tapped: null,
               effect: () =>
-                  Logger().d('User not signed in, not redirecting, inside'
+                  myLog.d('User not signed in, not redirecting, inside'
                       ' authentication routes'
                       ' ${state.location}'),
             )
           : tap(
               tapped: Routes.authentication.path,
-              effect: () => Logger().d('User not signed in, redirecting to '
+              effect: () => myLog.d('User not signed in, redirecting to '
                   '${Routes.authentication.path}'),
             ),
       some: (user) => user.emailVerified
           ? tap(
               tapped: null,
-              effect: () => Logger().d('Not redirecting, user is'
+              effect: () => myLog.d('Not redirecting, user is'
                   ' verified ${state.location}'),
             )
           : tap(
               tapped: Routes.authentication.path + Routes.verify.path,
-              effect: () => Logger().d('Email not verified, redirecting to '
+              effect: () => myLog.d('Email not verified, redirecting to '
                   '${Routes.authentication.path + Routes.verify.path}'),
             ),
     ),

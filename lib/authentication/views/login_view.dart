@@ -178,13 +178,15 @@ class LoginView extends HookConsumerWidget {
                         onPressed: () => loginController
                             .signInWithGoogle()
                             .then(
-                              (value) => value
-                                  ? context.goNamed(Routes.home.name)
-                                  : ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Login failed'),
-                                      ),
-                                    ),
+                              (either) => either.match(
+                                (exception) =>
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Login failed'),
+                                  ),
+                                ),
+                                (_) => context.goNamed(Routes.home.name),
+                              ),
                             ),
                       ),
                       ifTrue: () => const CircularProgressIndicator(

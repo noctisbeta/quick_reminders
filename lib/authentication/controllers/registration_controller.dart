@@ -2,15 +2,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:functional/functional.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:logger/logger.dart';
-import 'package:quick_reminders/authentication/controllers/google/google_sign_in_controller.dart';
-import 'package:quick_reminders/authentication/controllers/google/google_sign_in_controller_web.dart';
-import 'package:quick_reminders/authentication/controllers/google/google_sign_in_protocol.dart';
 import 'package:quick_reminders/authentication/models/processing_state.dart';
 import 'package:quick_reminders/authentication/models/registration/registration_data.dart';
 import 'package:quick_reminders/authentication/models/registration/registration_data_errors.dart';
 import 'package:quick_reminders/authentication/models/registration/registration_state.dart';
+import 'package:quick_reminders/logging/log_profile.dart';
 import 'package:quick_reminders/profile/controllers/profile_controller.dart';
+import 'package:riverpod_firebase_authentication/riverpod_firebase_authentication.dart';
 
 /// Firebase authentication controller.
 class RegistrationController extends StateNotifier<RegistrationState> {
@@ -69,7 +67,7 @@ class RegistrationController extends StateNotifier<RegistrationState> {
                 (userCredential) => Option.of(userCredential.user).match(
                   none: () => tap(
                     tapped: false,
-                    effect: () => Logger().e('User is null'),
+                    effect: () => myLog.e('User is null'),
                   ),
                   some: (user) => _profileController.createProfileFromMap(
                     {
@@ -110,45 +108,31 @@ class RegistrationController extends StateNotifier<RegistrationState> {
         ),
       );
 
-  /// Sign in with google.
-  Future<bool> signInWithGoogle() async => tap(
-        tapped: _googleController.signInWithGoogle().then(
-              (either) => either.match(
-                (exception) => tap(
-                  tapped: false,
-                  effect: () => state = state.copyWith(
-                    processingState: ProcessingState.idle,
-                  ),
-                ),
-                (userCredential) => _profileController.userHasProfile().then(
-                      (value) => value.match(
-                        ifFalse: () => _profileController
-                            .createProfileFromUserCredential(userCredential)
-                            .then(
-                              (either) => either.match(
-                                (exception) => tap(
-                                  tapped: false,
-                                  effect: () => state = state.copyWith(
-                                    processingState: ProcessingState.idle,
-                                  ),
-                                ),
-                                (value) => tap(
-                                  tapped: true,
-                                  effect: () => state = state.copyWith(
-                                    processingState: ProcessingState.idle,
-                                  ),
-                                ),
-                              ),
-                            ),
-                        ifTrue: () => true,
-                      ),
-                    ),
+  void _setProcessingState(ProcessingState processingState) =>
+      state = state.copyWith(processingState: processingState);
+
+  /// Signs the user in with google.
+  AsyncResult<Exception, Unit> signInWithGoogle() => tap(
+        effect: () => _setProcessingState(ProcessingState.googleLoading),
+        tapped: _googleController.signInWithGoogle(),
+      )
+          .mapEitherLeft((exception) => Exception(exception.message))
+          .bindEither(_maybeCreateProfile)
+          .peek((_) => _setProcessingState(ProcessingState.idle));
+
+  /// Creates a profile if the current user does not have one yet, otherwise
+  /// does nothing.
+  AsyncResult<Exception, Unit> _maybeCreateProfile(
+    UserCredential userCredential,
+  ) =>
+      _profileController.userHasProfile().bindEither(
+            (hasProfile) => hasProfile.match(
+              ifFalse: () => _profileController.createProfileFromUserCredential(
+                userCredential,
               ),
+              ifTrue: () => Task.value(const Right(unit)),
             ),
-        effect: () => state = state.copyWith(
-          processingState: ProcessingState.loginLoading,
-        ),
-      );
+          );
 
   /// Creates a user with email and password.
   Future<Either<Exception, UserCredential>> _createUser(
@@ -164,7 +148,7 @@ class RegistrationController extends StateNotifier<RegistrationState> {
               (exception) => tap(
                 tapped: Left(exception),
                 effect: () {
-                  Logger().e('Error creating user: ${exception.message}');
+                  myLog.e('Error creating user: ${exception.message}');
                   final String message;
 
                   switch (exception.code) {
@@ -217,7 +201,7 @@ class RegistrationController extends StateNotifier<RegistrationState> {
   /// Checks if the current user has their email verified.
   Future<bool> isEmailVerified() async => Option.of(_auth.currentUser).match(
         none: () =>
-            tap(tapped: false, effect: () => Logger().e('No user logged in')),
+            tap(tapped: false, effect: () => myLog.e('No user logged in')),
         some: (user) => Task.fromVoid(() => user.reload())
             .run()
             .then((value) => user.emailVerified),
@@ -227,7 +211,7 @@ class RegistrationController extends StateNotifier<RegistrationState> {
   Future<bool> resendEmailVerification() async =>
       Option.of(_auth.currentUser).match(
         none: () =>
-            tap(tapped: false, effect: () => Logger().e('No user logged in')),
+            tap(tapped: false, effect: () => myLog.e('No user logged in')),
         some: (user) => tap(
           tapped: Task.fromVoid(
             () => user.sendEmailVerification(_emailSettings),

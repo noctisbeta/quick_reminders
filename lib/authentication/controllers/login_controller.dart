@@ -2,15 +2,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:functional/functional.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:logger/logger.dart';
-import 'package:quick_reminders/authentication/controllers/google/google_sign_in_controller.dart';
-import 'package:quick_reminders/authentication/controllers/google/google_sign_in_controller_web.dart';
-import 'package:quick_reminders/authentication/controllers/google/google_sign_in_protocol.dart';
 import 'package:quick_reminders/authentication/models/login/login_data.dart';
 import 'package:quick_reminders/authentication/models/login/login_data_errors.dart';
 import 'package:quick_reminders/authentication/models/login/login_state.dart';
 import 'package:quick_reminders/authentication/models/processing_state.dart';
+import 'package:quick_reminders/logging/log_profile.dart';
 import 'package:quick_reminders/profile/controllers/profile_controller.dart';
+import 'package:riverpod_firebase_authentication/riverpod_firebase_authentication.dart';
 
 /// Login controller.
 class LoginController extends StateNotifier<LoginState> {
@@ -45,53 +43,31 @@ class LoginController extends StateNotifier<LoginState> {
     ),
   );
 
-  /// Sign in with google.
-  Future<bool> signInWithGoogle() async => tap(
-        tapped: _googleController.signInWithGoogle().then(
-              (googleEither) => googleEither.match(
-                (exception) => tap(
-                  tapped: false,
-                  effect: () => state =
-                      state.copyWith(processingState: ProcessingState.idle),
-                ),
-                (userCredential) => Task(
-                  _profileController.userHasProfile,
-                ).run().then(
-                      (value) => value.match(
-                        ifFalse: () => _profileController
-                            .createProfileFromUserCredential(
-                              userCredential,
-                            )
-                            .then(
-                              (either) => either.match(
-                                (exception) => tap(
-                                  tapped: false,
-                                  effect: () => state = state.copyWith(
-                                    processingState: ProcessingState.idle,
-                                  ),
-                                ),
-                                (success) => tap(
-                                  tapped: true,
-                                  effect: () => state = state.copyWith(
-                                    processingState: ProcessingState.idle,
-                                  ),
-                                ),
-                              ),
-                            ),
-                        ifTrue: () => tap(
-                          tapped: true,
-                          effect: () => state = state.copyWith(
-                            processingState: ProcessingState.idle,
-                          ),
-                        ),
-                      ),
-                    ),
+  void _setProcessingState(ProcessingState processingState) =>
+      state = state.copyWith(processingState: processingState);
+
+  /// Signs the user in with google.
+  AsyncResult<Exception, Unit> signInWithGoogle() => tap(
+        effect: () => _setProcessingState(ProcessingState.googleLoading),
+        tapped: _googleController.signInWithGoogle(),
+      )
+          .mapEitherLeft((exception) => Exception(exception.message))
+          .bindEither(_maybeCreateProfile)
+          .peek((_) => _setProcessingState(ProcessingState.idle));
+
+  /// Creates a profile if the current user does not have one yet, otherwise
+  /// does nothing.
+  AsyncResult<Exception, Unit> _maybeCreateProfile(
+    UserCredential userCredential,
+  ) =>
+      _profileController.userHasProfile().bindEither(
+            (hasProfile) => hasProfile.match(
+              ifFalse: () => _profileController.createProfileFromUserCredential(
+                userCredential,
               ),
+              ifTrue: () => Task.value(const Right(unit)),
             ),
-        effect: () => state = state.copyWith(
-          processingState: ProcessingState.googleLoading,
-        ),
-      );
+          );
 
   /// Logs in the user with email and password.
   Future<bool> login(LoginData loginData) async => tap(
@@ -146,7 +122,7 @@ class LoginController extends StateNotifier<LoginState> {
       );
       return Right(userCredential);
     } on FirebaseAuthException catch (e, s) {
-      Logger().e('Error loging in user: ${e.message}', e, s);
+      myLog.e('Error loging in user: ${e.message}', e, s);
 
       late final String message;
 
@@ -222,7 +198,7 @@ class LoginController extends StateNotifier<LoginState> {
         actionCodeSettings: settings,
       );
 
-      Logger().i('Password reset email sent to $email');
+      myLog.i('Password reset email sent to $email');
 
       state = state.copyWith(
         processingState: ProcessingState.idle,
@@ -230,7 +206,7 @@ class LoginController extends StateNotifier<LoginState> {
 
       return true;
     } on FirebaseAuthException catch (e, s) {
-      Logger().e('Error resetting password: ${e.message}', e, s);
+      myLog.e('Error resetting password: ${e.message}', e, s);
 
       late final String message;
 
@@ -270,8 +246,8 @@ class LoginController extends StateNotifier<LoginState> {
             (either) => either.match(
               (exception) => tap(
                 tapped: false,
-                effect: () => Logger()
-                    .e('Error resetting password: ${exception.message}'),
+                effect: () =>
+                    myLog.e('Error resetting password: ${exception.message}'),
               ),
               (unit) => true,
             ),

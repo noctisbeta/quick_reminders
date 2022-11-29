@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:logger/logger.dart';
 import 'package:quick_reminders/constants/colors.dart';
 import 'package:quick_reminders/home/components/add_group_card.dart';
 import 'package:quick_reminders/home/components/people_group_card.dart';
 import 'package:quick_reminders/home/components/reminder_group_card.dart';
 import 'package:quick_reminders/home/components/section_header.dart';
+import 'package:quick_reminders/logging/log_profile.dart';
 import 'package:quick_reminders/profile/components/profile_avatar.dart';
 import 'package:quick_reminders/reminders/components/add_people_group_modal.dart';
 import 'package:quick_reminders/reminders/components/add_reminder_group_modal.dart';
@@ -101,7 +101,7 @@ class HomeView extends ConsumerWidget {
                   ),
                 ),
                 error: (error, stackTrace) {
-                  Logger().e(
+                  myLog.e(
                     'Error in people group stream: $error',
                     error,
                     stackTrace,
@@ -166,7 +166,7 @@ class HomeView extends ConsumerWidget {
                   ),
                 ),
                 error: (error, stackTrace) {
-                  Logger().e(
+                  myLog.e(
                     'Error in reminder group stream: $error',
                     error,
                     stackTrace,

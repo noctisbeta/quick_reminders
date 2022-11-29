@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:functional/functional.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:logger/logger.dart';
+import 'package:quick_reminders/logging/log_profile.dart';
 
 /// Auth store.
 class AuthStore extends StateNotifier<Option<User>> {
@@ -17,7 +17,7 @@ class AuthStore extends StateNotifier<Option<User>> {
               none: () => state = const None(),
               some: (user) => state = Some(user),
             ),
-            effect: () => Logger().d('Auth state changed: $user'),
+            effect: () => myLog.d('Auth state changed: $user'),
           ),
         );
   }

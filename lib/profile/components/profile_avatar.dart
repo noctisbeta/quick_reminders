@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:logger/logger.dart';
 import 'package:quick_reminders/constants/colors.dart';
+import 'package:quick_reminders/logging/log_profile.dart';
 import 'package:quick_reminders/profile/controllers/profile_controller.dart';
 import 'package:quick_reminders/routing/routes.dart';
 
@@ -41,7 +41,7 @@ class ProfileAvatar extends ConsumerWidget {
               ),
             ),
             error: (error, stackTrace) {
-              Logger().e(
+              myLog.e(
                 'Error in profile stream: $error \n stackTrace: $stackTrace',
                 error,
                 stackTrace,

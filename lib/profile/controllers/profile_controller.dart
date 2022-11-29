@@ -3,8 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:functional/functional.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:logger/logger.dart';
 import 'package:quick_reminders/authentication/controllers/auth_store.dart';
+import 'package:quick_reminders/logging/log_profile.dart';
 import 'package:quick_reminders/profile/models/profile.dart';
 
 /// Profile controller.
@@ -47,9 +47,9 @@ class ProfileController {
   });
 
   /// Creates a new profile.
-  Future<Either<Exception, Unit>> createProfileFromUserCredential(
+  AsyncResult<Exception, Unit> createProfileFromUserCredential(
     UserCredential userCredential,
-  ) async =>
+  ) =>
       Task.fromVoid(
         () => _db.collection('users').doc(userCredential.user!.uid).set(
           {
@@ -60,21 +60,13 @@ class ProfileController {
           },
           SetOptions(merge: true),
         ),
-      ).attempt<Exception>().run().then(
-            (either) => either.match(
-              (exception) => tap(
-                tapped: left(exception),
-                effect: () => Logger().e(
-                  'Error creating profile.',
-                  exception,
-                  StackTrace.current,
-                ),
-              ),
-              (unit) => tap(
-                tapped: right(unit),
-                effect: () => Logger().i('Created profile.'),
-              ),
+      ).attempt<Exception>().peekEither(
+            (exception) => myLog.e(
+              'Error creating profile.',
+              exception,
+              StackTrace.current,
             ),
+            (_) => myLog.i('Created profile.'),
           );
 
   /// Creates a user document in firestore.
@@ -95,7 +87,7 @@ class ProfileController {
             (either) => either.match(
               (exception) => tap(
                 tapped: left(exception),
-                effect: () => Logger().e(
+                effect: () => myLog.e(
                   'Error creating profile.',
                   exception,
                   StackTrace.current,
@@ -103,32 +95,24 @@ class ProfileController {
               ),
               (unit) => tap(
                 tapped: right(unit),
-                effect: () => Logger().i('Created profile.'),
+                effect: () => myLog.i('Created profile.'),
               ),
             ),
           );
 
-  /// Returns true if the user already has a profile.
-  Future<bool> userHasProfile() async {
-    return _authStore.user.match(
-      none: () =>
-          tap(tapped: false, effect: () => Logger().e('User is not logged in')),
-      some: (user) => _db.collection('users').doc(user.uid).get().then(
-            (value) => value.exists.match(
-              ifFalse: () => tap(
-                tapped: false,
-                effect: () => Logger().i('User does not have a profile'),
-              ),
-              ifTrue: () => tap(
-                tapped: true,
-                effect: () => Logger().i('User has a profile'),
-              ),
-            ),
-          ),
-    );
-  }
+  AsyncResult<Exception, bool> userHasProfile() => _authStore.user.match(
+        none: () => tap(
+          tapped: AsyncResult.value(Left(Exception('No user logged in.'))),
+          effect: () => myLog.e('No user logged in.'),
+        ),
+        some: (user) => _userHasProfileRaw(user.uid),
+      );
+
+  AsyncResult<Exception, bool> _userHasProfileRaw(String uid) => Task(
+        () => _db.collection('users').doc(uid).get(),
+      ).attempt<Exception>().mapEitherRight((docsnap) => docsnap.exists);
 
   /// Signs the user out.
   Future<void> signOut() async =>
-      tap(tapped: _auth.signOut(), effect: () => Logger().i('Signed out'));
+      tap(tapped: _auth.signOut(), effect: () => myLog.i('Signed out'));
 }
