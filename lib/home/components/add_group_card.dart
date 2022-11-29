@@ -23,7 +23,6 @@ class AddGroupCard extends StatelessWidget {
             height: 80,
             width: 100,
             decoration: BoxDecoration(
-              // color: kTertiaryColor,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: kQuinaryColor),
             ),
