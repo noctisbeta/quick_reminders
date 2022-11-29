@@ -54,43 +54,36 @@ class RouteController {
     routes: routes,
     refreshListenable: ListenableFromStream(_auth.authStateChanges()),
     observers: [routeObserver],
-    // initialLocation: Option.of(_auth.currentUser).match(
-    //   () => Routes.authentication.path,
-    //   (user) => user.emailVerified
-    //       ? Routes.home.path
-    //       : Routes.authentication.path + Routes.verify.path,
-    // ),
-
     initialLocation: _authStore.user.match(
-      () => Routes.authentication.path,
-      (user) => user.emailVerified
+      none: () => Routes.authentication.path,
+      some: (user) => user.emailVerified
           ? Routes.home.path
           : Routes.authentication.path + Routes.verify.path,
     ),
-
     errorBuilder: (context, state) => const ErrorView(),
     redirect: (context, state) => Option.of(_auth.currentUser).match(
-      () => state.location.contains(Routes.authentication.path)
-          ? withEffect(
-              null,
-              () => Logger().d('User not signed in, not redirecting, inside'
-                  ' authentication routes'
-                  ' ${state.location}'),
+      none: () => state.location.contains(Routes.authentication.path)
+          ? tap(
+              tapped: null,
+              effect: () =>
+                  Logger().d('User not signed in, not redirecting, inside'
+                      ' authentication routes'
+                      ' ${state.location}'),
             )
-          : withEffect(
-              Routes.authentication.path,
-              () => Logger().d('User not signed in, redirecting to '
+          : tap(
+              tapped: Routes.authentication.path,
+              effect: () => Logger().d('User not signed in, redirecting to '
                   '${Routes.authentication.path}'),
             ),
-      (user) => user.emailVerified
-          ? withEffect(
-              null,
-              () => Logger().d('Not redirecting, user is'
+      some: (user) => user.emailVerified
+          ? tap(
+              tapped: null,
+              effect: () => Logger().d('Not redirecting, user is'
                   ' verified ${state.location}'),
             )
-          : withEffect(
-              Routes.authentication.path + Routes.verify.path,
-              () => Logger().d('Email not verified, redirecting to '
+          : tap(
+              tapped: Routes.authentication.path + Routes.verify.path,
+              effect: () => Logger().d('Email not verified, redirecting to '
                   '${Routes.authentication.path + Routes.verify.path}'),
             ),
     ),

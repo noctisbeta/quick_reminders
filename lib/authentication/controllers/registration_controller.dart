@@ -55,20 +55,23 @@ class RegistrationController extends StateNotifier<RegistrationState> {
   /// Registers the user with email and password, then creates a user document
   /// in Firestore.
   Future<bool> completeRegistration(RegistrationData registrationData) async =>
-      withEffect(
-        Task(
+      tap(
+        tapped: Task(
           () => _createUser(registrationData),
         ).run().then(
               (either) => either.match(
-                (exception) => withEffect(
-                  false,
-                  () => state = state.copyWith(
+                (exception) => tap(
+                  tapped: false,
+                  effect: () => state = state.copyWith(
                     processingState: ProcessingState.idle,
                   ),
                 ),
                 (userCredential) => Option.of(userCredential.user).match(
-                  () => withEffect(false, () => Logger().e('User is null')),
-                  (user) => _profileController.createProfileFromMap(
+                  none: () => tap(
+                    tapped: false,
+                    effect: () => Logger().e('User is null'),
+                  ),
+                  some: (user) => _profileController.createProfileFromMap(
                     {
                       'firstName': state.registrationData.firstName,
                       'lastName': state.registrationData.lastName,
@@ -77,18 +80,18 @@ class RegistrationController extends StateNotifier<RegistrationState> {
                     },
                   ).then(
                     (either) => either.match(
-                      (left) => withEffect(
-                        false,
-                        () => {
+                      (left) => tap(
+                        tapped: false,
+                        effect: () => {
                           user.sendEmailVerification(),
                           state = state.copyWith(
                             processingState: ProcessingState.idle,
                           ),
                         },
                       ),
-                      (right) => withEffect(
-                        true,
-                        () => {
+                      (right) => tap(
+                        tapped: true,
+                        effect: () => {
                           user.sendEmailVerification(),
                           state = state.copyWith(
                             processingState: ProcessingState.idle,
@@ -100,7 +103,7 @@ class RegistrationController extends StateNotifier<RegistrationState> {
                 ),
               ),
             ),
-        () => state = state.copyWith(
+        effect: () => state = state.copyWith(
           registrationData: registrationData,
           registrationDataErrors: RegistrationDataErrors.empty(),
           processingState: ProcessingState.loginLoading,
@@ -108,12 +111,12 @@ class RegistrationController extends StateNotifier<RegistrationState> {
       );
 
   /// Sign in with google.
-  Future<bool> signInWithGoogle() async => withEffect(
-        _googleController.signInWithGoogle().then(
+  Future<bool> signInWithGoogle() async => tap(
+        tapped: _googleController.signInWithGoogle().then(
               (either) => either.match(
-                (exception) => withEffect(
-                  false,
-                  () => state = state.copyWith(
+                (exception) => tap(
+                  tapped: false,
+                  effect: () => state = state.copyWith(
                     processingState: ProcessingState.idle,
                   ),
                 ),
@@ -123,15 +126,15 @@ class RegistrationController extends StateNotifier<RegistrationState> {
                             .createProfileFromUserCredential(userCredential)
                             .then(
                               (either) => either.match(
-                                (exception) => withEffect(
-                                  false,
-                                  () => state = state.copyWith(
+                                (exception) => tap(
+                                  tapped: false,
+                                  effect: () => state = state.copyWith(
                                     processingState: ProcessingState.idle,
                                   ),
                                 ),
-                                (value) => withEffect(
-                                  true,
-                                  () => state = state.copyWith(
+                                (value) => tap(
+                                  tapped: true,
+                                  effect: () => state = state.copyWith(
                                     processingState: ProcessingState.idle,
                                   ),
                                 ),
@@ -142,7 +145,7 @@ class RegistrationController extends StateNotifier<RegistrationState> {
                     ),
               ),
             ),
-        () => state = state.copyWith(
+        effect: () => state = state.copyWith(
           processingState: ProcessingState.loginLoading,
         ),
       );
@@ -156,11 +159,11 @@ class RegistrationController extends StateNotifier<RegistrationState> {
           email: data.email.trim(),
           password: data.password.trim(),
         ),
-      ).attemptEither<FirebaseAuthException>().run().then(
+      ).attempt<FirebaseAuthException>().run().then(
             (either) => either.match(
-              (exception) => withEffect(
-                Left(exception),
-                () {
+              (exception) => tap(
+                tapped: Left(exception),
+                effect: () {
                   Logger().e('Error creating user: ${exception.message}');
                   final String message;
 
@@ -213,8 +216,9 @@ class RegistrationController extends StateNotifier<RegistrationState> {
 
   /// Checks if the current user has their email verified.
   Future<bool> isEmailVerified() async => Option.of(_auth.currentUser).match(
-        () => withEffect(false, () => Logger().e('No user logged in')),
-        (user) => Task.fromVoid(() => user.reload())
+        none: () =>
+            tap(tapped: false, effect: () => Logger().e('No user logged in')),
+        some: (user) => Task.fromVoid(() => user.reload())
             .run()
             .then((value) => user.emailVerified),
       );
@@ -222,18 +226,19 @@ class RegistrationController extends StateNotifier<RegistrationState> {
   /// Sends a verification email to the current user.
   Future<bool> resendEmailVerification() async =>
       Option.of(_auth.currentUser).match(
-        () => withEffect(false, () => Logger().e('No user logged in')),
-        (user) => withEffect(
-          Task.fromVoid(
+        none: () =>
+            tap(tapped: false, effect: () => Logger().e('No user logged in')),
+        some: (user) => tap(
+          tapped: Task.fromVoid(
             () => user.sendEmailVerification(_emailSettings),
           ),
-          () => state = state.copyWith(
+          effect: () => state = state.copyWith(
             processingState: ProcessingState.loginLoading,
           ),
         ).run().then(
-              (_) => withEffect(
-                true,
-                () => state = state.copyWith(
+              (_) => tap(
+                tapped: true,
+                effect: () => state = state.copyWith(
                   processingState: ProcessingState.idle,
                 ),
               ),

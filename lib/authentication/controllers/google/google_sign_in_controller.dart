@@ -27,17 +27,17 @@ class GoogleSignInController implements GoogleSignInProtocol {
             () => GoogleSignIn().signIn(),
           ).run().then(
                 (value) => value.match(
-                  () => withEffect(
-                    const Left(
+                  none: () => tap(
+                    tapped: const Left(
                       GoogleSignInException('Error signing in with Google.'),
                     ),
-                    () => Logger().e(
+                    effect: () => Logger().e(
                       'Error signing in with Google.',
                       'error',
                       StackTrace.current,
                     ),
                   ),
-                  (account) => account.authentication.then(
+                  some: (account) => account.authentication.then(
                     (googleAuth) => Task(
                       () => _auth.signInWithCredential(
                         GoogleAuthProvider.credential(
@@ -45,27 +45,25 @@ class GoogleSignInController implements GoogleSignInProtocol {
                           accessToken: googleAuth.accessToken,
                         ),
                       ),
-                    )
-                        .attemptEither<FirebaseAuthMultiFactorException>()
-                        .run()
-                        .then(
+                    ).attempt<FirebaseAuthMultiFactorException>().run().then(
                           (value) => value.match(
-                            (exception) => withEffect(
-                              Left(
+                            (exception) => tap(
+                              tapped: Left(
                                 GoogleSignInException(
                                   exception.message ??
                                       'Error signing in with Google.',
                                 ),
                               ),
-                              () => Logger().e(
+                              effect: () => Logger().e(
                                 'Error signing in with Google.',
                                 exception,
                                 StackTrace.current,
                               ),
                             ),
-                            (credential) => withEffect(
-                              Right(credential),
-                              () => Logger().i('Signed in with Google.'),
+                            (credential) => tap(
+                              tapped: Right(credential),
+                              effect: () =>
+                                  Logger().i('Signed in with Google.'),
                             ),
                           ),
                         ),

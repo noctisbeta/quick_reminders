@@ -39,8 +39,8 @@ class ProfileController {
     final db = FirebaseFirestore.instance;
 
     return ref.watch(AuthStore.provider).match(
-          () => Stream.value(Profile.empty()),
-          (user) => db.collection('users').doc(user.uid).snapshots().map(
+          none: () => Stream.value(Profile.empty()),
+          some: (user) => db.collection('users').doc(user.uid).snapshots().map(
                 Profile.fromSnapshot,
               ),
         );
@@ -60,19 +60,19 @@ class ProfileController {
           },
           SetOptions(merge: true),
         ),
-      ).attemptEither<Exception>().run().then(
+      ).attempt<Exception>().run().then(
             (either) => either.match(
-              (exception) => withEffect(
-                left(exception),
-                () => Logger().e(
+              (exception) => tap(
+                tapped: left(exception),
+                effect: () => Logger().e(
                   'Error creating profile.',
                   exception,
                   StackTrace.current,
                 ),
               ),
-              (unit) => withEffect(
-                right(unit),
-                () => Logger().i('Created profile.'),
+              (unit) => tap(
+                tapped: right(unit),
+                effect: () => Logger().i('Created profile.'),
               ),
             ),
           );
@@ -91,19 +91,19 @@ class ProfileController {
           },
           SetOptions(merge: true),
         ),
-      ).attemptEither<Exception>().run().then(
+      ).attempt<Exception>().run().then(
             (either) => either.match(
-              (exception) => withEffect(
-                left(exception),
-                () => Logger().e(
+              (exception) => tap(
+                tapped: left(exception),
+                effect: () => Logger().e(
                   'Error creating profile.',
                   exception,
                   StackTrace.current,
                 ),
               ),
-              (unit) => withEffect(
-                right(unit),
-                () => Logger().i('Created profile.'),
+              (unit) => tap(
+                tapped: right(unit),
+                effect: () => Logger().i('Created profile.'),
               ),
             ),
           );
@@ -111,15 +111,18 @@ class ProfileController {
   /// Returns true if the user already has a profile.
   Future<bool> userHasProfile() async {
     return _authStore.user.match(
-      () => withEffect(false, () => Logger().e('User is not logged in')),
-      (user) => _db.collection('users').doc(user.uid).get().then(
+      none: () =>
+          tap(tapped: false, effect: () => Logger().e('User is not logged in')),
+      some: (user) => _db.collection('users').doc(user.uid).get().then(
             (value) => value.exists.match(
-              ifFalse: () => withEffect(
-                false,
-                () => Logger().i('User does not have a profile'),
+              ifFalse: () => tap(
+                tapped: false,
+                effect: () => Logger().i('User does not have a profile'),
               ),
-              ifTrue: () =>
-                  withEffect(true, () => Logger().i('User has a profile')),
+              ifTrue: () => tap(
+                tapped: true,
+                effect: () => Logger().i('User has a profile'),
+              ),
             ),
           ),
     );
@@ -127,5 +130,5 @@ class ProfileController {
 
   /// Signs the user out.
   Future<void> signOut() async =>
-      withEffect(_auth.signOut(), () => Logger().i('Signed out'));
+      tap(tapped: _auth.signOut(), effect: () => Logger().i('Signed out'));
 }

@@ -40,15 +40,15 @@ class DynamicLinkManager {
         _links.getInitialLink,
       ).run().then(
             (option) => option.match(
-              () => unit,
-              (data) => handleRouting(data.link),
+              none: () => unit,
+              some: (data) => handleRouting(data.link),
             ),
           );
 
   /// Setup linkStream listeners.
-  Unit _setupLinkStream() => withEffect(
-        unit,
-        () => _links.onLink.listen(
+  Unit _setupLinkStream() => tap(
+        tapped: unit,
+        effect: () => _links.onLink.listen(
           (event) => handleRouting(event.link),
         ),
       );

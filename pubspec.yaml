@@ -55,6 +55,9 @@ dependencies:
   more_hooks:
     git:
       url: https://github.com/noctisbeta/more_hooks
+  riverpod_firebase_authentication:
+    git:
+      url: https://github.com/noctisbeta/riverpod_firebase_authentication
 
 dev_dependencies:
   flutter_lints: ^2.0.0

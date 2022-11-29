@@ -30,8 +30,8 @@ class RemindersController {
   /// Stream of people groups.
   static final peopleGroupStream = StreamProvider.autoDispose<List>(
     (ref) => ref.watch(AuthStore.provider).match(
-          () => Stream<List>.value([]),
-          (user) => FirebaseFirestore.instance
+          none: () => Stream<List>.value([]),
+          some: (user) => FirebaseFirestore.instance
               .collection('users')
               .doc(user.uid)
               .collection('peopleGroups')
@@ -49,8 +49,8 @@ class RemindersController {
   /// Stream of reminder groups.
   static final reminderGroupStream = StreamProvider.autoDispose(
     (ref) => ref.watch(AuthStore.provider).match(
-          () => Stream.value([]),
-          (user) => FirebaseFirestore.instance
+          none: () => Stream.value([]),
+          some: (user) => FirebaseFirestore.instance
               .collection('users')
               .doc(user.uid)
               .collection('reminderGroups')
@@ -101,8 +101,9 @@ class RemindersController {
 
   /// Creates a new reminder group.
   Future<bool> createReminderGroup(String name) async => _authStore.user.match(
-        () => withEffect(false, () => Logger().e('User not logged in')),
-        (user) => Task(
+        none: () =>
+            tap(tapped: false, effect: () => Logger().e('User not logged in')),
+        some: (user) => Task(
           () => _db
               .collection('users')
               .doc(user.uid)
@@ -112,13 +113,14 @@ class RemindersController {
           }),
         ).attemptAll().run().then(
               (either) => either.match(
-                (failure) => withEffect(
-                  false,
-                  () => Logger().e('Failed to create reminder group: $failure'),
+                (failure) => tap(
+                  tapped: false,
+                  effect: () =>
+                      Logger().e('Failed to create reminder group: $failure'),
                 ),
-                (success) => withEffect(
-                  true,
-                  () => Logger().d('Created reminder group: $success'),
+                (success) => tap(
+                  tapped: true,
+                  effect: () => Logger().d('Created reminder group: $success'),
                 ),
               ),
             ),

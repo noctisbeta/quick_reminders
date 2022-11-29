@@ -46,12 +46,12 @@ class LoginController extends StateNotifier<LoginState> {
   );
 
   /// Sign in with google.
-  Future<bool> signInWithGoogle() async => withEffect(
-        _googleController.signInWithGoogle().then(
+  Future<bool> signInWithGoogle() async => tap(
+        tapped: _googleController.signInWithGoogle().then(
               (googleEither) => googleEither.match(
-                (exception) => withEffect(
-                  false,
-                  () => state =
+                (exception) => tap(
+                  tapped: false,
+                  effect: () => state =
                       state.copyWith(processingState: ProcessingState.idle),
                 ),
                 (userCredential) => Task(
@@ -64,23 +64,23 @@ class LoginController extends StateNotifier<LoginState> {
                             )
                             .then(
                               (either) => either.match(
-                                (exception) => withEffect(
-                                  false,
-                                  () => state = state.copyWith(
+                                (exception) => tap(
+                                  tapped: false,
+                                  effect: () => state = state.copyWith(
                                     processingState: ProcessingState.idle,
                                   ),
                                 ),
-                                (success) => withEffect(
-                                  true,
-                                  () => state = state.copyWith(
+                                (success) => tap(
+                                  tapped: true,
+                                  effect: () => state = state.copyWith(
                                     processingState: ProcessingState.idle,
                                   ),
                                 ),
                               ),
                             ),
-                        ifTrue: () => withEffect(
-                          true,
-                          () => state = state.copyWith(
+                        ifTrue: () => tap(
+                          tapped: true,
+                          effect: () => state = state.copyWith(
                             processingState: ProcessingState.idle,
                           ),
                         ),
@@ -88,27 +88,27 @@ class LoginController extends StateNotifier<LoginState> {
                     ),
               ),
             ),
-        () => state = state.copyWith(
+        effect: () => state = state.copyWith(
           processingState: ProcessingState.googleLoading,
         ),
       );
 
   /// Logs in the user with email and password.
-  Future<bool> login(LoginData loginData) async => withEffect(
-        Task(
+  Future<bool> login(LoginData loginData) async => tap(
+        tapped: Task(
           () => _loginUser(loginData),
         ).run().then(
-              (either) => withEffect(
-                either.match(
+              (either) => tap(
+                tapped: either.match(
                   (left) => false,
                   (right) => true,
                 ),
-                () => state = state.copyWith(
+                effect: () => state = state.copyWith(
                   processingState: ProcessingState.idle,
                 ),
               ),
             ),
-        () => state = state.copyWith(
+        effect: () => state = state.copyWith(
           loginData: loginData,
           loginDataErrors: LoginDataErrors.empty(),
           processingState: ProcessingState.loginLoading,
@@ -266,11 +266,11 @@ class LoginController extends StateNotifier<LoginState> {
           code: oobCode,
           newPassword: password,
         ),
-      ).attemptEither<FirebaseAuthException>().run().then(
+      ).attempt<FirebaseAuthException>().run().then(
             (either) => either.match(
-              (exception) => withEffect(
-                false,
-                () => Logger()
+              (exception) => tap(
+                tapped: false,
+                effect: () => Logger()
                     .e('Error resetting password: ${exception.message}'),
               ),
               (unit) => true,
