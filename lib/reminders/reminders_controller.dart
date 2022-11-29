@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:functional/functional.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/logging/log_profile.dart';
+import 'package:quick_reminders/reminders/models/reminder_group.dart';
 import 'package:riverpod_firebase_authentication/riverpod_firebase_authentication.dart';
 
 /// Reminders controller.
@@ -32,36 +33,27 @@ class RemindersController {
     (ref) => ref.watch(AuthStore.provider).match(
           none: () => Stream<List>.value([]),
           some: (user) => FirebaseFirestore.instance
-              .collection('users')
-              .doc(user.uid)
               .collection('peopleGroups')
+              .where('userIds', arrayContains: user.uid)
               .snapshots()
               .map(
-                (snapshot) => snapshot.docs
-                    .map(
-                      (doc) => doc.data(),
-                    )
-                    .toList(),
+                (snapshot) => snapshot.docs.map((doc) => doc.data()).toList(),
               ),
         ),
   );
 
   /// Stream of reminder groups.
-  static final reminderGroupStream = StreamProvider.autoDispose(
+  static final reminderGroupStream =
+      StreamProvider.autoDispose<List<ReminderGroup>>(
     (ref) => ref.watch(AuthStore.provider).match(
           none: () => Stream.value([]),
           some: (user) => FirebaseFirestore.instance
-              .collection('users')
-              .doc(user.uid)
               .collection('reminderGroups')
+              .where('userIds', arrayContains: user.uid)
               .snapshots()
-              .map(
-                (snapshot) => snapshot.docs
-                    .map(
-                      (doc) => doc.data(),
-                    )
-                    .toList(),
-              ),
+              .map((snapshot) => snapshot.docs
+                  .map((doc) => doc.data())
+                  .map((e) => ReminderGroup.fr)),
         ),
   );
 
@@ -99,30 +91,27 @@ class RemindersController {
     },
   );
 
-  /// Creates a new reminder group.
-  Future<bool> createReminderGroup(String name) async => _authStore.user.match(
-        none: () =>
-            tap(tapped: false, effect: () => myLog.e('User not logged in')),
-        some: (user) => Task(
-          () => _db
-              .collection('users')
-              .doc(user.uid)
-              .collection('reminderGroups')
-              .add({
-            'name': name,
-          }),
-        ).attemptAll().run().then(
-              (either) => either.match(
-                (failure) => tap(
-                  tapped: false,
-                  effect: () =>
-                      myLog.e('Failed to create reminder group: $failure'),
-                ),
-                (success) => tap(
-                  tapped: true,
-                  effect: () => myLog.d('Created reminder group: $success'),
-                ),
-              ),
+  /// Creates a new reminder group with the given [name].
+  AsyncResult<Exception, DocumentReference> createReminderGroup(String name) =>
+      tap(
+          tapped: _authStore.user.match(
+            none: () => tap(
+              tapped: Task.value(Left(Exception('No user signed in'))),
+              effect: () =>
+                  myLog.e('No user signed in while creating a reminder group.'),
             ),
-      );
+            some: (user) => _createReminderGroupRaw(name, user.uid),
+          ),
+          effect: () => myLog.i('Created reminder group $name'));
+
+  AsyncResult<Exception, DocumentReference> _createReminderGroupRaw(
+    String name,
+    String uid,
+  ) =>
+      Task(
+        () => _db.collection('reminderGroups').add({
+          'name': name,
+          'userIds': [uid],
+        }),
+      ).attempt<Exception>();
 }

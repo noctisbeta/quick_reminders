@@ -7,6 +7,7 @@ class ModalHeader extends StatelessWidget {
   const ModalHeader({
     required this.disabled,
     required this.title,
+    required this.onSubmit,
     super.key,
   });
 
@@ -15,6 +16,9 @@ class ModalHeader extends StatelessWidget {
 
   /// Title.
   final String title;
+
+  /// On submit.
+  final void Function() onSubmit;
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +46,7 @@ class ModalHeader extends StatelessWidget {
             Icons.check,
             color: disabled ? kQuinaryColor : kSecondaryColor,
           ),
-          onPressed: () {},
+          onPressed: onSubmit,
         ),
       ],
     );

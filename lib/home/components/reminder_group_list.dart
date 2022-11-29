@@ -30,6 +30,8 @@ class ReminderGroupList extends ConsumerWidget {
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 1,
                 childAspectRatio: 80 / 100,
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
               ),
               itemBuilder: (context, index) {
                 if (index == 0) {
@@ -43,8 +45,8 @@ class ReminderGroupList extends ConsumerWidget {
                   );
                 }
 
-                return const ReminderGroupCard(
-                  title: 'asd',
+                return ReminderGroupCard(
+                  title: data.elementAt(index - 1).title,
                   numReminders: 123,
                 );
               },

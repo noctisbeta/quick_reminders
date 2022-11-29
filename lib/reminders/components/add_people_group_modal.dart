@@ -40,6 +40,7 @@ class AddPeopleGroupModal extends HookWidget {
                     ModalHeader(
                       title: 'Add People Group',
                       disabled: groupName.value.isEmpty,
+                      onSubmit: () {},
                     ),
                     const SizedBox(
                       height: 16,
