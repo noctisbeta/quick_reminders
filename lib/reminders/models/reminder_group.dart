@@ -10,6 +10,7 @@ class ReminderGroup extends SurfaceReminderGroup {
     required super.id,
     required super.title,
     required super.userIds,
+    required super.activeReminders,
     required this.reminders,
   });
 
@@ -22,6 +23,7 @@ class ReminderGroup extends SurfaceReminderGroup {
       title: data['title'],
       userIds: List<String>.from(data['userIds']),
       reminders: data['reminders']?.map(Reminder.fromMap).toList() ?? [],
+      activeReminders: data['activeReminders'] ?? 0,
     );
   }
 

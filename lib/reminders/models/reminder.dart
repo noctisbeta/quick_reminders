@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 /// Reminder.
 class Reminder {
   /// Default constructor

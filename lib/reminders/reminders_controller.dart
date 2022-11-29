@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:functional/functional.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/logging/log_profile.dart';
-import 'package:quick_reminders/reminders/models/reminder_group.dart';
 import 'package:quick_reminders/reminders/models/surface_reminder_group.dart';
 import 'package:riverpod_firebase_authentication/riverpod_firebase_authentication.dart';
 
@@ -97,15 +96,16 @@ class RemindersController {
   /// Creates a new reminder group with the given [title].
   AsyncResult<Exception, DocumentReference> createReminderGroup(String title) =>
       tap(
-          tapped: _authStore.user.match(
-            none: () => tap(
-              tapped: Task.value(Left(Exception('No user signed in'))),
-              effect: () =>
-                  myLog.e('No user signed in while creating a reminder group.'),
-            ),
-            some: (user) => _createReminderGroupRaw(title, user.uid),
+        tapped: _authStore.user.match(
+          none: () => tap(
+            tapped: Task.value(Left(Exception('No user signed in'))),
+            effect: () =>
+                myLog.e('No user signed in while creating a reminder group.'),
           ),
-          effect: () => myLog.i('Created reminder group $title'));
+          some: (user) => _createReminderGroupRaw(title, user.uid),
+        ),
+        effect: () => myLog.i('Created reminder group $title'),
+      );
 
   AsyncResult<Exception, DocumentReference> _createReminderGroupRaw(
     String title,

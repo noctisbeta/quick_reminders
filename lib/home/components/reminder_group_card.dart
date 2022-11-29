@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quick_reminders/constants/colors.dart';
+import 'package:quick_reminders/reminders/views/reminder_group_view.dart';
 
 /// Group card.
 class ReminderGroupCard extends StatelessWidget {
@@ -24,38 +25,45 @@ class ReminderGroupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Container(
-          height: cardHeight,
-          width: cardWidth,
-          decoration: BoxDecoration(
-            color: kTertiaryColor,
-            borderRadius: BorderRadius.circular(16),
-          ),
+    return GestureDetector(
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => const ReminderGroupView(),
         ),
-        Positioned(
-          top: 10,
-          left: 10,
-          child: Text(
-            title,
-            style: const TextStyle(
-              color: kQuaternaryColor,
+      ),
+      child: Stack(
+        children: [
+          Container(
+            height: cardHeight,
+            width: cardWidth,
+            decoration: BoxDecoration(
+              color: kTertiaryColor,
+              borderRadius: BorderRadius.circular(16),
             ),
           ),
-        ),
-        Positioned(
-          bottom: 10,
-          left: 10,
-          child: Text(
-            'Reminders: $numReminders',
-            style: const TextStyle(
-              color: kQuaternaryColor,
-              fontSize: 11,
+          Positioned(
+            top: 10,
+            left: 10,
+            child: Text(
+              title,
+              style: const TextStyle(
+                color: kQuaternaryColor,
+              ),
             ),
           ),
-        ),
-      ],
+          Positioned(
+            bottom: 10,
+            left: 10,
+            child: Text(
+              'Reminders: $numReminders',
+              style: const TextStyle(
+                color: kQuaternaryColor,
+                fontSize: 11,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
