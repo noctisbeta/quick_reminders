@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:functional/functional.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/logging/log_profile.dart';
+import 'package:quick_reminders/reminders/models/reminder_group.dart';
 import 'package:quick_reminders/reminders/models/surface_reminder_group.dart';
 import 'package:riverpod_firebase_authentication/riverpod_firebase_authentication.dart';
 
@@ -63,16 +64,14 @@ class RemindersController {
   static final reminderGroupContentStream = StreamProvider.autoDispose.family(
     (ref, String groupId) {
       final db = FirebaseFirestore.instance;
-      final auth = FirebaseAuth.instance;
 
       final collection = db
-          .collection('users')
-          .doc(auth.currentUser!.uid)
           .collection('reminderGroups')
           .doc(groupId)
-          .collection('reminders');
+          .collection('content')
+          .doc('content');
 
-      return collection.snapshots();
+      return collection.snapshots().map(ReminderGroup.fromFirestore);
     },
   );
 

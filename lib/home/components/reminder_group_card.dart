@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:quick_reminders/constants/colors.dart';
+import 'package:quick_reminders/reminders/models/surface_reminder_group.dart';
 import 'package:quick_reminders/reminders/views/reminder_group_view.dart';
 
 /// Group card.
 class ReminderGroupCard extends StatelessWidget {
   /// Default constructor.
   const ReminderGroupCard({
-    required this.title,
-    required this.numReminders,
+    required this.group,
     super.key,
   });
 
-  /// Title.
-  final String title;
-
-  /// Number of reminders.
-  final int numReminders;
+  /// Surface reminder group.
+  final SurfaceReminderGroup group;
 
   /// Card height.
   static double get cardHeight => 80;
@@ -28,7 +25,7 @@ class ReminderGroupCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => const ReminderGroupView(),
+          builder: (context) => ReminderGroupView(group: group),
         ),
       ),
       child: Stack(
@@ -45,7 +42,7 @@ class ReminderGroupCard extends StatelessWidget {
             top: 10,
             left: 10,
             child: Text(
-              title,
+              group.title,
               style: const TextStyle(
                 color: kQuaternaryColor,
               ),
@@ -55,7 +52,7 @@ class ReminderGroupCard extends StatelessWidget {
             bottom: 10,
             left: 10,
             child: Text(
-              'Reminders: $numReminders',
+              'Reminders: ${group.activeReminders}',
               style: const TextStyle(
                 color: kQuaternaryColor,
                 fontSize: 11,

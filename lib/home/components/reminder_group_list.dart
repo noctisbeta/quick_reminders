@@ -45,10 +45,7 @@ class ReminderGroupList extends ConsumerWidget {
                   );
                 }
 
-                return ReminderGroupCard(
-                  title: data.elementAt(index - 1).title,
-                  numReminders: data.elementAt(index - 1).activeReminders,
-                );
+                return ReminderGroupCard(group: data[index - 1]);
               },
             ),
           ),

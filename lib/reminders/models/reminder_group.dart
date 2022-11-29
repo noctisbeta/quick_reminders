@@ -15,7 +15,7 @@ class ReminderGroup extends SurfaceReminderGroup {
   });
 
   /// Creates a reminder group from a [QueryDocumentSnapshot].
-  factory ReminderGroup.fromFirestore(QueryDocumentSnapshot doc) {
+  factory ReminderGroup.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data()! as Map<String, dynamic>;
     myLog.d('ReminderGroup.fromFirestore: data: $data');
     return ReminderGroup(
