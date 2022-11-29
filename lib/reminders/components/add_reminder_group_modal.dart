@@ -16,7 +16,7 @@ class AddReminderGroupModal extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final reminderCtl = ref.watch(RemindersController.provider);
 
-    final groupName = useState('');
+    final groupTitle = useState('');
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -43,20 +43,22 @@ class AddReminderGroupModal extends HookConsumerWidget {
                   children: [
                     ModalHeader(
                       title: 'Add Reminder Group',
-                      disabled: groupName.value.isEmpty,
+                      disabled: groupTitle.value.isEmpty,
                       onSubmit: () => reminderCtl
                           .createReminderGroup(
-                            groupName.value,
+                            groupTitle.value,
                           )
                           .then(
                             (either) => either.match(
-                              (exception) =>
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Failed to create group.'),
-                                ),
-                              ),
-                              (docref) => null,
+                              (exception) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Failed to create group.'),
+                                  ),
+                                );
+                                Navigator.of(context).pop();
+                              },
+                              (docref) => Navigator.of(context).pop(),
                             ),
                           ),
                     ),
@@ -69,7 +71,7 @@ class AddReminderGroupModal extends HookConsumerWidget {
                         Icons.title,
                         color: Colors.white,
                       ),
-                      onChanged: (val) => groupName.value = val,
+                      onChanged: (val) => groupTitle.value = val,
                     ),
                     const SizedBox(
                       height: 16,

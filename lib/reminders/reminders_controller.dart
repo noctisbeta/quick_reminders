@@ -4,6 +4,7 @@ import 'package:functional/functional.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/logging/log_profile.dart';
 import 'package:quick_reminders/reminders/models/reminder_group.dart';
+import 'package:quick_reminders/reminders/models/surface_reminder_group.dart';
 import 'package:riverpod_firebase_authentication/riverpod_firebase_authentication.dart';
 
 /// Reminders controller.
@@ -44,16 +45,18 @@ class RemindersController {
 
   /// Stream of reminder groups.
   static final reminderGroupStream =
-      StreamProvider.autoDispose<List<ReminderGroup>>(
+      StreamProvider.autoDispose<List<SurfaceReminderGroup>>(
     (ref) => ref.watch(AuthStore.provider).match(
           none: () => Stream.value([]),
           some: (user) => FirebaseFirestore.instance
               .collection('reminderGroups')
               .where('userIds', arrayContains: user.uid)
               .snapshots()
-              .map((snapshot) => snapshot.docs
-                  .map((doc) => doc.data())
-                  .map((e) => ReminderGroup.fr)),
+              .map(
+                (snapshot) => snapshot.docs
+                    .map(SurfaceReminderGroup.fromFirestore)
+                    .toList(),
+              ),
         ),
   );
 
@@ -91,8 +94,8 @@ class RemindersController {
     },
   );
 
-  /// Creates a new reminder group with the given [name].
-  AsyncResult<Exception, DocumentReference> createReminderGroup(String name) =>
+  /// Creates a new reminder group with the given [title].
+  AsyncResult<Exception, DocumentReference> createReminderGroup(String title) =>
       tap(
           tapped: _authStore.user.match(
             none: () => tap(
@@ -100,17 +103,17 @@ class RemindersController {
               effect: () =>
                   myLog.e('No user signed in while creating a reminder group.'),
             ),
-            some: (user) => _createReminderGroupRaw(name, user.uid),
+            some: (user) => _createReminderGroupRaw(title, user.uid),
           ),
-          effect: () => myLog.i('Created reminder group $name'));
+          effect: () => myLog.i('Created reminder group $title'));
 
   AsyncResult<Exception, DocumentReference> _createReminderGroupRaw(
-    String name,
+    String title,
     String uid,
   ) =>
       Task(
         () => _db.collection('reminderGroups').add({
-          'name': name,
+          'title': title,
           'userIds': [uid],
         }),
       ).attempt<Exception>();

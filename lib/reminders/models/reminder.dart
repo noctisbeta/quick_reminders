@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 /// Reminder.
 class Reminder {
   /// Default constructor
@@ -6,6 +8,15 @@ class Reminder {
     required this.title,
     required this.description,
   });
+
+  /// Creates a reminder from [map].
+  factory Reminder.fromMap(Map<String, dynamic> map) {
+    return Reminder(
+      id: map['id'],
+      title: map['title'],
+      description: map['description'],
+    );
+  }
 
   /// Reminder id.
   final String id;
