@@ -74,23 +74,6 @@ class RemindersController {
         ),
   );
 
-  /// Stream of a single people group.
-  static final peopleGroupContentStream = StreamProvider.autoDispose.family(
-    (ref, String groupId) {
-      final db = FirebaseFirestore.instance;
-      final auth = FirebaseAuth.instance;
-
-      final collection = db
-          .collection('users')
-          .doc(auth.currentUser!.uid)
-          .collection('peopleGroups')
-          .doc(groupId)
-          .collection('people');
-
-      return collection.snapshots();
-    },
-  );
-
   /// Creates a new reminder group with the given [title].
   AsyncResult<Exception, DocumentReference> createReminderGroup(String title) =>
       tap(
@@ -112,6 +95,25 @@ class RemindersController {
       Task(
         () => _db.collection('reminderGroups').add(
               SurfaceReminderGroup.forCreation(title: title, userIds: [uid]),
+            ),
+      ).attempt<Exception>();
+
+  /// Creates a new reminder group with the given [title].
+  AsyncResult<Exception, DocumentReference> createReminder(
+    String groupId,
+    String title,
+    String description,
+  ) =>
+      Task(
+        () => _db
+            .collection(FirestorePaths.reminderGroups.path)
+            .doc(groupId)
+            .collection(FirestorePaths.reminders.path)
+            .add(
+              Reminder.forCreation(
+                title: title,
+                description: description,
+              ),
             ),
       ).attempt<Exception>();
 }

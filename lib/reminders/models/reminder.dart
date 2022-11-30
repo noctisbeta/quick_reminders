@@ -20,6 +20,13 @@ class Reminder {
     );
   }
 
+  /// For creation.
+  static Map<String, dynamic> forCreation({
+    required String title,
+    required String description,
+  }) =>
+      {'title': title, 'description': description};
+
   /// Reminder id.
   final String id;
 

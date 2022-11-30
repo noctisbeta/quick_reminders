@@ -4,7 +4,7 @@ import 'package:quick_reminders/home/components/add_group_card.dart';
 import 'package:quick_reminders/home/components/people_group_card.dart';
 import 'package:quick_reminders/logging/log_profile.dart';
 import 'package:quick_reminders/reminders/components/add_people_group_modal.dart';
-import 'package:quick_reminders/reminders/reminders_controller.dart';
+import 'package:quick_reminders/reminders/controllers/reminders_controller.dart';
 
 /// List of people groups.
 class PeopleGroupList extends ConsumerWidget {

@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/constants/colors.dart';
 import 'package:quick_reminders/reminders/models/surface_reminder_group.dart';
-import 'package:quick_reminders/reminders/reminders_controller.dart';
+import 'package:quick_reminders/reminders/controllers/reminders_controller.dart';
 import 'package:quick_reminders/routing/routes.dart';
 
 /// A widget that displays a reminder group.
@@ -23,6 +23,8 @@ class ReminderGroupView extends ConsumerWidget {
     final reminders =
         ref.watch(RemindersController.reminderGroupContentStream(group));
 
+    final remindersCtl = ref.watch(RemindersController.provider);
+
     return WillPopScope(
       onWillPop: () async {
         context.goNamed(Routes.home.name);
@@ -36,7 +38,8 @@ class ReminderGroupView extends ConsumerWidget {
           centerTitle: true,
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () {},
+          onPressed: () =>
+              remindersCtl.createReminder(group.id, 'test', 'desc').run(),
           backgroundColor: kPrimaryColor,
           child: const Icon(Icons.add),
         ),

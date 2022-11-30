@@ -4,7 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/common/my_text_field.dart';
 import 'package:quick_reminders/constants/colors.dart';
 import 'package:quick_reminders/reminders/components/modal_header.dart';
-import 'package:quick_reminders/reminders/reminders_controller.dart';
+import 'package:quick_reminders/reminders/controllers/reminders_controller.dart';
 import 'package:quick_reminders/utilities/extensions/iterable_extension.dart';
 
 /// Add reminder group modal.
