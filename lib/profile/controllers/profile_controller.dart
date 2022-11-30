@@ -3,7 +3,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:functional/functional.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:quick_reminders/firebase/firestore_fields.dart';
+import 'package:quick_reminders/firebase/firestore_paths.dart';
 import 'package:quick_reminders/logging/log_profile.dart';
+import 'package:quick_reminders/profile/models/friend.dart';
+import 'package:quick_reminders/profile/models/notification.dart';
 import 'package:quick_reminders/profile/models/profile.dart';
 import 'package:riverpod_firebase_authentication/riverpod_firebase_authentication.dart';
 
@@ -45,6 +49,18 @@ class ProfileController {
               ),
         );
   });
+
+  static final friendStream = StreamProvider.autoDispose<List<Friend>>(
+    (ref) => ref.watch(AuthStore.provider).match(
+          none: () => Stream.value([]),
+          some: (user) => FirebaseFirestore.instance
+              .collection(FirestorePaths.users.path)
+              .doc(user.uid)
+              .collection(FirestorePaths.friends.path)
+              .snapshots()
+              .map((event) => event.docs.map(Friend.fromFirestore).toList()),
+        ),
+  );
 
   /// Creates a new profile.
   AsyncResult<Exception, Unit> createProfileFromUserCredential(
@@ -116,4 +132,32 @@ class ProfileController {
   /// Signs the user out.
   Future<void> signOut() async =>
       tap(tapped: _auth.signOut(), effect: () => myLog.i('Signed out'));
+
+  /// Sends a friend request to the user with [email].
+  AsyncResult<Exception, DocumentReference> sendFriendRequest(String email) =>
+      Task(
+        () => _db
+            .collection(FirestorePaths.users.path)
+            .where(FirestoreFields.email, isEqualTo: email)
+            .get(),
+      )
+          .attempt<Exception>()
+          .bindEither(_checkEmptySnapshot)
+          .bindEither(_createFriendRequestNotification);
+
+  AsyncResult<Exception, DocumentReference> _checkEmptySnapshot(
+    QuerySnapshot snapshot,
+  ) =>
+      snapshot.docs.isEmpty
+          ? AsyncResult.value(Left(Exception('The snapshot is empty.')))
+          : AsyncResult.value(Right(snapshot.docs.single.reference));
+
+  AsyncResult<Exception, DocumentReference> _createFriendRequestNotification(
+    DocumentReference reference,
+  ) =>
+      Task(
+        () => reference.collection(FirestorePaths.notifications.path).add(
+              Notification.friendRequestCreation(_authStore.user.unwrap().uid),
+            ),
+      ).attempt<Exception>();
 }

@@ -1,14 +1,14 @@
-import 'package:expandable_page_view/expandable_page_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/common/animated_background.dart';
 import 'package:quick_reminders/common/background_stack.dart';
 import 'package:quick_reminders/constants/colors.dart';
-import 'package:quick_reminders/profile/components/edit_profile_contents.dart';
 import 'package:quick_reminders/profile/components/profile_card.dart';
-import 'package:quick_reminders/profile/components/profile_contents.dart';
+import 'package:quick_reminders/profile/components/tile_button.dart';
 import 'package:quick_reminders/profile/controllers/profile_controller.dart';
+import 'package:quick_reminders/routing/routes.dart';
+import 'package:quick_reminders/utilities/extensions/iterable_extension.dart';
 
 /// Profile view.
 class ProfileView extends HookConsumerWidget {
@@ -17,15 +17,9 @@ class ProfileView extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profileStream = ref.watch(
-      ProfileController.profileStreamProvider,
-    );
+    final profileStream = ref.watch(ProfileController.profileStreamProvider);
 
-    final profileController = ref.read(
-      ProfileController.provider,
-    );
-
-    final pageController = usePageController();
+    final profileController = ref.read(ProfileController.provider);
 
     return Scaffold(
       body: BackgroundStack(
@@ -67,32 +61,75 @@ class ProfileView extends HookConsumerWidget {
                   const SizedBox(
                     height: 32,
                   ),
-                  ExpandablePageView(
-                    controller: pageController,
-                    children: [
-                      ProfileContents(
-                        profileController: profileController,
-                        onEditTapped: () {
-                          pageController.animateToPage(
-                            1,
-                            duration: const Duration(milliseconds: 500),
-                            curve: Curves.easeInOut,
-                          );
-                        },
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      TileButton(
+                        onTap: () => context.goNamed(Routes.friends.name),
+                        leading: const Icon(
+                          Icons.tag_faces,
+                          color: kTertiaryColor,
+                        ),
+                        title: const Text(
+                          'Friends',
+                          style: TextStyle(
+                            fontSize: 17,
+                            color: kSecondaryColor,
+                          ),
+                        ),
                       ),
-                      EditProfileContents(
-                        profileController: profileController,
-                        profileStream: profileStream,
-                        onConfirm: () {},
-                        onCancel: () {
-                          pageController.animateToPage(
-                            0,
-                            duration: const Duration(milliseconds: 500),
-                            curve: Curves.easeInOut,
-                          );
-                        },
+                      TileButton(
+                        onTap: () {},
+                        leading: const Icon(
+                          Icons.edit,
+                          color: kTertiaryColor,
+                        ),
+                        title: const Text(
+                          'Edit profile',
+                          style: TextStyle(
+                            fontSize: 17,
+                            color: kSecondaryColor,
+                          ),
+                        ),
                       ),
-                    ],
+                      TileButton(
+                        onTap: () {
+                          context.goNamed(Routes.authentication.name);
+                          profileController.signOut();
+                        },
+                        leading: const Icon(
+                          Icons.logout,
+                          color: kTertiaryColor,
+                        ),
+                        title: const Text(
+                          'Logout',
+                          style: TextStyle(
+                            fontSize: 17,
+                            color: kSecondaryColor,
+                          ),
+                        ),
+                      ),
+                      TileButton(
+                        onTap: () {},
+                        leading: const Icon(
+                          Icons.delete,
+                          color: kTertiaryColor,
+                        ),
+                        title: const Text(
+                          'Delete account',
+                          style: TextStyle(
+                            fontSize: 17,
+                            color: kSecondaryColor,
+                          ),
+                        ),
+                      ),
+                    ]
+                        .eachFollowedBy(
+                          const Divider(
+                            color: kSecondaryColor,
+                          ),
+                        )
+                        .toList(),
                   ),
                 ],
               ),

@@ -4,7 +4,10 @@ enum FirestoreFields {
   userIds,
 
   /// Timestamp of creation.
-  createdAt;
+  createdAt,
+
+  /// user email
+  email;
 
   /// Returns the field name as a string.
   String get name {
@@ -13,6 +16,8 @@ enum FirestoreFields {
         return 'userIds';
       case createdAt:
         return 'createdAt';
+      case email:
+        return 'email';
     }
   }
 }

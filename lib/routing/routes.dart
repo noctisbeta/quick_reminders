@@ -15,7 +15,8 @@ enum Routes {
   profile,
   loading,
   error,
-  reminderGroup;
+  reminderGroup,
+  friends;
 
   /// Returns the route's name.
   String get name {
@@ -48,6 +49,8 @@ enum Routes {
         return 'error';
       case reminderGroup:
         return 'reminderGroup';
+      case friends:
+        return 'friends';
     }
   }
 
@@ -81,6 +84,8 @@ enum Routes {
         return '/error';
       case reminderGroup:
         return '/reminderGroup';
+      case friends:
+        return '/friends';
     }
   }
 
@@ -114,6 +119,8 @@ enum Routes {
         return 'error';
       case reminderGroup:
         return 'reminderGroup';
+      case friends:
+        return 'friends';
     }
   }
 }

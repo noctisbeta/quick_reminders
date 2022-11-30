@@ -16,6 +16,7 @@ import 'package:quick_reminders/home/home_view.dart';
 import 'package:quick_reminders/initialization/error_view.dart';
 import 'package:quick_reminders/initialization/loading_view.dart';
 import 'package:quick_reminders/logging/log_profile.dart';
+import 'package:quick_reminders/profile/views/friends_view.dart';
 import 'package:quick_reminders/profile/views/profile_view.dart';
 import 'package:quick_reminders/reminders/models/surface_reminder_group.dart';
 import 'package:quick_reminders/reminders/views/reminder_group_view.dart';
@@ -193,6 +194,15 @@ class RouteController {
           builder: (context, state) {
             return const ProfileView();
           },
+          routes: [
+            GoRoute(
+              path: Routes.friends.subPath,
+              name: Routes.friends.name,
+              builder: (context, state) {
+                return const FriendsView();
+              },
+            ),
+          ],
         ),
         GoRoute(
           path: Routes.reminderGroup.subPath,

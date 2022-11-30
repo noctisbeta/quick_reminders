@@ -7,7 +7,16 @@ enum FirestorePaths {
   reminderGroups,
 
   /// sub path of reminderGroups
-  reminders;
+  reminders,
+
+  /// users
+  users,
+
+  /// sub path of users
+  friends,
+
+  /// sub path of users
+  notifications;
 
   /// Returns the path to the collection.
   String get path {
@@ -18,6 +27,13 @@ enum FirestorePaths {
         return 'reminderGroups';
       case reminders:
         return 'reminders';
+
+      case users:
+        return 'users';
+      case friends:
+        return 'friends';
+      case notifications:
+        return 'notifications';
     }
   }
 }
