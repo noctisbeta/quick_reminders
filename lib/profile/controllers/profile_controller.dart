@@ -100,6 +100,7 @@ class ProfileController {
             ),
           );
 
+  /// Returns true if the logged in user has a profile.
   AsyncResult<Exception, bool> userHasProfile() => _authStore.user.match(
         none: () => tap(
           tapped: AsyncResult.value(Left(Exception('No user logged in.'))),

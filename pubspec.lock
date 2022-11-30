@@ -216,6 +216,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.1"
+  flutter_slidable:
+    dependency: "direct main"
+    description:
+      name: flutter_slidable
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.0"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -245,7 +252,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "7fcc01901d95d6c6a2567a49c06a19129038512f"
+      resolved-ref: "2d4bb6b47331b829653018299b7ed0d675a50f71"
       url: "https://github.com/noctisbeta/functional"
     source: git
     version: "0.0.1"

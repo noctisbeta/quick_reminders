@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:functional/functional.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/firebase/firestore_fields.dart';
@@ -68,6 +67,7 @@ class RemindersController {
         .collection(FirestorePaths.reminderGroups.path)
         .doc(surface.id)
         .collection(FirestorePaths.reminders.path)
+        .orderBy(FirestoreFields.createdAt.name)
         .snapshots()
         .map(
           (snapshot) => snapshot.docs.map(Reminder.fromFirestore).toList(),
@@ -94,7 +94,11 @@ class RemindersController {
   ) =>
       Task(
         () => _db.collection('reminderGroups').add(
-              SurfaceReminderGroup.forCreation(title: title, userIds: [uid]),
+              SurfaceReminderGroup.forCreation(
+                title: title,
+                userIds: [uid],
+                createdAt: FieldValue.serverTimestamp(),
+              ),
             ),
       ).attempt<Exception>();
 
@@ -102,7 +106,6 @@ class RemindersController {
   AsyncResult<Exception, DocumentReference> createReminder(
     String groupId,
     String title,
-    String description,
   ) =>
       Task(
         () => _db
@@ -112,8 +115,22 @@ class RemindersController {
             .add(
               Reminder.forCreation(
                 title: title,
-                description: description,
+                createdAt: FieldValue.serverTimestamp(),
               ),
             ),
+      ).attempt<Exception>();
+
+  /// Deletes the reminder with [reminderId] from the group with [groupId].
+  AsyncResult<Exception, Unit> deleteReminder(
+    String groupId,
+    String reminderId,
+  ) =>
+      Task.fromVoid(
+        () => _db
+            .collection(FirestorePaths.reminderGroups.path)
+            .doc(groupId)
+            .collection(FirestorePaths.reminders.path)
+            .doc(reminderId)
+            .delete(),
       ).attempt<Exception>();
 }

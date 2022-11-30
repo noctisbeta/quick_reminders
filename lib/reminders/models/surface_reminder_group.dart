@@ -27,11 +27,9 @@ class SurfaceReminderGroup {
   static Map<String, dynamic> forCreation({
     required String title,
     required List<String> userIds,
+    required FieldValue createdAt,
   }) =>
-      {
-        'title': title,
-        'userIds': userIds,
-      };
+      {'title': title, 'userIds': userIds, 'createdAt': createdAt};
 
   /// Group id.
   final String id;

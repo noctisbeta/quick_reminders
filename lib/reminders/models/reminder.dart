@@ -23,9 +23,9 @@ class Reminder {
   /// For creation.
   static Map<String, dynamic> forCreation({
     required String title,
-    required String description,
+    required FieldValue createdAt,
   }) =>
-      {'title': title, 'description': description};
+      {'title': title, 'createdAt': createdAt};
 
   /// Reminder id.
   final String id;
