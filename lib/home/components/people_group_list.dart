@@ -44,9 +44,8 @@ class PeopleGroupList extends ConsumerWidget {
                   );
                 }
 
-                return const PeopleGroupCard(
-                  title: 'asd',
-                  numReminders: 123,
+                return PeopleGroupCard(
+                  group: data.elementAt(index - 1),
                 );
               },
             ),

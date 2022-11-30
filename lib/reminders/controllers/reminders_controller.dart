@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/firebase/firestore_fields.dart';
 import 'package:quick_reminders/firebase/firestore_paths.dart';
 import 'package:quick_reminders/logging/log_profile.dart';
+import 'package:quick_reminders/reminders/models/people_group.dart';
 import 'package:quick_reminders/reminders/models/reminder.dart';
 import 'package:quick_reminders/reminders/models/surface_reminder_group.dart';
 import 'package:riverpod_firebase_authentication/riverpod_firebase_authentication.dart';
@@ -31,15 +32,17 @@ class RemindersController {
   );
 
   /// Stream of people groups.
-  static final peopleGroupStream = StreamProvider.autoDispose<List>(
+  static final peopleGroupStream =
+      StreamProvider.autoDispose<List<PeopleGroup>>(
     (ref) => ref.watch(AuthStore.provider).match(
-          none: () => Stream<List>.value([]),
+          none: () => Stream<List<PeopleGroup>>.value([]),
           some: (user) => FirebaseFirestore.instance
               .collection(FirestorePaths.peopleGroups.path)
               .where(FirestoreFields.userIds.name, arrayContains: user.uid)
               .snapshots()
               .map(
-                (snapshot) => snapshot.docs.map((doc) => doc.data()).toList(),
+                (snapshot) =>
+                    snapshot.docs.map(PeopleGroup.fromFirestore).toList(),
               ),
         ),
   );
@@ -74,6 +77,34 @@ class RemindersController {
         ),
   );
 
+  /// Creates a new people group with the given [title].
+  AsyncResult<Exception, DocumentReference> createPeopleGroup(String title) =>
+      tap(
+        tapped: _authStore.user.match(
+          none: () => tap(
+            tapped: Task.value(Left(Exception('No user signed in'))),
+            effect: () =>
+                myLog.e('No user signed in while creating a people group.'),
+          ),
+          some: (user) => _createPeopleGroupRaw(title, user.uid),
+        ),
+        effect: () => myLog.i('Created people group $title'),
+      );
+
+  AsyncResult<Exception, DocumentReference> _createPeopleGroupRaw(
+    String title,
+    String uid,
+  ) =>
+      Task(
+        () => _db.collection(FirestorePaths.peopleGroups.path).add(
+              PeopleGroup.forCreation(
+                title: title,
+                userIds: [uid],
+                createdAt: FieldValue.serverTimestamp(),
+              ),
+            ),
+      ).attempt<Exception>();
+
   /// Creates a new reminder group with the given [title].
   AsyncResult<Exception, DocumentReference> createReminderGroup(String title) =>
       tap(
@@ -93,7 +124,7 @@ class RemindersController {
     String uid,
   ) =>
       Task(
-        () => _db.collection('reminderGroups').add(
+        () => _db.collection(FirestorePaths.reminderGroups.path).add(
               SurfaceReminderGroup.forCreation(
                 title: title,
                 userIds: [uid],
@@ -132,5 +163,19 @@ class RemindersController {
             .collection(FirestorePaths.reminders.path)
             .doc(reminderId)
             .delete(),
+      ).attempt<Exception>();
+
+  /// Updates the user ids of the people in the reminder group.
+  AsyncResult<Exception, Unit> shareReminderGroupWith(
+    List<String> userIds,
+    String reminderGroupId,
+  ) =>
+      Task.fromVoid(
+        () => _db
+            .collection(FirestorePaths.reminderGroups.path)
+            .doc(reminderGroupId)
+            .update({
+          FirestoreFields.userIds.name: FieldValue.arrayUnion(userIds),
+        }),
       ).attempt<Exception>();
 }

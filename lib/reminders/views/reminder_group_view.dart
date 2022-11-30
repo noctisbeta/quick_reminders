@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/common/unfocus_on_tap.dart';
 import 'package:quick_reminders/constants/colors.dart';
+import 'package:quick_reminders/reminders/components/share_reminder_group_modal.dart';
 import 'package:quick_reminders/reminders/controllers/reminders_controller.dart';
 import 'package:quick_reminders/reminders/models/surface_reminder_group.dart';
 import 'package:quick_reminders/routing/routes.dart';
@@ -71,6 +72,18 @@ class ReminderGroupView extends HookConsumerWidget {
             title: Text(group.title),
             backgroundColor: kPrimaryColor,
             centerTitle: true,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.spatial_tracking_outlined),
+                onPressed: () => showModalBottomSheet(
+                  context: context,
+                  backgroundColor: Colors.transparent,
+                  isScrollControlled: true,
+                  builder: (context) =>
+                      ShareReminderGroupModal(reminderGroup: group),
+                ),
+              ),
+            ],
           ),
           floatingActionButton: FloatingActionButton(
             shape: const RoundedRectangleBorder(

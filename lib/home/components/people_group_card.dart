@@ -1,20 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:quick_reminders/constants/colors.dart';
+import 'package:quick_reminders/reminders/models/people_group.dart';
 
 /// Group card.
 class PeopleGroupCard extends StatelessWidget {
   /// Default constructor.
   const PeopleGroupCard({
-    required this.title,
-    required this.numReminders,
+    required this.group,
     super.key,
   });
 
-  /// Title.
-  final String title;
-
-  /// Number of reminders.
-  final int numReminders;
+  /// People group.
+  final PeopleGroup group;
 
   /// Card height.
   static double get cardHeight => 80;
@@ -38,20 +35,9 @@ class PeopleGroupCard extends StatelessWidget {
           top: 10,
           left: 10,
           child: Text(
-            title,
+            group.title,
             style: const TextStyle(
               color: kQuaternaryColor,
-            ),
-          ),
-        ),
-        Positioned(
-          bottom: 10,
-          left: 10,
-          child: Text(
-            'Reminders: $numReminders',
-            style: const TextStyle(
-              color: kQuaternaryColor,
-              fontSize: 11,
             ),
           ),
         ),
