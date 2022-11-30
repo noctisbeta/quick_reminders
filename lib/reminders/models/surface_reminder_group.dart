@@ -22,8 +22,21 @@ class SurfaceReminderGroup {
     );
   }
 
+  /// Returns a map of the group used for creation on the backend while
+  /// requiring the needed parameters.
+  static Map<String, dynamic> forCreation({
+    required String title,
+    required List<String> userIds,
+  }) =>
+      {
+        'title': title,
+        'userIds': userIds,
+      };
+
   /// Group id.
   final String id;
+
+  // TODO(Janez): Make title unique.
 
   /// The title of the group.
   final String title;

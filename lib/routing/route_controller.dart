@@ -17,6 +17,8 @@ import 'package:quick_reminders/initialization/error_view.dart';
 import 'package:quick_reminders/initialization/loading_view.dart';
 import 'package:quick_reminders/logging/log_profile.dart';
 import 'package:quick_reminders/profile/views/profile_view.dart';
+import 'package:quick_reminders/reminders/models/surface_reminder_group.dart';
+import 'package:quick_reminders/reminders/views/reminder_group_view.dart';
 import 'package:quick_reminders/routing/listenable_from_stream.dart';
 import 'package:quick_reminders/routing/routes.dart';
 import 'package:riverpod_firebase_authentication/riverpod_firebase_authentication.dart';
@@ -191,6 +193,13 @@ class RouteController {
           builder: (context, state) {
             return const ProfileView();
           },
+        ),
+        GoRoute(
+          path: '${Routes.reminderGroups.subPath}/:slug',
+          name: Routes.reminderGroups.name,
+          builder: (context, state) => ReminderGroupView(
+            group: state.extra! as SurfaceReminderGroup,
+          ),
         ),
       ],
     ),

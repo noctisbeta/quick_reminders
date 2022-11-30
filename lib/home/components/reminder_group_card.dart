@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:quick_reminders/constants/colors.dart';
 import 'package:quick_reminders/reminders/models/surface_reminder_group.dart';
-import 'package:quick_reminders/reminders/views/reminder_group_view.dart';
+import 'package:quick_reminders/routing/routes.dart';
 
 /// Group card.
 class ReminderGroupCard extends StatelessWidget {
@@ -23,10 +24,10 @@ class ReminderGroupCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => ReminderGroupView(group: group),
-        ),
+      onTap: () => context.goNamed(
+        Routes.reminderGroups.name,
+        extra: group,
+        params: {'slug': group.title.replaceAll(' ', '-')},
       ),
       child: Stack(
         children: [

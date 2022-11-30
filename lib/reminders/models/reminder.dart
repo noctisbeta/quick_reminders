@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 /// Reminder.
 class Reminder {
   /// Default constructor
@@ -7,12 +9,14 @@ class Reminder {
     required this.description,
   });
 
-  /// Creates a reminder from [map].
-  factory Reminder.fromMap(Map<String, dynamic> map) {
+  /// Creates a reminder from [docsnap].
+  factory Reminder.fromFirestore(QueryDocumentSnapshot docsnap) {
+    final map = docsnap.data()! as Map<String, dynamic>;
+
     return Reminder(
-      id: map['id'],
-      title: map['title'],
-      description: map['description'],
+      id: docsnap.id,
+      title: map['title'] ?? '',
+      description: map['description'] ?? '',
     );
   }
 

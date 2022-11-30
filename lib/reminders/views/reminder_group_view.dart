@@ -17,8 +17,8 @@ class ReminderGroupView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final contentStream =
-        ref.watch(RemindersController.reminderGroupContentStream(group.id));
+    final reminersStream =
+        ref.watch(RemindersController.reminderGroupContentStream(group));
 
     return Scaffold(
       backgroundColor: kQuaternaryColor,
@@ -27,7 +27,7 @@ class ReminderGroupView extends ConsumerWidget {
         backgroundColor: kPrimaryColor,
         centerTitle: true,
       ),
-      body: contentStream.when(
+      body: reminersStream.when(
         data: (content) => ListView.builder(
           itemCount: content.length,
           itemBuilder: (context, index) {

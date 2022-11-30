@@ -2,8 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:functional/functional.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:quick_reminders/firebase/firestore_fields.dart';
+import 'package:quick_reminders/firebase/firestore_paths.dart';
 import 'package:quick_reminders/logging/log_profile.dart';
-import 'package:quick_reminders/reminders/models/reminder_group.dart';
+import 'package:quick_reminders/reminders/models/reminder.dart';
 import 'package:quick_reminders/reminders/models/surface_reminder_group.dart';
 import 'package:riverpod_firebase_authentication/riverpod_firebase_authentication.dart';
 
@@ -34,8 +36,8 @@ class RemindersController {
     (ref) => ref.watch(AuthStore.provider).match(
           none: () => Stream<List>.value([]),
           some: (user) => FirebaseFirestore.instance
-              .collection('peopleGroups')
-              .where('userIds', arrayContains: user.uid)
+              .collection(FirestorePaths.peopleGroups.path)
+              .where(FirestoreFields.userIds.name, arrayContains: user.uid)
               .snapshots()
               .map(
                 (snapshot) => snapshot.docs.map((doc) => doc.data()).toList(),
@@ -49,8 +51,8 @@ class RemindersController {
     (ref) => ref.watch(AuthStore.provider).match(
           none: () => Stream.value([]),
           some: (user) => FirebaseFirestore.instance
-              .collection('reminderGroups')
-              .where('userIds', arrayContains: user.uid)
+              .collection(FirestorePaths.reminderGroups.path)
+              .where(FirestoreFields.userIds.name, arrayContains: user.uid)
               .snapshots()
               .map(
                 (snapshot) => snapshot.docs
@@ -62,17 +64,14 @@ class RemindersController {
 
   /// Stream of a single reminder group.
   static final reminderGroupContentStream = StreamProvider.autoDispose.family(
-    (ref, String groupId) {
-      final db = FirebaseFirestore.instance;
-
-      final collection = db
-          .collection('reminderGroups')
-          .doc(groupId)
-          .collection('content')
-          .doc('content');
-
-      return collection.snapshots().map(ReminderGroup.fromFirestore);
-    },
+    (ref, SurfaceReminderGroup surface) => FirebaseFirestore.instance
+        .collection(FirestorePaths.reminderGroups.path)
+        .doc(surface.id)
+        .collection(FirestorePaths.reminders.path)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs.map(Reminder.fromFirestore).toList(),
+        ),
   );
 
   /// Stream of a single people group.
@@ -111,9 +110,8 @@ class RemindersController {
     String uid,
   ) =>
       Task(
-        () => _db.collection('reminderGroups').add({
-          'title': title,
-          'userIds': [uid],
-        }),
+        () => _db.collection('reminderGroups').add(
+              SurfaceReminderGroup.forCreation(title: title, userIds: [uid]),
+            ),
       ).attempt<Exception>();
 }
