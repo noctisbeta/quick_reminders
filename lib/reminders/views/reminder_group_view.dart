@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:functional/functional.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:quick_reminders/constants/colors.dart';
 import 'package:quick_reminders/reminders/models/surface_reminder_group.dart';
 import 'package:quick_reminders/reminders/reminders_controller.dart';
+import 'package:quick_reminders/routing/routes.dart';
 
 /// A widget that displays a reminder group.
 class ReminderGroupView extends ConsumerWidget {
@@ -17,30 +20,41 @@ class ReminderGroupView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final reminersStream =
+    final reminders =
         ref.watch(RemindersController.reminderGroupContentStream(group));
 
-    return Scaffold(
-      backgroundColor: kQuaternaryColor,
-      appBar: AppBar(
-        title: Text(group.title),
-        backgroundColor: kPrimaryColor,
-        centerTitle: true,
-      ),
-      body: reminersStream.when(
-        data: (content) => ListView.builder(
-          itemCount: content.length,
-          itemBuilder: (context, index) {
-            final reminder = content[index];
-            return ListTile(
-              title: Text(reminder.title),
-              subtitle: Text(reminder.description),
-            );
-          },
+    return WillPopScope(
+      onWillPop: () async {
+        context.goNamed(Routes.home.name);
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: kQuaternaryColor,
+        appBar: AppBar(
+          title: Text(group.title),
+          backgroundColor: kPrimaryColor,
+          centerTitle: true,
         ),
-        error: (err, trace) => Text(err.toString()),
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {},
+          backgroundColor: kPrimaryColor,
+          child: const Icon(Icons.add),
+        ),
+        body: reminders.when(
+          data: (content) => ListView.builder(
+            itemCount: content.length,
+            itemBuilder: (context, index) {
+              final reminder = content[index];
+              return ListTile(
+                title: Text(reminder.title),
+                subtitle: Text(reminder.description),
+              );
+            },
+          ),
+          error: (err, trace) => Text(err.toString()),
+          loading: () => const Center(
+            child: CircularProgressIndicator(),
+          ),
         ),
       ),
     );

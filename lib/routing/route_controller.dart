@@ -195,11 +195,15 @@ class RouteController {
           },
         ),
         GoRoute(
-          path: '${Routes.reminderGroups.subPath}/:slug',
-          name: Routes.reminderGroups.name,
-          builder: (context, state) => ReminderGroupView(
-            group: state.extra! as SurfaceReminderGroup,
+          path: Routes.reminderGroup.subPath,
+          name: Routes.reminderGroup.name,
+          redirect: (context, state) =>
+              Option.of(state.extra as SurfaceReminderGroup?).match(
+            none: () => Routes.home.path,
+            some: (group) => null,
           ),
+          builder: (context, state) =>
+              ReminderGroupView(group: state.extra! as SurfaceReminderGroup),
         ),
       ],
     ),

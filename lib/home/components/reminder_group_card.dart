@@ -25,9 +25,8 @@ class ReminderGroupCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => context.goNamed(
-        Routes.reminderGroups.name,
+        Routes.reminderGroup.name,
         extra: group,
-        params: {'slug': group.title.replaceAll(' ', '-')},
       ),
       child: Stack(
         children: [
