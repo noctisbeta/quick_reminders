@@ -7,8 +7,8 @@ import 'package:quick_reminders/firebase/firestore_fields.dart';
 import 'package:quick_reminders/firebase/firestore_paths.dart';
 import 'package:quick_reminders/logging/log_profile.dart';
 import 'package:quick_reminders/profile/models/friend.dart';
-import 'package:quick_reminders/profile/models/notification.dart';
 import 'package:quick_reminders/profile/models/profile.dart';
+import 'package:quick_reminders/profile/models/quick_notification.dart';
 import 'package:riverpod_firebase_authentication/riverpod_firebase_authentication.dart';
 
 /// Profile controller.
@@ -38,6 +38,16 @@ class ProfileController {
   /// Auth store.
   final AuthStore _authStore;
 
+  /// Returns a user profile of userId.
+  static final userProfileStreamProvider =
+      StreamProvider.autoDispose.family<Profile, String>(
+    (ref, userId) => FirebaseFirestore.instance
+        .collection(FirestorePaths.users.path)
+        .doc(userId)
+        .snapshots()
+        .map(Profile.fromFirestore),
+  );
+
   /// Provides the profile stream.
   static final profileStreamProvider = StreamProvider.autoDispose((ref) {
     final db = FirebaseFirestore.instance;
@@ -45,11 +55,12 @@ class ProfileController {
     return ref.watch(AuthStore.provider).match(
           none: () => Stream.value(Profile.empty()),
           some: (user) => db.collection('users').doc(user.uid).snapshots().map(
-                Profile.fromSnapshot,
+                Profile.fromFirestore,
               ),
         );
   });
 
+  /// Provides the friends stream.
   static final friendStream = StreamProvider.autoDispose<List<Friend>>(
     (ref) => ref.watch(AuthStore.provider).match(
           none: () => Stream.value([]),
@@ -59,6 +70,20 @@ class ProfileController {
               .collection(FirestorePaths.friends.path)
               .snapshots()
               .map((event) => event.docs.map(Friend.fromFirestore).toList()),
+        ),
+  );
+
+  /// Provides the notifications stream.
+  static final notificationsStreamProvider =
+      StreamProvider.autoDispose<List<QuickNotification>>(
+    (ref) => FirebaseFirestore.instance
+        .collection(FirestorePaths.users.path)
+        // TODO(Janez): Cannot unwrap here, authStore can be not initialized.
+        .doc(ref.watch(AuthStore.provider).unwrap().uid)
+        .collection(FirestorePaths.notifications.path)
+        .snapshots()
+        .map(
+          (event) => event.docs.map(QuickNotification.fromFirestore).toList(),
         ),
   );
 
@@ -157,7 +182,36 @@ class ProfileController {
   ) =>
       Task(
         () => reference.collection(FirestorePaths.notifications.path).add(
-              Notification.friendRequestCreation(_authStore.user.unwrap().uid),
+              FriendRequest.forCreation(_authStore.user.unwrap().uid),
             ),
+      ).attempt<Exception>();
+
+  /// Accepts a friend request from the user with [friendId].
+  AsyncResult<Exception, Unit> acceptFriendRequest(
+    String friendId,
+  ) =>
+      Task.fromVoid(
+        () => _db
+            .collection(FirestorePaths.users.path)
+            .doc(_authStore.user.unwrap().uid)
+            .collection(FirestorePaths.friends.path)
+            .doc(friendId)
+            // TODO(Janez): What to put in the friend document body?
+            .set({
+          'friendsSince': FieldValue.serverTimestamp(),
+        }),
+      ).attempt<Exception>();
+
+  /// Deletes a friend request from the user with [notificationId].
+  AsyncResult<Exception, Unit> deleteFriendRequest(
+    String notificationId,
+  ) =>
+      Task.fromVoid(
+        () => _db
+            .collection(FirestorePaths.users.path)
+            .doc(_authStore.user.unwrap().uid)
+            .collection(FirestorePaths.notifications.path)
+            .doc(notificationId)
+            .delete(),
       ).attempt<Exception>();
 }
