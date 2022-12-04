@@ -67,12 +67,10 @@ class FriendRequest extends QuickNotification {
   final String senderId;
 
   /// Friend request for creation.
-  static Map<String, dynamic> forCreation(
-    String senderId,
-  ) {
+  static Map<String, dynamic> forCreation(String senderId) {
     return {
-      'type': QuickNotificationType.friendRequest.name,
       'senderId': senderId,
+      'type': QuickNotificationType.friendRequest.name,
       'createdAt': FieldValue.serverTimestamp(),
     };
   }

@@ -187,7 +187,7 @@ class ProfileController {
       ).attempt<Exception>();
 
   /// Accepts a friend request from the user with [friendId].
-  AsyncResult<Exception, Unit> acceptFriendRequest(
+  AsyncResult<Exception, DocumentReference> acceptFriendRequest(
     String friendId,
   ) =>
       Task.fromVoid(
@@ -200,7 +200,25 @@ class ProfileController {
             .set({
           'friendsSince': FieldValue.serverTimestamp(),
         }),
-      ).attempt<Exception>();
+      )
+          .attempt<Exception>()
+          .bindEither((_) => _sendFriendRequestAcceptedNotification(friendId));
+
+  AsyncResult<Exception, DocumentReference>
+      _sendFriendRequestAcceptedNotification(
+    String friendId,
+  ) =>
+          Task(
+            () => _db
+                .collection(FirestorePaths.users.path)
+                .doc(friendId)
+                .collection(FirestorePaths.notifications.path)
+                .add(
+                  FriendRequestAccepted.forCreation(
+                    _authStore.user.unwrap().uid,
+                  ),
+                ),
+          ).attempt<Exception>();
 
   /// Deletes a friend request from the user with [notificationId].
   AsyncResult<Exception, Unit> deleteFriendRequest(
